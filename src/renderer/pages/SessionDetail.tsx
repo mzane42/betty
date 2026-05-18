@@ -191,9 +191,9 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
               <th>Pos</th>
               <th>Cartes</th>
               <th>Board</th>
-              <th className="num">Pot</th>
-              <th className="num">Investi</th>
-              <th className="num">Net</th>
+              <th className="num">Pot (jetons)</th>
+              <th className="num">Investi (jetons)</th>
+              <th className="num">Net (jetons)</th>
               <th></th>
             </tr>
           </thead>
@@ -221,10 +221,10 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
                         <BoardTextureTags board={h.board_parsed} />
                       </div>
                     </td>
-                    <td className="num">{h.total_pot}</td>
-                    <td className="num">{h.hero_invested}</td>
+                    <td className="num"><ChipNumber value={h.total_pot} /></td>
+                    <td className="num"><ChipNumber value={h.hero_invested} /></td>
                     <td className="num">
-                      <ProfitBadge value={h.hero_net} size="sm" />
+                      <ProfitBadge value={h.hero_net} size="sm" unit="chips" />
                     </td>
                     <td>
                       <ResultIcon net={h.hero_net} invested={h.hero_invested} />
@@ -256,7 +256,7 @@ function HighlightList({ hands }: { hands: SessionHand[] }): JSX.Element {
           <span className="hand-num">#{h.hand_number}</span>
           <span className="hand-cards"><CardGroup cards={h.hero_cards_parsed} size="sm" withStrength /></span>
           <PositionBadge position={h.hero_position} />
-          <ProfitBadge value={h.hero_net} size="sm" />
+          <ProfitBadge value={h.hero_net} size="sm" unit="chips" />
         </li>
       ))}
     </ul>
@@ -265,6 +265,23 @@ function HighlightList({ hands }: { hands: SessionHand[] }): JSX.Element {
 
 function translateVerdict(v: 'winning' | 'even' | 'losing'): string {
   return { winning: 'SESSION GAGNANTE', even: 'SESSION ÉQUILIBRÉE', losing: 'SESSION PERDANTE' }[v];
+}
+
+function ChipNumber({ value }: { value: number }): JSX.Element {
+  return (
+    <span className="chip-number">
+      {Math.round(value).toLocaleString('fr-FR')}
+      <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden style={{ verticalAlign: '-1px', marginLeft: 3, opacity: 0.7 }}>
+        <circle cx="8" cy="8" r="7" fill="currentColor" opacity="0.18" />
+        <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" strokeWidth="1.2" />
+        <circle cx="8" cy="8" r="3.2" fill="none" stroke="currentColor" strokeWidth="1" />
+        <line x1="8" y1="0.6" x2="8" y2="3" stroke="currentColor" strokeWidth="1.2" />
+        <line x1="8" y1="13" x2="8" y2="15.4" stroke="currentColor" strokeWidth="1.2" />
+        <line x1="0.6" y1="8" x2="3" y2="8" stroke="currentColor" strokeWidth="1.2" />
+        <line x1="13" y1="8" x2="15.4" y2="8" stroke="currentColor" strokeWidth="1.2" />
+      </svg>
+    </span>
+  );
 }
 
 function SparkleIcon(): JSX.Element {
