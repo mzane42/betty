@@ -133,3 +133,44 @@ CREATE INDEX IF NOT EXISTS idx_tournaments_hero ON tournaments(hero_account);
 CREATE INDEX IF NOT EXISTS idx_sessions_date ON sessions(session_date);
 CREATE INDEX IF NOT EXISTS idx_actions_player_allin ON actions(player_name, is_all_in, street);
 CREATE INDEX IF NOT EXISTS idx_hands_invested ON hands(hero_account, hero_invested, hero_won);
+
+CREATE TABLE IF NOT EXISTS hand_reviews (
+  hand_id TEXT PRIMARY KEY,
+  verdict TEXT NOT NULL,
+  overall TEXT,
+  key_moments_json TEXT,
+  alternative_line TEXT,
+  lessons_json TEXT,
+  raw_response TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS tournament_reviews (
+  tournament_id TEXT PRIMARY KEY,
+  tournament_verdict TEXT NOT NULL,
+  summary TEXT,
+  phase_analysis_json TEXT,
+  pivot_hand_json TEXT,
+  key_decisions_json TEXT,
+  lessons_json TEXT,
+  raw_response TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS session_reviews (
+  session_date TEXT NOT NULL,
+  hero_account TEXT NOT NULL,
+  session_verdict TEXT NOT NULL,
+  summary TEXT,
+  patterns_json TEXT,
+  biggest_mistake_json TEXT,
+  biggest_win_json TEXT,
+  lessons_json TEXT,
+  next_session_focus TEXT,
+  raw_response TEXT,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (session_date, hero_account)
+);
+
+CREATE INDEX IF NOT EXISTS idx_hand_reviews_verdict ON hand_reviews(verdict);
+CREATE INDEX IF NOT EXISTS idx_tournament_reviews_verdict ON tournament_reviews(tournament_verdict);

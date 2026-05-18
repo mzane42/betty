@@ -79,6 +79,35 @@ export interface SessionReviewResult {
   rawResponse: string;
 }
 
+export interface HandReviewResult {
+  verdict: 'good' | 'okay' | 'mistake' | 'blunder';
+  overall: string;
+  keyMoments: { street: string; issue: string; suggestion: string }[];
+  alternativeLine: string;
+  lessons: string[];
+  rawResponse: string;
+}
+
+export interface TournamentReviewResult {
+  tournamentVerdict: 'won' | 'deep' | 'early-bust';
+  summary: string;
+  phaseAnalysis: {
+    phase: 'early' | 'mid' | 'late' | 'heads-up';
+    stack_range: string;
+    play_quality: 'good' | 'okay' | 'leaky';
+    comment: string;
+  }[];
+  pivotHand: { hand_number: string; description: string } | null;
+  keyDecisions: {
+    hand_number: string;
+    decision: string;
+    verdict: 'good' | 'okay' | 'mistake' | 'blunder';
+    lesson: string;
+  }[];
+  lessons: string[];
+  rawResponse: string;
+}
+
 interface PokerApi {
   getBankrollSummary(): Promise<BankrollSummary>;
   getYearlyBankroll(): Promise<YearlyBankroll[]>;
@@ -93,8 +122,13 @@ interface PokerApi {
   getHand(handId: string): Promise<HandDetailResult | null>;
   importNewSession(): Promise<ImportResult>;
   importAll(force?: boolean): Promise<ImportResult>;
-  reviewHand(handId: string): Promise<unknown>;
+  reviewHand(handId: string): Promise<HandReviewResult>;
   reviewSession(sessionId: string): Promise<SessionReviewResult>;
+  reviewTournament(tournamentId: string): Promise<TournamentReviewResult>;
+  getCachedHandReview(handId: string): Promise<HandReviewResult | null>;
+  getCachedSessionReview(sessionDate: string): Promise<SessionReviewResult | null>;
+  getCachedTournamentReview(tournamentId: string): Promise<TournamentReviewResult | null>;
+  getHandReviewsForSession(sessionDate: string): Promise<Record<string, { verdict: string; overall: string }>>;
   getLeaks(): Promise<Leak[]>;
   getGameRecommendations(): Promise<GameRecommendation[]>;
   getProgress(granularity?: 'quarter' | 'month'): Promise<ProgressPoint[]>;

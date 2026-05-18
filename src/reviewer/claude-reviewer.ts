@@ -2,10 +2,14 @@ import { spawn } from 'node:child_process';
 import type {
   HandReviewResult,
   HandVerdict,
+  KeyDecision,
   KeyMoment,
+  PhaseAnalysis,
   SessionPattern,
   SessionReviewResult,
-  SessionVerdict
+  SessionVerdict,
+  TournamentReviewResult,
+  TournamentVerdict
 } from './review-types.js';
 
 const CLAUDE_BIN = process.env.POKER_CLAUDE_BIN || '/Users/bubblz/.nvm/versions/node/v23.3.0/bin/claude';
@@ -128,6 +132,28 @@ export async function reviewSession(
     biggestWin: (json['biggest_win'] as { handId: string; description: string } | null) ?? null,
     lessons: (json['lessons'] as string[]) ?? [],
     nextSessionFocus: (json['next_session_focus'] as string) ?? '',
+    rawResponse: raw
+  };
+}
+
+export async function reviewTournament(
+  systemPrompt: string,
+  tournamentText: string
+): Promise<TournamentReviewResult> {
+  const raw = await invokeClaude({
+    systemPrompt,
+    userPrompt: `Review this tournament and respond ONLY with a JSON object as specified.\n\n${tournamentText}`,
+    timeoutMs: 180_000
+  });
+
+  const json = extractJson(raw);
+  return {
+    tournamentVerdict: (json['tournament_verdict'] as TournamentVerdict) ?? 'early-bust',
+    summary: (json['summary'] as string) ?? '',
+    phaseAnalysis: (json['phase_analysis'] as PhaseAnalysis[]) ?? [],
+    pivotHand: (json['pivot_hand'] as { hand_number: string; description: string } | null) ?? null,
+    keyDecisions: (json['key_decisions'] as KeyDecision[]) ?? [],
+    lessons: (json['lessons'] as string[]) ?? [],
     rawResponse: raw
   };
 }

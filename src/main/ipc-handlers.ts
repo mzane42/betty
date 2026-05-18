@@ -15,6 +15,15 @@ import {
 import { derivePlayerStats } from '../stats/derived-stats.js';
 import type { PlayerStatsRaw } from '../types/player.js';
 import { bulkImport } from '../importer/bulk-importer.js';
+import {
+  saveHandReview,
+  saveSessionReview,
+  saveTournamentReview,
+  getHandReview,
+  getSessionReview,
+  getTournamentReview,
+  getHandReviewsForSession
+} from '../db/repositories/review-repository.js';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
@@ -197,10 +206,19 @@ export function registerIpcHandlers(): void {
 
   // Review
   ipcMain.handle('review:hand', async (_, handId: string) => {
-    const { loadBasePrompt, renderHandForReview, reviewHand } = await import('../reviewer/index.js');
-    const systemPrompt = loadBasePrompt();
-    const handText = renderHandForReview(db(), handId);
-    return reviewHand(systemPrompt, handText);
+    try {
+      const { loadBasePrompt, renderHandForReview, reviewHand } = await import('../reviewer/index.js');
+      const systemPrompt = loadBasePrompt();
+      const handText = renderHandForReview(db(), handId);
+      console.log('[review:hand]', handId, 'prompt:', handText.length, 'chars');
+      const result = await reviewHand(systemPrompt, handText);
+      saveHandReview(db(), handId, result);
+      console.log('[review:hand] done, verdict:', result.verdict);
+      return result;
+    } catch (err) {
+      console.error('[review:hand] failed:', err);
+      throw err;
+    }
   });
 
   ipcMain.handle('review:session', async (_, sessionDate: string) => {
@@ -212,12 +230,44 @@ export function registerIpcHandlers(): void {
       const sessionText = renderSessionForReview(db(), sessionDate, HERO_ACCOUNT);
       console.log('[review:session]', sessionDate, 'prompt:', sessionText.length, 'chars');
       const result = await reviewSession(systemPrompt, sessionText);
+      saveSessionReview(db(), sessionDate, HERO_ACCOUNT, result);
       console.log('[review:session] done, verdict:', result.sessionVerdict);
       return result;
     } catch (err) {
       console.error('[review:session] failed:', err);
       throw err;
     }
+  });
+
+  ipcMain.handle('review:tournament', async (_, tournamentId: string) => {
+    try {
+      const { loadTournamentPrompt, renderTournamentForReview, reviewTournament } = await import(
+        '../reviewer/index.js'
+      );
+      const systemPrompt = loadTournamentPrompt();
+      const tournamentText = renderTournamentForReview(db(), tournamentId, HERO_ACCOUNT);
+      console.log('[review:tournament]', tournamentId, 'prompt:', tournamentText.length, 'chars');
+      const result = await reviewTournament(systemPrompt, tournamentText);
+      saveTournamentReview(db(), tournamentId, result);
+      console.log('[review:tournament] done, verdict:', result.tournamentVerdict);
+      return result;
+    } catch (err) {
+      console.error('[review:tournament] failed:', err);
+      throw err;
+    }
+  });
+
+  // Cached review fetches (no Claude call, just DB read)
+  ipcMain.handle('reviews:hand-cached', (_, handId: string) => getHandReview(db(), handId));
+  ipcMain.handle('reviews:session-cached', (_, sessionDate: string) =>
+    getSessionReview(db(), sessionDate, HERO_ACCOUNT)
+  );
+  ipcMain.handle('reviews:tournament-cached', (_, tournamentId: string) =>
+    getTournamentReview(db(), tournamentId)
+  );
+  ipcMain.handle('reviews:hands-for-session', (_, sessionDate: string) => {
+    const map = getHandReviewsForSession(db(), sessionDate, HERO_ACCOUNT);
+    return Object.fromEntries(map);
   });
 }
 

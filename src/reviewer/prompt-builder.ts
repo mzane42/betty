@@ -116,6 +116,10 @@ export function loadSessionPrompt(): string {
   return readPromptFile('review-session.md');
 }
 
+export function loadTournamentPrompt(): string {
+  return readPromptFile('review-tournament.md');
+}
+
 function readPromptFile(name: string): string {
   const candidates = [
     join(__dirname, '../../prompts', name),
@@ -201,6 +205,76 @@ export function renderSessionForReview(db: Database, sessionDate: string, heroAc
     lines.push(
       `#${i + 1} [${h.hand_id}] ${h.hero_position ?? '?'} ${cards} ` +
         `pot=${h.total_pot} inv=${h.hero_invested} net=${h.hero_net} (${netBb} BB) ` +
+        (board ? `board=[${board}]` : 'pre-flop ended')
+    );
+  });
+
+  return lines.join('\n');
+}
+
+export function renderTournamentForReview(db: Database, tournamentId: string, heroAccount: string): string {
+  const t = db
+    .prepare(
+      `SELECT tournament_id, name, buy_in, rake, hero_finish_position, hero_winnings, start_time
+       FROM tournaments WHERE tournament_id = ? AND hero_account = ?`
+    )
+    .get(tournamentId, heroAccount) as
+    | {
+        tournament_id: string;
+        name: string;
+        buy_in: number;
+        rake: number;
+        hero_finish_position: number;
+        hero_winnings: number | null;
+        start_time: string;
+      }
+    | undefined;
+  if (!t) throw new Error(`Tournament not found: ${tournamentId}`);
+
+  const won = t.hero_winnings ?? 0;
+  const cost = t.buy_in + t.rake;
+  const lines: string[] = [];
+  lines.push(`Tournament: ${t.tournament_id} (${t.name})`);
+  lines.push(`Buy-in: ${cost.toFixed(2)}€`);
+  lines.push(`Hero account: ${heroAccount}`);
+  lines.push(`Finish position: ${t.hero_finish_position}`);
+  lines.push(`Won: ${won.toFixed(2)}€`);
+  lines.push(`Net: ${(won - cost).toFixed(2)}€`);
+  lines.push(`Started: ${t.start_time}`);
+  lines.push('');
+
+  const hands = db
+    .prepare(
+      `SELECT h.hand_id, h.hero_position, h.hero_cards, h.big_blind, h.board,
+        h.hero_invested, h.hero_won, h.total_pot,
+        (h.hero_won - h.hero_invested) as hero_net,
+        h.played_at
+       FROM hands h
+       WHERE h.tournament_id = ? AND h.hero_account = ?
+       ORDER BY h.played_at ASC, h.hand_id ASC`
+    )
+    .all(tournamentId, heroAccount) as Array<{
+    hand_id: string;
+    hero_position: string | null;
+    hero_cards: string | null;
+    big_blind: number;
+    board: string | null;
+    hero_invested: number;
+    hero_won: number;
+    total_pot: number;
+    hero_net: number;
+    played_at: string;
+  }>;
+
+  lines.push(`Hands: ${hands.length}`);
+  lines.push('');
+  hands.forEach((h, i) => {
+    const cards = h.hero_cards ? (JSON.parse(h.hero_cards) as string[]).join('') : '--';
+    const board = h.board ? (JSON.parse(h.board) as string[]).join(' ') : '';
+    const netBb = h.big_blind > 0 ? (h.hero_net / h.big_blind).toFixed(1) : '?';
+    lines.push(
+      `#${i + 1} [${h.hand_id}] ${h.hero_position ?? '?'} ${cards} ` +
+        `BB=${h.big_blind} pot=${h.total_pot} inv=${h.hero_invested} net=${h.hero_net} (${netBb} BB) ` +
         (board ? `board=[${board}]` : 'pre-flop ended')
     );
   });

@@ -26,6 +26,16 @@ const api = {
   reviewHand: (handId: string) => ipcRenderer.invoke('review:hand', handId),
   reviewSession: (sessionId: string) =>
     ipcRenderer.invoke('review:session', sessionId),
+  reviewTournament: (tournamentId: string) =>
+    ipcRenderer.invoke('review:tournament', tournamentId),
+  getCachedHandReview: (handId: string) =>
+    ipcRenderer.invoke('reviews:hand-cached', handId),
+  getCachedSessionReview: (sessionDate: string) =>
+    ipcRenderer.invoke('reviews:session-cached', sessionDate),
+  getCachedTournamentReview: (tournamentId: string) =>
+    ipcRenderer.invoke('reviews:tournament-cached', tournamentId),
+  getHandReviewsForSession: (sessionDate: string) =>
+    ipcRenderer.invoke('reviews:hands-for-session', sessionDate),
 
   getLeaks: () => ipcRenderer.invoke('analytics:leaks'),
   getGameRecommendations: () => ipcRenderer.invoke('analytics:game-recommendations'),

@@ -16,12 +16,22 @@ export function Sessions({ onSelect }: SessionsProps): JSX.Element {
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [verdicts, setVerdicts] = useState<Record<string, string>>({});
+
   useEffect(() => {
     pokerApi
       .getSessions(100, 0)
       .then((s) => {
         setSessions(s);
         setLoading(false);
+        // Fire and forget: fetch cached verdicts in parallel
+        Promise.all(
+          s.map((row) => pokerApi.getCachedSessionReview(row.session_date).then((r) => [row.session_date, r?.sessionVerdict ?? null] as const))
+        ).then((entries) => {
+          const map: Record<string, string> = {};
+          for (const [d, v] of entries) if (v) map[d] = v;
+          setVerdicts(map);
+        });
       })
       .catch(() => setLoading(false));
   }, []);
@@ -59,6 +69,7 @@ export function Sessions({ onSelect }: SessionsProps): JSX.Element {
             <SortHeader label={<>Gains<InfoTooltip text={TIPS.winnings} /></>} sortKey="winnings" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
             <SortHeader label={<>Net<InfoTooltip text={TIPS.netResult} /></>} sortKey="net" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
             <SortHeader label={<>Bankroll après<InfoTooltip text={TIPS.bankrollAfter} /></>} sortKey="running" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
+            <th>IA</th>
           </tr>
         </thead>
         <tbody>
@@ -73,6 +84,13 @@ export function Sessions({ onSelect }: SessionsProps): JSX.Element {
               </td>
               <td className="num">
                 <ProfitBadge value={s.running} size="sm" />
+              </td>
+              <td>
+                {verdicts[s.session_date] && (
+                  <span className={`verdict-badge t-verdict-${verdicts[s.session_date] === 'winning' ? 'won' : verdicts[s.session_date] === 'losing' ? 'early-bust' : 'deep'}`} style={{ fontSize: 9 }}>
+                    {verdicts[s.session_date] === 'winning' ? '✓ Analysé' : verdicts[s.session_date] === 'losing' ? '✗ Analysé' : '= Analysé'}
+                  </span>
+                )}
               </td>
             </tr>
           ))}

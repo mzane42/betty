@@ -33,3 +33,29 @@ export interface SessionReviewResult {
   nextSessionFocus: string;
   rawResponse: string;
 }
+
+export type TournamentVerdict = 'won' | 'deep' | 'early-bust';
+
+export interface PhaseAnalysis {
+  phase: 'early' | 'mid' | 'late' | 'heads-up';
+  stack_range: string;
+  play_quality: 'good' | 'okay' | 'leaky';
+  comment: string;
+}
+
+export interface KeyDecision {
+  hand_number: string;
+  decision: string;
+  verdict: HandVerdict;
+  lesson: string;
+}
+
+export interface TournamentReviewResult {
+  tournamentVerdict: TournamentVerdict;
+  summary: string;
+  phaseAnalysis: PhaseAnalysis[];
+  pivotHand: { hand_number: string; description: string } | null;
+  keyDecisions: KeyDecision[];
+  lessons: string[];
+  rawResponse: string;
+}
