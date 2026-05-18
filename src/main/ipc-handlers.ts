@@ -110,33 +110,8 @@ export function registerIpcHandlers(): void {
   });
 
   // Import
-  ipcMain.handle('import:new-session', () => {
-    const historyDir = join(
-      homedir(),
-      'Documents',
-      'Winamax Poker',
-      'accounts',
-      HERO_ACCOUNT,
-      'history'
-    );
-    const result = bulkImport(db(), { historyDir, heroAccount: HERO_ACCOUNT });
-    rebuildPlayerStats(db(), HERO_ACCOUNT);
-    return result;
-  });
-
-  ipcMain.handle('import:all', (_, { force = false } = {}) => {
-    const historyDir = join(
-      homedir(),
-      'Documents',
-      'Winamax Poker',
-      'accounts',
-      HERO_ACCOUNT,
-      'history'
-    );
-    const result = bulkImport(db(), { historyDir, heroAccount: HERO_ACCOUNT, force });
-    rebuildPlayerStats(db(), HERO_ACCOUNT);
-    return result;
-  });
+  ipcMain.handle('import:new-session', () => runImport(false));
+  ipcMain.handle('import:all', (_, { force = false } = {}) => runImport(force));
 
   // Review
   ipcMain.handle('review:hand', async (_, handId: string) => {
@@ -154,6 +129,39 @@ export function registerIpcHandlers(): void {
     const sessionText = renderSessionForReview(db(), sessionDate, HERO_ACCOUNT);
     return reviewSession(systemPrompt, sessionText);
   });
+}
+
+function runImport(force: boolean) {
+  const dirs = [
+    join(homedir(), 'Documents', 'Winamax Poker', 'accounts', HERO_ACCOUNT, 'history'),
+    join(
+      homedir(),
+      'Library',
+      'Application Support',
+      'winamax',
+      'documents',
+      'accounts',
+      HERO_ACCOUNT,
+      'history'
+    )
+  ];
+  let totalFiles = 0;
+  let totalHands = 0;
+  let totalTournaments = 0;
+  const errors: { file: string; message: string }[] = [];
+  for (const historyDir of dirs) {
+    try {
+      const result = bulkImport(db(), { historyDir, heroAccount: HERO_ACCOUNT, force });
+      totalFiles += result.filesProcessed;
+      totalHands += result.handsImported;
+      totalTournaments += result.tournamentsImported;
+      errors.push(...result.errors);
+    } catch {
+      // dir missing — skip
+    }
+  }
+  rebuildPlayerStats(db(), HERO_ACCOUNT);
+  return { filesProcessed: totalFiles, handsImported: totalHands, tournamentsImported: totalTournaments, errors };
 }
 
 function rowToRaw(r: Record<string, unknown>): PlayerStatsRaw {

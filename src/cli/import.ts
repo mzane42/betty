@@ -32,10 +32,24 @@ function parseArgs(argv: string[]): Args {
       process.exit(0);
     }
   }
-  if (!args.dir) {
-    args.dir = join(homedir(), 'Documents', 'Winamax Poker', 'accounts', args.account, 'history');
-  }
   return args;
+}
+
+function getHistoryDirs(account: string, override?: string): string[] {
+  if (override) return [override];
+  return [
+    join(homedir(), 'Documents', 'Winamax Poker', 'accounts', account, 'history'),
+    join(
+      homedir(),
+      'Library',
+      'Application Support',
+      'winamax',
+      'documents',
+      'accounts',
+      account,
+      'history'
+    )
+  ];
 }
 
 function printHelp(): void {
@@ -56,36 +70,54 @@ Example:
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  process.stdout.write(`Importing from: ${args.dir}\n`);
+  const dirs = getHistoryDirs(args.account, args.dir);
   process.stdout.write(`Hero account:   ${args.account}\n`);
   process.stdout.write(`Database:       ${args.dbPath}\n`);
-  process.stdout.write(`Force re-import: ${args.force}\n\n`);
+  process.stdout.write(`Force re-import: ${args.force}\n`);
+  process.stdout.write(`History dirs:\n`);
+  for (const d of dirs) process.stdout.write(`  - ${d}\n`);
+  process.stdout.write('\n');
 
   const start = Date.now();
   const db = openDatabase({ dbPath: args.dbPath });
 
-  const result = bulkImport(db, {
-    historyDir: args.dir!,
-    heroAccount: args.account,
-    force: args.force,
-    onProgress: (p) => {
-      if (p.fileIndex % 100 === 0 || p.fileIndex === p.totalFiles) {
-        const pct = ((p.fileIndex / p.totalFiles) * 100).toFixed(1);
-        process.stdout.write(
-          `[${pct}%] ${p.fileIndex}/${p.totalFiles} files — ${p.totalHandsImported} hands imported\n`
-        );
-      }
+  let totalFiles = 0;
+  let totalHands = 0;
+  let totalTournaments = 0;
+  const allErrors: { file: string; message: string }[] = [];
+
+  for (const dir of dirs) {
+    try {
+      const result = bulkImport(db, {
+        historyDir: dir,
+        heroAccount: args.account,
+        force: args.force,
+        onProgress: (p) => {
+          if (p.fileIndex % 100 === 0 || p.fileIndex === p.totalFiles) {
+            const pct = ((p.fileIndex / p.totalFiles) * 100).toFixed(1);
+            process.stdout.write(
+              `[${pct}%] ${p.fileIndex}/${p.totalFiles} files — ${p.totalHandsImported} hands imported (${dir.split('/').slice(-3).join('/')})\n`
+            );
+          }
+        }
+      });
+      totalFiles += result.filesProcessed;
+      totalHands += result.handsImported;
+      totalTournaments += result.tournamentsImported;
+      allErrors.push(...result.errors);
+    } catch (err) {
+      process.stdout.write(`  skipped ${dir}: ${(err as Error).message}\n`);
     }
-  });
+  }
 
   const elapsed = ((Date.now() - start) / 1000).toFixed(2);
   process.stdout.write(`\n--- Import Complete (${elapsed}s) ---\n`);
-  process.stdout.write(`Files processed:       ${result.filesProcessed}\n`);
-  process.stdout.write(`Hands imported:        ${result.handsImported}\n`);
-  process.stdout.write(`Tournaments imported:  ${result.tournamentsImported}\n`);
-  process.stdout.write(`Errors:                ${result.errors.length}\n`);
-  if (result.errors.length > 0) {
-    for (const e of result.errors.slice(0, 5)) {
+  process.stdout.write(`Files processed:       ${totalFiles}\n`);
+  process.stdout.write(`Hands imported:        ${totalHands}\n`);
+  process.stdout.write(`Tournaments imported:  ${totalTournaments}\n`);
+  process.stdout.write(`Errors:                ${allErrors.length}\n`);
+  if (allErrors.length > 0) {
+    for (const e of allErrors.slice(0, 5)) {
       process.stdout.write(`  ${e.file}: ${e.message}\n`);
     }
   }

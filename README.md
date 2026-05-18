@@ -8,12 +8,13 @@ Post-session poker analytics platform with bankroll focus. Built for mzane42 on 
 # Install deps (use npm, not bun — Bun installs x86_64 Electron)
 npm install
 
-# Rebuild native modules for Electron (auto-runs on install)
-npm run rebuild
-
-# Import all your Winamax history into SQLite
+# Import all your Winamax history into SQLite (both legacy + new dirs)
 npm run import
 ```
+
+The import scans **both** Winamax history locations automatically:
+- Legacy: `~/Documents/Winamax Poker/accounts/<account>/history/`
+- Current: `~/Library/Application Support/winamax/documents/accounts/<account>/history/`
 
 ## Run
 
@@ -32,19 +33,21 @@ npm run package:mac
 
 ```bash
 # View bankroll + stats summary
-npx tsx src/cli/stats.ts
+npm run stats
 
 # Find leaks + game recommendations
-npx tsx src/cli/leaks.ts
-
-# Review a hand or session with Claude AI
-npx tsx src/cli/review.ts hand <hand_id>
-npx tsx src/cli/review.ts session <YYYY-MM-DD>
-npx tsx src/cli/review.ts last-loss
+npm run leaks
 
 # Force re-import everything
 npx tsx src/cli/import.ts --force
+
+# Review a hand or session with Claude AI (slow — uses claude CLI)
+npx tsx src/cli/review.ts hand <hand_id>
+npx tsx src/cli/review.ts session <YYYY-MM-DD>
+npx tsx src/cli/review.ts last-loss
 ```
+
+CLI scripts auto-rebuild better-sqlite3 for Node ABI. `npm run dev` auto-rebuilds for Electron ABI. They use different ABIs — switching tools triggers a rebuild (~2 seconds).
 
 ## Tests
 
@@ -63,11 +66,19 @@ npm test
 
 ## Troubleshooting
 
-**Error: "module compiled against different Node.js version"**
+**Error: "module compiled against different Node.js version" (ABI 131 vs 132)**
+
+This means you're trying to use Electron after running a CLI (or vice versa). The native module was compiled for a different runtime. Fix:
 
 ```bash
-npm run rebuild
+# For Electron dev/build
+npx electron-rebuild -f -w better-sqlite3
+
+# For CLI tools
+npm rebuild better-sqlite3 --target_arch=arm64
 ```
+
+These are also wired as `prerun` hooks for `npm run dev`/`build` and `npm run stats`/`leaks`/`import`.
 
 **Error: "incompatible architecture x86_64 / arm64"**
 
