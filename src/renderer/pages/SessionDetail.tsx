@@ -22,7 +22,16 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
   const [review, setReview] = useState<SessionReviewResult | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewElapsed, setReviewElapsed] = useState(0);
   const [expandedHand, setExpandedHand] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!reviewLoading) return;
+    setReviewElapsed(0);
+    const start = Date.now();
+    const interval = setInterval(() => setReviewElapsed(Math.floor((Date.now() - start) / 1000)), 500);
+    return () => clearInterval(interval);
+  }, [reviewLoading]);
 
   useEffect(() => {
     setLoading(true);
@@ -102,8 +111,13 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
           disabled={reviewLoading}
         >
           <SparkleIcon />
-          {reviewLoading ? 'Claude analyse…' : 'Analyse IA avec Claude'}
+          {reviewLoading ? `Claude analyse… ${reviewElapsed}s` : 'Analyse IA avec Claude'}
         </button>
+        {reviewLoading && (
+          <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>
+            Sessions longues = 60-180s. Patiente.
+          </p>
+        )}
 
         {reviewError && (
           <div className="error" style={{ marginTop: 12 }}>{reviewError}</div>

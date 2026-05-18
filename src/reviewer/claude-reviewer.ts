@@ -36,9 +36,21 @@ export async function invokeClaude(opts: ClaudeReviewOptions): Promise<string> {
     ];
 
     console.log('[claude-reviewer] spawning', CLAUDE_BIN, 'with', opts.userPrompt.length, 'chars');
+    const cleanEnv: NodeJS.ProcessEnv = {
+      HOME: process.env.HOME ?? '/Users/bubblz',
+      PATH:
+        process.env.PATH ??
+        '/usr/local/bin:/usr/bin:/bin:/Users/bubblz/.nvm/versions/node/v23.3.0/bin',
+      USER: process.env.USER ?? 'bubblz',
+      LANG: process.env.LANG ?? 'en_US.UTF-8',
+      SHELL: process.env.SHELL ?? '/bin/zsh',
+      TMPDIR: process.env.TMPDIR ?? '/tmp'
+    };
     const child = spawn(CLAUDE_BIN, args, {
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, HOME: process.env.HOME ?? '/Users/bubblz' }
+      env: cleanEnv,
+      cwd: process.env.HOME ?? '/Users/bubblz',
+      detached: false
     });
 
     let stdout = '';
