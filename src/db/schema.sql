@@ -131,3 +131,5 @@ CREATE INDEX IF NOT EXISTS idx_player_stats_hands ON player_stats(hands_played D
 CREATE INDEX IF NOT EXISTS idx_tournaments_start ON tournaments(start_time);
 CREATE INDEX IF NOT EXISTS idx_tournaments_hero ON tournaments(hero_account);
 CREATE INDEX IF NOT EXISTS idx_sessions_date ON sessions(session_date);
+CREATE INDEX IF NOT EXISTS idx_actions_player_allin ON actions(player_name, is_all_in, street);
+CREATE INDEX IF NOT EXISTS idx_hands_invested ON hands(hero_account, hero_invested, hero_won);
