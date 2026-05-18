@@ -1,3 +1,5 @@
+import { handStrength, type HandStrength } from '../lib/card-eval.js';
+
 interface Props {
   card: string;
   size?: 'sm' | 'md';
@@ -20,10 +22,18 @@ export function PlayingCard({ card, size = 'md' }: Props): JSX.Element {
   );
 }
 
-export function CardGroup({ cards, size = 'md' }: { cards: string[] | null; size?: 'sm' | 'md' }): JSX.Element {
+interface GroupProps {
+  cards: string[] | null;
+  size?: 'sm' | 'md';
+  /** When true, wraps a hand strength halo for 2-card combos (hero hole cards). */
+  withStrength?: boolean;
+}
+
+export function CardGroup({ cards, size = 'md', withStrength = false }: GroupProps): JSX.Element {
   if (!cards || cards.length === 0) return <span className="muted">-</span>;
+  const strength: HandStrength | null = withStrength && cards.length === 2 ? handStrength(cards) : null;
   return (
-    <span className="card-group">
+    <span className={`card-group ${strength ? `strength-${strength}` : ''}`}>
       {cards.map((c, i) => <PlayingCard key={`${c}-${i}`} card={c} size={size} />)}
     </span>
   );

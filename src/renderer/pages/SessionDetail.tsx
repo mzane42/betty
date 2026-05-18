@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { pokerApi, type SessionDetailResult, type SessionHand, type SessionReviewResult } from '../api.js';
 import { ProfitBadge } from '../components/ProfitBadge.js';
 import { CardGroup } from '../components/PlayingCard.js';
+import { PositionBadge } from '../components/PositionBadge.js';
+import { ResultIcon } from '../components/ResultIcon.js';
+import { BoardTextureTags } from '../components/BoardTextureTags.js';
+import { HandReplay } from '../components/HandReplay.js';
 
 interface Props {
   sessionDate: string;
@@ -16,6 +20,7 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
   const [review, setReview] = useState<SessionReviewResult | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [expandedHand, setExpandedHand] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -181,29 +186,60 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
         <table className="data-table">
           <thead>
             <tr>
+              <th></th>
               <th>#</th>
-              <th>Position</th>
+              <th>Pos</th>
               <th>Cartes</th>
               <th>Board</th>
               <th className="num">Pot</th>
               <th className="num">Investi</th>
-              <th className="num">Net (jetons)</th>
+              <th className="num">Net</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            {data.hands.map((h) => (
-              <tr key={h.hand_id}>
-                <td>{h.hand_number}</td>
-                <td>{h.hero_position ?? '-'}</td>
-                <td><CardGroup cards={h.hero_cards_parsed} size="sm" /></td>
-                <td><CardGroup cards={h.board_parsed} size="sm" /></td>
-                <td className="num">{h.total_pot}</td>
-                <td className="num">{h.hero_invested}</td>
-                <td className="num">
-                  <ProfitBadge value={h.hero_net} size="sm" />
-                </td>
-              </tr>
-            ))}
+            {data.hands.map((h) => {
+              const expanded = expandedHand === h.hand_id;
+              return (
+                <Fragment key={h.hand_id}>
+                  <tr className={expanded ? 'row-expanded' : ''}>
+                    <td>
+                      <button
+                        className="expand-btn"
+                        onClick={() => setExpandedHand(expanded ? null : h.hand_id)}
+                        aria-label="Voir le replay"
+                      >
+                        {expanded ? '▾' : '▸'}
+                      </button>
+                    </td>
+                    <td>{h.hand_number}</td>
+                    <td><PositionBadge position={h.hero_position} /></td>
+                    <td><CardGroup cards={h.hero_cards_parsed} size="sm" withStrength /></td>
+                    <td>
+                      <div className="board-cell">
+                        <CardGroup cards={h.board_parsed} size="sm" />
+                        <BoardTextureTags board={h.board_parsed} />
+                      </div>
+                    </td>
+                    <td className="num">{h.total_pot}</td>
+                    <td className="num">{h.hero_invested}</td>
+                    <td className="num">
+                      <ProfitBadge value={h.hero_net} size="sm" />
+                    </td>
+                    <td>
+                      <ResultIcon net={h.hero_net} invested={h.hero_invested} />
+                    </td>
+                  </tr>
+                  {expanded && (
+                    <tr className="replay-row">
+                      <td colSpan={9}>
+                        <HandReplay handId={h.hand_id} />
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -218,8 +254,8 @@ function HighlightList({ hands }: { hands: SessionHand[] }): JSX.Element {
       {hands.map((h) => (
         <li key={h.hand_id}>
           <span className="hand-num">#{h.hand_number}</span>
-          <span className="hand-cards"><CardGroup cards={h.hero_cards_parsed} size="sm" /></span>
-          <span className="hand-pos muted">{h.hero_position ?? '-'}</span>
+          <span className="hand-cards"><CardGroup cards={h.hero_cards_parsed} size="sm" withStrength /></span>
+          <PositionBadge position={h.hero_position} />
           <ProfitBadge value={h.hero_net} size="sm" />
         </li>
       ))}
