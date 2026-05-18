@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { pokerApi, type SessionDetailResult, type SessionHand, type SessionReviewResult } from '../api.js';
 import { ProfitBadge } from '../components/ProfitBadge.js';
+import { CardGroup } from '../components/PlayingCard.js';
 
 interface Props {
   sessionDate: string;
@@ -194,8 +195,8 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
               <tr key={h.hand_id}>
                 <td>{h.hand_number}</td>
                 <td>{h.hero_position ?? '-'}</td>
-                <td>{formatCards(h.hero_cards_parsed)}</td>
-                <td>{formatCards(h.board_parsed)}</td>
+                <td><CardGroup cards={h.hero_cards_parsed} size="sm" /></td>
+                <td><CardGroup cards={h.board_parsed} size="sm" /></td>
                 <td className="num">{h.total_pot}</td>
                 <td className="num">{h.hero_invested}</td>
                 <td className="num">
@@ -217,18 +218,13 @@ function HighlightList({ hands }: { hands: SessionHand[] }): JSX.Element {
       {hands.map((h) => (
         <li key={h.hand_id}>
           <span className="hand-num">#{h.hand_number}</span>
-          <span className="hand-cards">{formatCards(h.hero_cards_parsed)}</span>
+          <span className="hand-cards"><CardGroup cards={h.hero_cards_parsed} size="sm" /></span>
           <span className="hand-pos muted">{h.hero_position ?? '-'}</span>
           <ProfitBadge value={h.hero_net} size="sm" />
         </li>
       ))}
     </ul>
   );
-}
-
-function formatCards(cards: string[] | null): string {
-  if (!cards || cards.length === 0) return '-';
-  return cards.join(' ');
 }
 
 function translateVerdict(v: 'winning' | 'even' | 'losing'): string {
