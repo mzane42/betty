@@ -1,0 +1,105 @@
+Winamax Poker - Tournament "Starting Block WiPT - Déglingos !" buyIn: 0€ + 0€ level: 1 - HandId: #1088135693927972865-1-1540117259 - Holdem no limit (3/10/20) - 2018/10/21 10:20:59 UTC
+Table: 'Starting Block WiPT - Déglingos !(253351334)#0' 10-max (real money) Seat #4 is the button
+Seat 1: picsou641 (500)
+Seat 2: Absude 813 (500)
+Seat 3: jildelo (500)
+Seat 4: LaReineRose (500)
+Seat 5: sebzin29 (500)
+Seat 6: La fouine 07 (500)
+Seat 7: MME WANG (500)
+Seat 8: florian19000 (500)
+Seat 9: mzane42 (500)
+Seat 10: LPQP (500)
+*** ANTE/BLINDS ***
+sebzin29 posts ante 3
+La fouine 07 posts ante 3
+picsou641 posts ante 3
+Absude 813 posts ante 3
+jildelo posts ante 3
+LaReineRose posts ante 3
+MME WANG posts ante 3
+florian19000 posts ante 3
+mzane42 posts ante 3
+LPQP posts ante 3
+sebzin29 posts small blind 10
+La fouine 07 posts big blind 20
+Dealt to mzane42 [9s 2h]
+*** PRE-FLOP *** 
+MME WANG folds
+florian19000 folds
+mzane42 folds
+LPQP folds
+picsou641 folds
+Absude 813 raises 477 to 497 and is all-in
+jildelo folds
+LaReineRose folds
+sebzin29 folds
+La fouine 07 calls 477 and is all-in
+*** FLOP *** [6d 2d 4s]
+*** TURN *** [6d 2d 4s][Td]
+*** RIVER *** [6d 2d 4s Td][4d]
+*** SHOW DOWN ***
+Absude 813 shows [9h Ts] (Two pairs : Tens and 4)
+La fouine 07 shows [Ad Kh] (Flush Ace high)
+La fouine 07 collected 1034 from pot
+*** SUMMARY ***
+Total pot 1034 | No rake
+Board: [6d 2d 4s Td 4d]
+Seat 2: Absude 813 showed [9h Ts] and lost with Two pairs : Tens and 4
+Seat 6: La fouine 07 (big blind) showed [Ad Kh] and won 1034 with Flush Ace high
+
+
+Winamax Poker - Tournament "Starting Block WiPT - Déglingos !" buyIn: 0€ + 0€ level: 1 - HandId: #1088135693927972865-2-1540117352 - Holdem no limit (3/10/20) - 2018/10/21 10:22:32 UTC
+Table: 'Starting Block WiPT - Déglingos !(253351334)#0' 10-max (real money) Seat #5 is the button
+Seat 1: picsou641 (497)
+Seat 3: jildelo (497)
+Seat 4: LaReineRose (497)
+Seat 5: sebzin29 (487)
+Seat 6: La fouine 07 (1034)
+Seat 7: MME WANG (497)
+Seat 8: florian19000 (497)
+Seat 9: mzane42 (497)
+Seat 10: LPQP (497)
+*** ANTE/BLINDS ***
+La fouine 07 posts ante 3
+MME WANG posts ante 3
+picsou641 posts ante 3
+jildelo posts ante 3
+LaReineRose posts ante 3
+sebzin29 posts ante 3
+florian19000 posts ante 3
+mzane42 posts ante 3
+LPQP posts ante 3
+La fouine 07 posts small blind 10
+MME WANG posts big blind 20
+Dealt to mzane42 [3d 3c]
+*** PRE-FLOP *** 
+florian19000 folds
+mzane42 raises 474 to 494 and is all-in
+LPQP calls 494 and is all-in
+picsou641 calls 494 and is all-in
+jildelo folds
+LaReineRose folds
+sebzin29 calls 484 and is all-in
+La fouine 07 folds
+MME WANG calls 474 and is all-in
+*** FLOP *** [Kd Qh 8c]
+*** TURN *** [Kd Qh 8c][8h]
+*** RIVER *** [Kd Qh 8c 8h][Ad]
+*** SHOW DOWN ***
+picsou641 shows [Js Qs] (Two pairs : Queens and 8)
+sebzin29 shows [Kh 6c] (Two pairs : Kings and 8)
+MME WANG shows [7c 4s] (One pair : 8)
+mzane42 shows [3d 3c] (Two pairs : 8 and 3)
+LPQP shows [Ac 3h] (Two pairs : Aces and 8)
+LPQP collected 2497 from pot
+*** SUMMARY ***
+Total pot 2497 | No rake
+Board: [Kd Qh 8c 8h Ad]
+Seat 1: picsou641 showed [Js Qs] and lost with Two pairs : Queens and 8
+Seat 5: sebzin29 (button) showed [Kh 6c] and lost with Two pairs : Kings and 8
+Seat 7: MME WANG (big blind) showed [7c 4s] and lost with One pair : 8
+Seat 9: mzane42 showed [3d 3c] and lost with Two pairs : 8 and 3
+Seat 10: LPQP showed [Ac 3h] and won 2497 with Two pairs : Aces and 8
+
+

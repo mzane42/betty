@@ -1,0 +1,63 @@
+import { useEffect, useState } from 'react';
+import { pokerApi, type SessionRow } from '../api.js';
+import { ProfitBadge } from '../components/ProfitBadge.js';
+
+export function Sessions(): JSX.Element {
+  const [sessions, setSessions] = useState<SessionRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    pokerApi
+      .getSessions(100, 0)
+      .then((s) => {
+        setSessions(s);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="loading">Loading sessions…</div>;
+
+  // Cumulative running bankroll
+  let running = 0;
+  const reversed = [...sessions].reverse();
+  const cumulative = reversed.map((s) => {
+    running += s.net;
+    return { ...s, running };
+  }).reverse();
+
+  return (
+    <div className="sessions-page">
+      <h2>Sessions</h2>
+      <p className="muted">Each row = all tournaments played on that calendar date.</p>
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th className="num">Tournaments</th>
+            <th className="num">Buy-ins</th>
+            <th className="num">Winnings</th>
+            <th className="num">Net</th>
+            <th className="num">Bankroll after</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cumulative.map((s) => (
+            <tr key={s.session_date}>
+              <td>{s.session_date}</td>
+              <td className="num">{s.tournaments_played}</td>
+              <td className="num">{s.buy_ins.toFixed(2)}€</td>
+              <td className="num">{s.winnings.toFixed(2)}€</td>
+              <td className="num">
+                <ProfitBadge value={s.net} size="sm" />
+              </td>
+              <td className="num">
+                <ProfitBadge value={s.running} size="sm" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

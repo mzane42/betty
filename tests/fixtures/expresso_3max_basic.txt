@@ -1,0 +1,229 @@
+Winamax Poker - Tournament "Expresso" buyIn: 0.93€ + 0.07€ level: 1 - HandId: #1049936791668260865-1-1533236774 - Holdem no limit (10/20) - 2018/08/02 19:06:14 UTC
+Table: 'Expresso(244457459)#0' 3-max (real money) Seat #2 is the button
+Seat 1: chispalyly (500)
+Seat 2: Erj junior (500)
+Seat 3: mzane42 (500)
+*** ANTE/BLINDS ***
+mzane42 posts small blind 10
+chispalyly posts big blind 20
+Dealt to mzane42 [8d 4h]
+*** PRE-FLOP *** 
+Erj junior folds
+mzane42 folds
+chispalyly collected 30 from pot
+*** SUMMARY ***
+Total pot 30 | No rake
+Seat 1: chispalyly (big blind) won 30
+
+
+Winamax Poker - Tournament "Expresso" buyIn: 0.93€ + 0.07€ level: 1 - HandId: #1049936791668260865-2-1533236782 - Holdem no limit (10/20) - 2018/08/02 19:06:22 UTC
+Table: 'Expresso(244457459)#0' 3-max (real money) Seat #3 is the button
+Seat 1: chispalyly (510)
+Seat 2: Erj junior (500)
+Seat 3: mzane42 (490)
+*** ANTE/BLINDS ***
+chispalyly posts small blind 10
+Erj junior posts big blind 20
+Dealt to mzane42 [2s 5d]
+*** PRE-FLOP *** 
+mzane42 folds
+chispalyly folds
+Erj junior collected 30 from pot
+*** SUMMARY ***
+Total pot 30 | No rake
+Seat 2: Erj junior (big blind) won 30
+
+
+Winamax Poker - Tournament "Expresso" buyIn: 0.93€ + 0.07€ level: 1 - HandId: #1049936791668260865-3-1533236800 - Holdem no limit (10/20) - 2018/08/02 19:06:40 UTC
+Table: 'Expresso(244457459)#0' 3-max (real money) Seat #1 is the button
+Seat 1: chispalyly (500)
+Seat 2: Erj junior (510)
+Seat 3: mzane42 (490)
+*** ANTE/BLINDS ***
+Erj junior posts small blind 10
+mzane42 posts big blind 20
+Dealt to mzane42 [Ac 4s]
+*** PRE-FLOP *** 
+chispalyly calls 20
+Erj junior raises 490 to 510 and is all-in
+mzane42 calls 470 and is all-in
+chispalyly folds
+*** FLOP *** [5h Ah 7d]
+*** TURN *** [5h Ah 7d][2d]
+*** RIVER *** [5h Ah 7d 2d][5s]
+*** SHOW DOWN ***
+Erj junior shows [Ks Kd] (Two pairs : Kings and 5)
+mzane42 shows [Ac 4s] (Two pairs : Aces and 5)
+mzane42 collected 1000 from main pot
+Erj junior collected 20 from side pot 1
+*** SUMMARY ***
+Total pot 1020 | No rake
+Board: [5h Ah 7d 2d 5s]
+Seat 2: Erj junior (small blind) showed [Ks Kd] and won 20 with Two pairs : Kings and 5
+Seat 3: mzane42 (big blind) showed [Ac 4s] and won 1000 with Two pairs : Aces and 5
+
+
+Winamax Poker - Tournament "Expresso" buyIn: 0.93€ + 0.07€ level: 1 - HandId: #1049936791668260865-4-1533236825 - Holdem no limit (10/20) - 2018/08/02 19:07:05 UTC
+Table: 'Expresso(244457459)#0' 3-max (real money) Seat #2 is the button
+Seat 1: chispalyly (480)
+Seat 2: Erj junior (20)
+Seat 3: mzane42 (1000)
+*** ANTE/BLINDS ***
+mzane42 posts small blind 10
+chispalyly posts big blind 20
+Dealt to mzane42 [5c Js]
+*** PRE-FLOP *** 
+Erj junior calls 20 and is all-in
+mzane42 calls 10
+chispalyly checks
+*** FLOP *** [Qc 3c 7d]
+mzane42 checks
+chispalyly checks
+*** TURN *** [Qc 3c 7d][Th]
+mzane42 bets 20
+chispalyly calls 20
+*** RIVER *** [Qc 3c 7d Th][4h]
+mzane42 checks
+chispalyly checks
+*** SHOW DOWN ***
+chispalyly shows [2d 6d] (High card : Queen)
+Erj junior shows [6h 2c] (High card : Queen)
+mzane42 shows [5c Js] (High card : Queen)
+mzane42 collected 100 from pot
+*** SUMMARY ***
+Total pot 100 | No rake
+Board: [Qc 3c 7d Th 4h]
+Seat 1: chispalyly (big blind) showed [2d 6d] and lost with High card : Queen
+Seat 2: Erj junior (button) showed [6h 2c] and lost with High card : Queen
+Seat 3: mzane42 (small blind) showed [5c Js] and won 100 with High card : Queen
+
+
+Winamax Poker - Tournament "Expresso" buyIn: 0.93€ + 0.07€ level: 1 - HandId: #1049936791668260865-5-1533236861 - Holdem no limit (10/20) - 2018/08/02 19:07:41 UTC
+Table: 'Expresso(244457459)#0' 3-max (real money) Seat #1 is the button
+Seat 1: chispalyly (440)
+Seat 3: mzane42 (1060)
+*** ANTE/BLINDS ***
+chispalyly posts small blind 10
+mzane42 posts big blind 20
+Dealt to mzane42 [2d Ah]
+*** PRE-FLOP *** 
+chispalyly calls 10
+mzane42 checks
+*** FLOP *** [6s 9s 6h]
+mzane42 bets 30
+chispalyly folds
+mzane42 collected 70 from pot
+*** SUMMARY ***
+Total pot 70 | No rake
+Board: [6s 9s 6h]
+Seat 3: mzane42 (big blind) won 70
+
+
+Winamax Poker - Tournament "Expresso" buyIn: 0.93€ + 0.07€ level: 1 - HandId: #1049936791668260865-6-1533236876 - Holdem no limit (10/20) - 2018/08/02 19:07:56 UTC
+Table: 'Expresso(244457459)#0' 3-max (real money) Seat #3 is the button
+Seat 1: chispalyly (420)
+Seat 3: mzane42 (1080)
+*** ANTE/BLINDS ***
+mzane42 posts small blind 10
+chispalyly posts big blind 20
+Dealt to mzane42 [Kd 2h]
+*** PRE-FLOP *** 
+mzane42 folds
+chispalyly collected 30 from pot
+*** SUMMARY ***
+Total pot 30 | No rake
+Seat 1: chispalyly (big blind) won 30
+
+
+Winamax Poker - Tournament "Expresso" buyIn: 0.93€ + 0.07€ level: 1 - HandId: #1049936791668260865-7-1533236881 - Holdem no limit (10/20) - 2018/08/02 19:08:01 UTC
+Table: 'Expresso(244457459)#0' 3-max (real money) Seat #1 is the button
+Seat 1: chispalyly (430)
+Seat 3: mzane42 (1070)
+*** ANTE/BLINDS ***
+chispalyly posts small blind 10
+mzane42 posts big blind 20
+Dealt to mzane42 [Kh Kc]
+*** PRE-FLOP *** 
+chispalyly calls 10
+mzane42 raises 40 to 60
+chispalyly calls 40
+*** FLOP *** [As 5h 3d]
+mzane42 bets 120
+chispalyly folds
+mzane42 collected 240 from pot
+*** SUMMARY ***
+Total pot 240 | No rake
+Board: [As 5h 3d]
+Seat 3: mzane42 (big blind) won 240
+
+
+Winamax Poker - Tournament "Expresso" buyIn: 0.93€ + 0.07€ level: 1 - HandId: #1049936791668260865-8-1533236900 - Holdem no limit (10/20) - 2018/08/02 19:08:20 UTC
+Table: 'Expresso(244457459)#0' 3-max (real money) Seat #3 is the button
+Seat 1: chispalyly (370)
+Seat 3: mzane42 (1130)
+*** ANTE/BLINDS ***
+mzane42 posts small blind 10
+chispalyly posts big blind 20
+Dealt to mzane42 [Ac 7h]
+*** PRE-FLOP *** 
+mzane42 raises 20 to 40
+chispalyly calls 20
+*** FLOP *** [Kc 3d Ts]
+chispalyly bets 330 and is all-in
+mzane42 folds
+chispalyly collected 410 from pot
+*** SUMMARY ***
+Total pot 410 | No rake
+Board: [Kc 3d Ts]
+Seat 1: chispalyly (big blind) won 410
+
+
+Winamax Poker - Tournament "Expresso" buyIn: 0.93€ + 0.07€ level: 1 - HandId: #1049936791668260865-9-1533236914 - Holdem no limit (10/20) - 2018/08/02 19:08:34 UTC
+Table: 'Expresso(244457459)#0' 3-max (real money) Seat #1 is the button
+Seat 1: chispalyly (410)
+Seat 3: mzane42 (1090)
+*** ANTE/BLINDS ***
+chispalyly posts small blind 10
+mzane42 posts big blind 20
+Dealt to mzane42 [5s 7c]
+*** PRE-FLOP *** 
+chispalyly folds
+mzane42 collected 30 from pot
+*** SUMMARY ***
+Total pot 30 | No rake
+Seat 3: mzane42 (big blind) won 30
+
+
+Winamax Poker - Tournament "Expresso" buyIn: 0.93€ + 0.07€ level: 1 - HandId: #1049936791668260865-10-1533236919 - Holdem no limit (10/20) - 2018/08/02 19:08:39 UTC
+Table: 'Expresso(244457459)#0' 3-max (real money) Seat #3 is the button
+Seat 1: chispalyly (400)
+Seat 3: mzane42 (1100)
+*** ANTE/BLINDS ***
+mzane42 posts small blind 10
+chispalyly posts big blind 20
+Dealt to mzane42 [Ac 8s]
+*** PRE-FLOP *** 
+mzane42 raises 20 to 40
+chispalyly calls 20
+*** FLOP *** [8d 3d 5c]
+chispalyly checks
+mzane42 bets 70
+chispalyly calls 70
+*** TURN *** [8d 3d 5c][2s]
+chispalyly bets 50
+mzane42 raises 100 to 150
+chispalyly calls 100
+*** RIVER *** [8d 3d 5c 2s][Ts]
+chispalyly bets 140 and is all-in
+mzane42 calls 140
+*** SHOW DOWN ***
+chispalyly shows [5d 9s] (One pair : 5)
+mzane42 shows [Ac 8s] (One pair : 8)
+mzane42 collected 800 from pot
+*** SUMMARY ***
+Total pot 800 | No rake
+Board: [8d 3d 5c 2s Ts]
+Seat 1: chispalyly (big blind) showed [5d 9s] and lost with One pair : 5
+Seat 3: mzane42 (small blind) (button) showed [Ac 8s] and won 800 with One pair : 8
+
+

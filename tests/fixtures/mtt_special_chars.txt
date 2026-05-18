@@ -1,0 +1,36 @@
+Winamax Poker - Tournament "Hit&Run Ticket 10€" buyIn: 1.80€ + 0.20€ level: 12 - HandId: #1730586355286671366-18-1605377406 - Holdem no limit (80/350/700) - 2020/11/14 18:10:06 UTC
+Table: 'Hit&Run Ticket 10€(402933535)#005' 6-max (real money) Seat #6 is the button
+Seat 1: daj� (8220)
+Seat 2: Resistank (6056)
+Seat 4: cooltonton59 (10927)
+Seat 5: mzane42 (38955)
+Seat 6: LinoVenturi (27060)
+*** ANTE/BLINDS ***
+daj� posts ante 80
+Resistank posts ante 80
+cooltonton59 posts ante 80
+mzane42 posts ante 80
+LinoVenturi posts ante 80
+daj� posts small blind 350
+Resistank posts big blind 700
+Dealt to mzane42 [As 6h]
+*** PRE-FLOP *** 
+cooltonton59 raises 10147 to 10847 and is all-in
+mzane42 folds
+LinoVenturi folds
+daj� folds
+Resistank calls 5276 and is all-in
+*** FLOP *** [4d 5s 5d]
+*** TURN *** [4d 5s 5d][Qc]
+*** RIVER *** [4d 5s 5d Qc][4h]
+*** SHOW DOWN ***
+Resistank shows [Js Ks] (Two pairs : 5 and 4)
+cooltonton59 shows [Ah Th] (Two pairs : 5 and 4)
+cooltonton59 collected 17573 from pot
+*** SUMMARY ***
+Total pot 17573 | No rake
+Board: [4d 5s 5d Qc 4h]
+Seat 2: Resistank (big blind) showed [Js Ks] and lost with Two pairs : 5 and 4
+Seat 4: cooltonton59 showed [Ah Th] and won 17573 with Two pairs : 5 and 4
+
+

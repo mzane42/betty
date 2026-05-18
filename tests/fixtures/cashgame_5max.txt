@@ -1,0 +1,297 @@
+Winamax Poker - CashGame - HandId: #15063435-600-1602549057 - Holdem no limit (1/2) - 2020/10/13 00:30:57 UTC
+Table: 'Toledo 17' 5-max (play money) Seat #4 is the button
+Seat 1: mzane42 (50)
+Seat 2: 19MORENO73 (244.91)
+Seat 3: LoPapet (553.15)
+Seat 4: Mika2803 (211.04)
+Seat 5: Imstef (214.95)
+*** ANTE/BLINDS ***
+Imstef posts small blind 1
+mzane42 posts big blind 2
+Dealt to mzane42 [Tc 6h]
+*** PRE-FLOP *** 
+19MORENO73 calls 2
+LoPapet raises 8 to 10
+Mika2803 folds
+Imstef calls 9
+mzane42 folds
+19MORENO73 calls 8
+*** FLOP *** [8h 4h 6d]
+Imstef checks
+19MORENO73 checks
+LoPapet checks
+*** TURN *** [8h 4h 6d][6c]
+Imstef bets 16
+19MORENO73 folds
+LoPapet calls 16
+*** RIVER *** [8h 4h 6d 6c][9h]
+Imstef bets 32
+LoPapet folds
+Imstef collected 93 from pot
+*** SUMMARY ***
+Total pot 93 | Rake 3
+Board: [8h 4h 6d 6c 9h]
+Seat 5: Imstef (small blind) won 93
+
+
+Winamax Poker - CashGame - HandId: #15063435-601-1602549095 - Holdem no limit (1/2) - 2020/10/13 00:31:35 UTC
+Table: 'Toledo 17' 5-max (play money) Seat #5 is the button
+Seat 1: mzane42 (48)
+Seat 2: 19MORENO73 (234.91)
+Seat 3: LoPapet (527.15)
+Seat 4: Mika2803 (211.04)
+Seat 5: Imstef (249.95)
+*** ANTE/BLINDS ***
+mzane42 posts small blind 1
+19MORENO73 posts big blind 2
+Dealt to mzane42 [Kh 8h]
+*** PRE-FLOP *** 
+LoPapet calls 2
+Mika2803 folds
+Imstef calls 2
+mzane42 calls 1
+19MORENO73 checks
+*** FLOP *** [Jh Ac Qs]
+mzane42 checks
+19MORENO73 checks
+LoPapet checks
+Imstef checks
+*** TURN *** [Jh Ac Qs][Qh]
+mzane42 bets 8
+19MORENO73 folds
+LoPapet folds
+Imstef folds
+mzane42 collected 15.54 from pot
+*** SUMMARY ***
+Total pot 15.54 | Rake 0.46
+Board: [Jh Ac Qs Qh]
+Seat 1: mzane42 (small blind) won 15.54
+
+
+Winamax Poker - CashGame - HandId: #15063435-602-1602549129 - Holdem no limit (1/2) - 2020/10/13 00:32:09 UTC
+Table: 'Toledo 17' 5-max (play money) Seat #1 is the button
+Seat 1: mzane42 (53.54)
+Seat 2: 19MORENO73 (232.91)
+Seat 3: LoPapet (525.15)
+Seat 4: Mika2803 (211.04)
+Seat 5: Imstef (247.95)
+*** ANTE/BLINDS ***
+19MORENO73 posts small blind 1
+LoPapet posts big blind 2
+Dealt to mzane42 [Qd 9d]
+*** PRE-FLOP *** 
+Mika2803 calls 2
+Imstef raises 8 to 10
+mzane42 calls 10
+19MORENO73 folds
+LoPapet folds
+Mika2803 calls 8
+*** FLOP *** [Ah 8s 6s]
+Mika2803 checks
+Imstef bets 33
+mzane42 folds
+Mika2803 folds
+Imstef collected 64.10 from pot
+*** SUMMARY ***
+Total pot 64.10 | Rake 1.90
+Board: [Ah 8s 6s]
+Seat 5: Imstef won 64.10
+
+
+Winamax Poker - CashGame - HandId: #15063435-603-1602549182 - Holdem no limit (1/2) - 2020/10/13 00:33:02 UTC
+Table: 'Toledo 17' 5-max (play money) Seat #2 is the button
+Seat 1: mzane42 (43.54)
+Seat 3: LoPapet (523.15)
+Seat 4: Mika2803 (201.04)
+Seat 5: Imstef (269.05)
+*** ANTE/BLINDS ***
+LoPapet posts small blind 1
+Mika2803 posts big blind 2
+Dealt to mzane42 [7c 6d]
+*** PRE-FLOP *** 
+Imstef raises 6 to 8
+mzane42 folds
+LoPapet folds
+Mika2803 folds
+Imstef collected 11 from pot
+*** SUMMARY ***
+Total pot 11 | No rake
+Seat 5: Imstef won 11
+
+
+Winamax Poker - CashGame - HandId: #15063435-604-1602549198 - Holdem no limit (1/2) - 2020/10/13 00:33:18 UTC
+Table: 'Toledo 17' 5-max (play money) Seat #3 is the button
+Seat 1: mzane42 (43.54)
+Seat 3: LoPapet (522.15)
+Seat 4: Mika2803 (199.04)
+Seat 5: Imstef (272.05)
+*** ANTE/BLINDS ***
+Mika2803 posts small blind 1
+Imstef posts big blind 2
+Dealt to mzane42 [5c As]
+*** PRE-FLOP *** 
+mzane42 calls 2
+LoPapet folds
+Mika2803 calls 1
+Imstef checks
+*** FLOP *** [Jh Qs 7h]
+Mika2803 checks
+Imstef bets 2
+mzane42 folds
+Mika2803 folds
+Imstef collected 7.65 from pot
+*** SUMMARY ***
+Total pot 7.65 | Rake 0.35
+Board: [Jh Qs 7h]
+Seat 5: Imstef (big blind) won 7.65
+
+
+Winamax Poker - CashGame - HandId: #15063435-605-1602549228 - Holdem no limit (1/2) - 2020/10/13 00:33:48 UTC
+Table: 'Toledo 17' 5-max (play money) Seat #4 is the button
+Seat 1: mzane42 (41.54)
+Seat 2: funkygwada (200)
+Seat 3: LoPapet (522.15)
+Seat 4: Mika2803 (197.04)
+Seat 5: Imstef (275.70)
+*** ANTE/BLINDS ***
+Imstef posts small blind 1
+mzane42 posts big blind 2
+Dealt to mzane42 [5h Jd]
+*** PRE-FLOP *** 
+LoPapet calls 2
+Mika2803 raises 6 to 8
+Imstef calls 7
+mzane42 folds
+LoPapet calls 6
+*** FLOP *** [Ts 7d 3h]
+Imstef checks
+LoPapet bets 13
+Mika2803 calls 13
+Imstef calls 13
+*** TURN *** [Ts 7d 3h][6h]
+Imstef checks
+LoPapet checks
+Mika2803 checks
+*** RIVER *** [Ts 7d 3h 6h][Td]
+Imstef checks
+LoPapet bets 14
+Mika2803 raises 14 to 28
+Imstef folds
+LoPapet calls 14
+*** SHOW DOWN ***
+LoPapet shows [3d Kc] (Two pairs : Tens and 3)
+Mika2803 shows [9c 8s] (Straight Ten high)
+Mika2803 collected 118.50 from pot
+*** SUMMARY ***
+Total pot 118.50 | Rake 2.50
+Board: [Ts 7d 3h 6h Td]
+Seat 3: LoPapet showed [3d Kc] and lost with Two pairs : Tens and 3
+Seat 4: Mika2803 (button) showed [9c 8s] and won 118.50 with Straight Ten high
+
+
+Winamax Poker - CashGame - HandId: #15063435-606-1602549284 - Holdem no limit (1/2) - 2020/10/13 00:34:44 UTC
+Table: 'Toledo 17' 5-max (play money) Seat #5 is the button
+Seat 1: mzane42 (39.54)
+Seat 2: funkygwada (200)
+Seat 3: LoPapet (473.15)
+Seat 4: Mika2803 (266.54)
+Seat 5: Imstef (254.70)
+*** ANTE/BLINDS ***
+mzane42 posts small blind 1
+funkygwada posts big blind 2
+Dealt to mzane42 [2c 3d]
+*** PRE-FLOP *** 
+LoPapet folds
+Mika2803 folds
+Imstef calls 2
+mzane42 folds
+funkygwada raises 2 to 4
+Imstef calls 2
+*** FLOP *** [5h 3c Js]
+funkygwada checks
+Imstef bets 2
+funkygwada calls 2
+*** TURN *** [5h 3c Js][Th]
+funkygwada checks
+Imstef bets 2
+funkygwada folds
+Imstef collected 14.25 from pot
+*** SUMMARY ***
+Total pot 14.25 | Rake 0.75
+Board: [5h 3c Js Th]
+Seat 5: Imstef (button) won 14.25
+
+
+Winamax Poker - CashGame - HandId: #15063435-607-1602549314 - Holdem no limit (1/2) - 2020/10/13 00:35:14 UTC
+Table: 'Toledo 17' 5-max (play money) Seat #1 is the button
+Seat 1: mzane42 (38.54)
+Seat 2: funkygwada (194)
+Seat 3: LoPapet (473.15)
+Seat 4: Mika2803 (266.54)
+Seat 5: Imstef (260.95)
+*** ANTE/BLINDS ***
+funkygwada posts small blind 1
+LoPapet posts big blind 2
+Dealt to mzane42 [2d Qc]
+*** PRE-FLOP *** 
+Mika2803 folds
+Imstef raises 4 to 6
+mzane42 folds
+funkygwada calls 5
+LoPapet folds
+*** FLOP *** [8s 5s Kd]
+funkygwada bets 6
+Imstef raises 13 to 19
+funkygwada calls 13
+*** TURN *** [8s 5s Kd][4c]
+funkygwada checks
+Imstef bets 26
+funkygwada calls 26
+*** RIVER *** [8s 5s Kd 4c][Js]
+funkygwada checks
+Imstef checks
+*** SHOW DOWN ***
+Imstef shows [7c 9c] (High card : King)
+funkygwada shows [Kh Qs] (One pair : Kings)
+funkygwada collected 101 from pot
+*** SUMMARY ***
+Total pot 101 | Rake 3
+Board: [8s 5s Kd 4c Js]
+Seat 2: funkygwada (small blind) showed [Kh Qs] and won 101 with One pair : Kings
+Seat 5: Imstef showed [7c 9c] and lost with High card : King
+
+
+Winamax Poker - CashGame - HandId: #15063435-608-1602549367 - Holdem no limit (1/2) - 2020/10/13 00:36:07 UTC
+Table: 'Toledo 17' 5-max (play money) Seat #2 is the button
+Seat 1: mzane42 (38.54)
+Seat 2: funkygwada (244)
+Seat 3: LoPapet (471.15)
+Seat 4: Mika2803 (266.54)
+Seat 5: Imstef (209.95)
+*** ANTE/BLINDS ***
+LoPapet posts small blind 1
+Mika2803 posts big blind 2
+Dealt to mzane42 [5c 2s]
+*** PRE-FLOP *** 
+Imstef calls 2
+mzane42 folds
+funkygwada folds
+LoPapet raises 8 to 10
+Mika2803 folds
+Imstef calls 8
+*** FLOP *** [5h 9c 8h]
+LoPapet bets 22
+Imstef calls 22
+*** TURN *** [5h 9c 8h][Ts]
+LoPapet bets 33
+Imstef calls 33
+*** RIVER *** [5h 9c 8h Ts][8c]
+LoPapet bets 66
+Imstef folds
+LoPapet collected 195 from pot
+*** SUMMARY ***
+Total pot 195 | Rake 3
+Board: [5h 9c 8h Ts 8c]
+Seat 3: LoPapet (small blind) won 195
+
+
