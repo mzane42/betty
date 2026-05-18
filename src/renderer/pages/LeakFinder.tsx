@@ -44,7 +44,7 @@ export function LeakFinder(): JSX.Element {
               <h3>{translateLeakTitle(leak.title)}</h3>
               <span className="leak-cost negative">
                 -{leak.cost.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
-                {leak.costUnit === 'eur' ? '€' : ' jetons'}
+                {leak.costUnit === 'eur' ? '€' : leak.costUnit === 'bb' ? ' BB' : ' jetons'}
               </span>
             </div>
             <p className="leak-desc">{translateLeakDesc(leak.description)}</p>

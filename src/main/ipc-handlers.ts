@@ -124,8 +124,71 @@ export function registerIpcHandlers(): void {
          WHERE hero_account = ? AND DATE(start_time) = ?
          ORDER BY start_time ASC`
       )
-      .all(HERO_ACCOUNT, sessionDate);
-    return { sessionDate, tournaments };
+      .all(HERO_ACCOUNT, sessionDate) as Array<{
+      tournament_id: string;
+      name: string;
+      buy_in: number;
+      rake: number;
+      hero_finish_position: number;
+      hero_winnings: number | null;
+      start_time: string;
+    }>;
+
+    const handsRaw = db()
+      .prepare(
+        `SELECT
+          h.hand_id,
+          h.tournament_id,
+          h.tournament_name,
+          h.hero_position,
+          h.hero_cards,
+          h.big_blind,
+          h.board,
+          h.hero_invested,
+          h.hero_won,
+          h.total_pot,
+          h.played_at,
+          (h.hero_won - h.hero_invested) as hero_net
+        FROM hands h
+        JOIN tournaments t ON h.tournament_id = t.tournament_id
+        WHERE t.hero_account = ? AND DATE(t.start_time) = ?
+        ORDER BY h.played_at ASC, h.hand_id ASC`
+      )
+      .all(HERO_ACCOUNT, sessionDate) as Array<{
+      hand_id: string;
+      tournament_id: string;
+      tournament_name: string;
+      hero_position: string | null;
+      hero_cards: string | null;
+      big_blind: number;
+      board: string | null;
+      hero_invested: number;
+      hero_won: number;
+      total_pot: number;
+      played_at: string;
+      hero_net: number;
+    }>;
+
+    const hands = handsRaw.map((h, i) => ({
+      ...h,
+      hand_number: i + 1,
+      hero_cards_parsed: h.hero_cards ? (JSON.parse(h.hero_cards) as string[]) : null,
+      board_parsed: h.board ? (JSON.parse(h.board) as string[]) : []
+    }));
+
+    const sorted = [...hands].sort((a, b) => b.hero_net - a.hero_net);
+    const topWins = sorted.filter((h) => h.hero_net > 0).slice(0, 3);
+    const topLosses = sorted.filter((h) => h.hero_net < 0).slice(-3).reverse();
+
+    const totals = {
+      tournamentsPlayed: tournaments.length,
+      buyIns: tournaments.reduce((s, t) => s + t.buy_in + t.rake, 0),
+      winnings: tournaments.reduce((s, t) => s + (t.hero_winnings ?? 0), 0),
+      net: tournaments.reduce((s, t) => s + (t.hero_winnings ?? 0) - t.buy_in - t.rake, 0),
+      handsPlayed: hands.length
+    };
+
+    return { sessionDate, tournaments, hands, totals, highlights: { topWins, topLosses } };
   });
 
   // Import

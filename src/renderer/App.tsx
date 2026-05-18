@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dashboard } from './pages/Dashboard.js';
 import { Sessions } from './pages/Sessions.js';
+import { SessionDetail } from './pages/SessionDetail.js';
 import { Players } from './pages/Players.js';
 import { LeakFinder } from './pages/LeakFinder.js';
 import { GameSelection } from './pages/GameSelection.js';
@@ -10,6 +11,12 @@ type Page = 'dashboard' | 'sessions' | 'players' | 'leaks' | 'games' | 'progress
 
 export function App(): JSX.Element {
   const [page, setPage] = useState<Page>('dashboard');
+  const [selectedSession, setSelectedSession] = useState<string | null>(null);
+
+  function navigate(p: Page): void {
+    setSelectedSession(null);
+    setPage(p);
+  }
 
   return (
     <div className="app-shell">
@@ -19,29 +26,32 @@ export function App(): JSX.Element {
           <p className="muted">Analyse post-session — la bankroll avant tout.</p>
         </div>
         <nav className="app-nav">
-          <button className={page === 'dashboard' ? 'active' : ''} onClick={() => setPage('dashboard')}>
+          <button className={page === 'dashboard' ? 'active' : ''} onClick={() => navigate('dashboard')}>
             Bankroll
           </button>
-          <button className={page === 'sessions' ? 'active' : ''} onClick={() => setPage('sessions')}>
+          <button className={page === 'sessions' ? 'active' : ''} onClick={() => navigate('sessions')}>
             Sessions
           </button>
-          <button className={page === 'players' ? 'active' : ''} onClick={() => setPage('players')}>
+          <button className={page === 'players' ? 'active' : ''} onClick={() => navigate('players')}>
             Adversaires
           </button>
-          <button className={page === 'leaks' ? 'active' : ''} onClick={() => setPage('leaks')}>
+          <button className={page === 'leaks' ? 'active' : ''} onClick={() => navigate('leaks')}>
             Fuites
           </button>
-          <button className={page === 'games' ? 'active' : ''} onClick={() => setPage('games')}>
+          <button className={page === 'games' ? 'active' : ''} onClick={() => navigate('games')}>
             Jeux
           </button>
-          <button className={page === 'progress' ? 'active' : ''} onClick={() => setPage('progress')}>
+          <button className={page === 'progress' ? 'active' : ''} onClick={() => navigate('progress')}>
             Progrès
           </button>
         </nav>
       </header>
       <main className="app-main">
         {page === 'dashboard' && <Dashboard />}
-        {page === 'sessions' && <Sessions />}
+        {page === 'sessions' && !selectedSession && <Sessions onSelect={(d) => setSelectedSession(d)} />}
+        {page === 'sessions' && selectedSession && (
+          <SessionDetail sessionDate={selectedSession} onBack={() => setSelectedSession(null)} />
+        )}
         {page === 'players' && <Players />}
         {page === 'leaks' && <LeakFinder />}
         {page === 'games' && <GameSelection />}

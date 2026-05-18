@@ -167,16 +167,43 @@ export function renderSessionForReview(db: Database, sessionDate: string, heroAc
   lines.push('');
   lines.push(`Session net: ${totalNet.toFixed(2)}€`);
 
-  // Add aggregated hand stats for the session
-  const handStats = db
+  // Hand-by-hand data so Claude can identify specific moments
+  const hands = db
     .prepare(
-      `SELECT COUNT(*) as n, AVG(total_pot) as avg_pot FROM hands h
+      `SELECT h.hand_id, h.hero_position, h.hero_cards, h.big_blind, h.board,
+        h.hero_invested, h.hero_won, h.total_pot,
+        (h.hero_won - h.hero_invested) as hero_net
+       FROM hands h
        JOIN tournaments t ON h.tournament_id = t.tournament_id
-       WHERE t.hero_account = ? AND DATE(t.start_time) = ?`
+       WHERE t.hero_account = ? AND DATE(t.start_time) = ?
+       ORDER BY h.played_at ASC, h.hand_id ASC`
     )
-    .get(heroAccount, sessionDate) as { n: number; avg_pot: number };
-  lines.push(`Hands played: ${handStats.n}`);
-  lines.push(`Avg pot: ${handStats.avg_pot?.toFixed(2) ?? '0'} chips`);
+    .all(heroAccount, sessionDate) as Array<{
+    hand_id: string;
+    hero_position: string | null;
+    hero_cards: string | null;
+    big_blind: number;
+    board: string | null;
+    hero_invested: number;
+    hero_won: number;
+    total_pot: number;
+    hero_net: number;
+  }>;
+
+  lines.push('');
+  lines.push(`Hands played: ${hands.length}`);
+  lines.push('');
+  lines.push('Hand-by-hand (net in chips, BB ratio normalized):');
+  hands.forEach((h, i) => {
+    const cards = h.hero_cards ? (JSON.parse(h.hero_cards) as string[]).join('') : '--';
+    const board = h.board ? (JSON.parse(h.board) as string[]).join(' ') : '';
+    const netBb = h.big_blind > 0 ? (h.hero_net / h.big_blind).toFixed(1) : '?';
+    lines.push(
+      `#${i + 1} [${h.hand_id}] ${h.hero_position ?? '?'} ${cards} ` +
+        `pot=${h.total_pot} inv=${h.hero_invested} net=${h.hero_net} (${netBb} BB) ` +
+        (board ? `board=[${board}]` : 'pre-flop ended')
+    );
+  });
 
   return lines.join('\n');
 }

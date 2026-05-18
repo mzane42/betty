@@ -14,7 +14,7 @@ interface Leak {
   severity: 'high' | 'medium' | 'low';
   description: string;
   cost: number;
-  costUnit: 'eur' | 'chips';
+  costUnit: 'eur' | 'chips' | 'bb';
   recommendation: string;
 }
 
@@ -36,6 +36,49 @@ interface ProgressPoint {
   itm: number;
 }
 
+export interface SessionHand {
+  hand_id: string;
+  hand_number: number;
+  tournament_id: string;
+  tournament_name: string;
+  hero_position: string | null;
+  hero_cards: string | null;
+  hero_cards_parsed: string[] | null;
+  big_blind: number;
+  board: string | null;
+  board_parsed: string[];
+  hero_invested: number;
+  hero_won: number;
+  hero_net: number;
+  total_pot: number;
+  played_at: string;
+}
+
+export interface SessionDetailResult {
+  sessionDate: string;
+  tournaments: TournamentRow[];
+  hands: SessionHand[];
+  totals: {
+    tournamentsPlayed: number;
+    buyIns: number;
+    winnings: number;
+    net: number;
+    handsPlayed: number;
+  };
+  highlights: { topWins: SessionHand[]; topLosses: SessionHand[] };
+}
+
+export interface SessionReviewResult {
+  sessionVerdict: 'winning' | 'even' | 'losing';
+  summary: string;
+  patterns: { pattern: string; impact: 'negative' | 'positive'; advice: string }[];
+  biggestMistake: { handId: string; description: string } | null;
+  biggestWin: { handId: string; description: string } | null;
+  lessons: string[];
+  nextSessionFocus: string;
+  rawResponse: string;
+}
+
 interface PokerApi {
   getBankrollSummary(): Promise<BankrollSummary>;
   getYearlyBankroll(): Promise<YearlyBankroll[]>;
@@ -44,14 +87,14 @@ interface PokerApi {
   getRoiByStake(): Promise<RoiByStake[]>;
   getBankrollChart(): Promise<BankrollPoint[]>;
   getSessions(limit?: number, offset?: number): Promise<SessionRow[]>;
-  getSessionDetail(sessionDate: string): Promise<{ sessionDate: string; tournaments: TournamentRow[] }>;
+  getSessionDetail(sessionDate: string): Promise<SessionDetailResult>;
   getPlayers(limit?: number, offset?: number, sortBy?: string): Promise<PlayerDerivedStats[]>;
   getPlayerDetail(playerName: string): Promise<PlayerDerivedStats | null>;
   getHand(handId: string): Promise<HandDetailResult | null>;
   importNewSession(): Promise<ImportResult>;
   importAll(force?: boolean): Promise<ImportResult>;
   reviewHand(handId: string): Promise<unknown>;
-  reviewSession(sessionId: string): Promise<unknown>;
+  reviewSession(sessionId: string): Promise<SessionReviewResult>;
   getLeaks(): Promise<Leak[]>;
   getGameRecommendations(): Promise<GameRecommendation[]>;
   getProgress(granularity?: 'quarter' | 'month'): Promise<ProgressPoint[]>;

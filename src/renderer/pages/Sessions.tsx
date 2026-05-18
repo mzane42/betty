@@ -4,7 +4,11 @@ import { ProfitBadge } from '../components/ProfitBadge.js';
 import { InfoTooltip } from '../components/InfoTooltip.js';
 import { TIPS } from '../glossary.js';
 
-export function Sessions(): JSX.Element {
+interface SessionsProps {
+  onSelect: (sessionDate: string) => void;
+}
+
+export function Sessions({ onSelect }: SessionsProps): JSX.Element {
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +24,6 @@ export function Sessions(): JSX.Element {
 
   if (loading) return <div className="loading">Chargement des sessions…</div>;
 
-  // Cumulative running bankroll
   let running = 0;
   const reversed = [...sessions].reverse();
   const cumulative = reversed.map((s) => {
@@ -31,8 +34,8 @@ export function Sessions(): JSX.Element {
   return (
     <div className="sessions-page">
       <h2>Sessions</h2>
-      <p className="muted">Une ligne = tous les tournois joués le même jour calendaire.</p>
-      <table className="data-table">
+      <p className="muted">Clique une ligne pour voir le détail + analyse IA.</p>
+      <table className="data-table clickable-rows">
         <thead>
           <tr>
             <th>
@@ -57,7 +60,7 @@ export function Sessions(): JSX.Element {
         </thead>
         <tbody>
           {cumulative.map((s) => (
-            <tr key={s.session_date}>
+            <tr key={s.session_date} onClick={() => onSelect(s.session_date)} className="clickable-row">
               <td>{s.session_date}</td>
               <td className="num">{s.tournaments_played}</td>
               <td className="num">{s.buy_ins.toFixed(2)}€</td>
