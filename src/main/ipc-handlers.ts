@@ -39,11 +39,30 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('bankroll:chart', () => getBankrollChart(db(), HERO_ACCOUNT));
 
   // Analytics
-  ipcMain.handle('analytics:leaks', () => findLeaks(db(), HERO_ACCOUNT));
-  ipcMain.handle('analytics:game-recommendations', () => recommendGames(db(), HERO_ACCOUNT));
-  ipcMain.handle('analytics:progress', (_, granularity: 'quarter' | 'month' = 'quarter') =>
-    getProgress(db(), HERO_ACCOUNT, granularity)
-  );
+  ipcMain.handle('analytics:leaks', () => {
+    try {
+      return findLeaks(db(), HERO_ACCOUNT);
+    } catch (err) {
+      console.error('[analytics:leaks] failed:', err);
+      throw err;
+    }
+  });
+  ipcMain.handle('analytics:game-recommendations', () => {
+    try {
+      return recommendGames(db(), HERO_ACCOUNT);
+    } catch (err) {
+      console.error('[analytics:game-recommendations] failed:', err);
+      throw err;
+    }
+  });
+  ipcMain.handle('analytics:progress', (_, granularity: 'quarter' | 'month' = 'quarter') => {
+    try {
+      return getProgress(db(), HERO_ACCOUNT, granularity);
+    } catch (err) {
+      console.error('[analytics:progress] failed:', err);
+      throw err;
+    }
+  });
 
   // Sessions
   ipcMain.handle('sessions:list', (_, { limit = 50, offset = 0 } = {}) => {

@@ -4,15 +4,29 @@ import { pokerApi, type Leak } from '../api.js';
 export function LeakFinder(): JSX.Element {
   const [leaks, setLeaks] = useState<Leak[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    pokerApi.getLeaks().then((l) => {
-      setLeaks(l);
-      setLoading(false);
-    });
+    pokerApi
+      .getLeaks()
+      .then((l) => {
+        setLeaks(l);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err?.message ?? 'Unknown error');
+        setLoading(false);
+      });
   }, []);
 
   if (loading) return <div className="loading">Analyzing leaks…</div>;
+  if (error)
+    return (
+      <div className="error">
+        <h2>Leak analysis failed</h2>
+        <pre style={{ whiteSpace: 'pre-wrap', textAlign: 'left', maxWidth: 800 }}>{error}</pre>
+      </div>
+    );
 
   return (
     <div className="leaks-page">

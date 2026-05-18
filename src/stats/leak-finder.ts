@@ -73,7 +73,7 @@ function detectPositionLeaks(db: Database, heroAccount: string): Leak[] {
     .prepare(
       `SELECT hero_position as pos,
         COUNT(*) as n,
-        SUM(hero_won - hero_invested) as net
+        COALESCE(SUM(hero_won - hero_invested), 0) as net
       FROM hands
       WHERE hero_account = ? AND hero_position IS NOT NULL
       GROUP BY pos`
@@ -83,14 +83,15 @@ function detectPositionLeaks(db: Database, heroAccount: string): Leak[] {
   const leaks: Leak[] = [];
   for (const r of rows) {
     if (r.n < 100) continue;
-    const netPerHand = r.net / r.n;
+    const net = r.net ?? 0;
+    const netPerHand = net / r.n;
     if (r.pos === 'BB' && netPerHand < -10) {
       leaks.push({
         id: `position-bb`,
         title: `Big Blind defense leak`,
         severity: 'medium',
-        description: `Losing ${r.net.toFixed(0)} chips total from BB over ${r.n} hands (${netPerHand.toFixed(1)}/hand).`,
-        cost: Math.abs(r.net),
+        description: `Losing ${net.toFixed(0)} chips total from BB over ${r.n} hands (${netPerHand.toFixed(1)}/hand).`,
+        cost: Math.abs(net),
         costUnit: 'chips',
         recommendation: 'BB always loses some, but check if you defend too wide or fold to steals too much.'
       });
@@ -100,8 +101,8 @@ function detectPositionLeaks(db: Database, heroAccount: string): Leak[] {
         id: `position-sb`,
         title: `Small Blind leak`,
         severity: 'high',
-        description: `Losing ${r.net.toFixed(0)} chips total from SB over ${r.n} hands.`,
-        cost: Math.abs(r.net),
+        description: `Losing ${net.toFixed(0)} chips total from SB over ${r.n} hands.`,
+        cost: Math.abs(net),
         costUnit: 'chips',
         recommendation: 'SB is the worst position. Tighten up. Avoid limping. Steal more, defend less.'
       });
@@ -114,7 +115,7 @@ function detectShovingLeaks(db: Database, heroAccount: string): Leak[] {
   // Heroes' all-in losses on preflop
   const row = db
     .prepare(
-      `SELECT COUNT(*) as n, SUM(hero_won - hero_invested) as net
+      `SELECT COUNT(*) as n, COALESCE(SUM(hero_won - hero_invested), 0) as net
        FROM hands h
        WHERE h.hero_account = ? AND EXISTS (
          SELECT 1 FROM actions a
@@ -125,16 +126,16 @@ function detectShovingLeaks(db: Database, heroAccount: string): Leak[] {
     .get(heroAccount, heroAccount) as { n: number; net: number };
 
   if (row.n < 30) return [];
-
-  const winRate = (row.net / Math.max(row.n, 1));
+  const net = row.net ?? 0;
+  const winRate = net / Math.max(row.n, 1);
   if (winRate < -50) {
     return [
       {
         id: 'allin-preflop',
         title: 'Pre-flop all-in pattern is unprofitable',
         severity: 'high',
-        description: `Went all-in pre-flop ${row.n} times, net ${row.net.toFixed(0)} chips.`,
-        cost: Math.abs(row.net),
+        description: `Went all-in pre-flop ${row.n} times, net ${net.toFixed(0)} chips.`,
+        cost: Math.abs(net),
         costUnit: 'chips',
         recommendation:
           'Your shove range is likely too wide or your call range is too loose. Tighten up shoving spots, especially in early/mid stages.'
@@ -145,10 +146,9 @@ function detectShovingLeaks(db: Database, heroAccount: string): Leak[] {
 }
 
 function detectAllInLoss(db: Database, heroAccount: string): Leak[] {
-  // Hands where hero invested >= 50% of stack and lost
   const rows = db
     .prepare(
-      `SELECT COUNT(*) as n, SUM(hero_won - hero_invested) as net
+      `SELECT COUNT(*) as n, COALESCE(SUM(hero_won - hero_invested), 0) as net
        FROM hands
        WHERE hero_account = ?
        AND hero_invested > 0
@@ -158,14 +158,15 @@ function detectAllInLoss(db: Database, heroAccount: string): Leak[] {
     .get(heroAccount) as { n: number; net: number };
 
   if (rows.n < 50) return [];
+  const net = rows.net ?? 0;
 
   return [
     {
       id: 'big-pots-lost',
       title: 'Lost too many big pots',
       severity: 'medium',
-      description: `${rows.n} hands where you invested 500+ chips and won nothing. Total cost: ${rows.net.toFixed(0)} chips.`,
-      cost: Math.abs(rows.net),
+      description: `${rows.n} hands where you invested 500+ chips and won nothing. Total cost: ${net.toFixed(0)} chips.`,
+      cost: Math.abs(net),
       costUnit: 'chips',
       recommendation:
         'Review losing all-ins. Pattern often: calling all-ins too wide with marginal holdings (AK suited, AJ).'
