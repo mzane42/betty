@@ -8,7 +8,7 @@ interface Props {
 export function YearlyChart({ data }: Props): JSX.Element {
   return (
     <div className="card">
-      <h3 className="card-title">Yearly net</h3>
+      <h3 className="card-title">Résultat par année</h3>
       <div style={{ width: '100%', height: 240 }}>
         <ResponsiveContainer>
           <BarChart data={data}>
@@ -20,6 +20,7 @@ export function YearlyChart({ data }: Props): JSX.Element {
               contentStyle={{ background: '#1e2230', border: '1px solid #2a2f3d', borderRadius: 8 }}
               labelStyle={{ color: '#e6e9ef' }}
               formatter={(value: number) => [`${value.toFixed(2)}€`, 'Net']}
+              labelFormatter={(label) => `Année ${label}`}
             />
             <Bar dataKey="net">
               {data.map((entry, idx) => (

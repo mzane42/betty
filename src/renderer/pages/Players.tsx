@@ -5,6 +5,20 @@ import { ProfitBadge } from '../components/ProfitBadge.js';
 import { InfoTooltip } from '../components/InfoTooltip.js';
 import { TIPS } from '../glossary.js';
 
+const TENDENCY_FR: Record<string, string> = {
+  'tight-passive': 'tight-passif',
+  'tight-aggressive': 'tight-aggro',
+  'loose-passive': 'loose-passif (fish)',
+  'loose-aggressive': 'loose-aggro',
+  maniac: 'maniaque',
+  nit: 'nit',
+  unknown: 'inconnu'
+};
+
+function translateTendency(t: string): string {
+  return TENDENCY_FR[t] ?? t;
+}
+
 export function Players(): JSX.Element {
   const [players, setPlayers] = useState<PlayerDerivedStats[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,31 +35,31 @@ export function Players(): JSX.Element {
       .catch(() => setLoading(false));
   }, [sortBy]);
 
-  if (loading) return <div className="loading">Loading players…</div>;
+  if (loading) return <div className="loading">Chargement des adversaires…</div>;
 
   return (
     <div className="players-page">
-      <h2>Opponents</h2>
+      <h2>Adversaires</h2>
       <div className="toolbar">
         <button
           className={sortBy === 'hands_played' ? 'active' : ''}
           onClick={() => setSortBy('hands_played')}
         >
-          By hands seen
+          Par mains jouées
         </button>
         <button
           className={sortBy === 'total_won' ? 'active' : ''}
           onClick={() => setSortBy('total_won')}
         >
-          By winnings vs you
+          Par gains contre toi
         </button>
       </div>
       <table className="data-table">
         <thead>
           <tr>
-            <th>Player</th>
+            <th>Joueur</th>
             <th className="num">
-              Hands<InfoTooltip text={TIPS.handsSeen} />
+              Mains<InfoTooltip text={TIPS.handsSeen} />
             </th>
             <th className="num">
               VPIP<InfoTooltip text={TIPS.vpip} />
@@ -60,10 +74,10 @@ export function Players(): JSX.Element {
               AF<InfoTooltip text={TIPS.af} />
             </th>
             <th>
-              Tendency<InfoTooltip text={TIPS.tendency} />
+              Profil<InfoTooltip text={TIPS.tendency} />
             </th>
             <th className="num">
-              Won vs you<InfoTooltip text={TIPS.wonVsYou} />
+              Gains vs toi<InfoTooltip text={TIPS.wonVsYou} />
             </th>
           </tr>
         </thead>
@@ -77,7 +91,7 @@ export function Players(): JSX.Element {
               <td className="num">{p.threeBet === null ? '—' : `${p.threeBet.toFixed(0)}%`}</td>
               <td className="num">{p.aggressionFactor === null ? '—' : p.aggressionFactor.toFixed(1)}</td>
               <td>
-                <span className={`tendency-${p.tendency}`}>{p.tendency}</span>
+                <span className={`tendency-${p.tendency}`}>{translateTendency(p.tendency)}</span>
               </td>
               <td className="num">
                 <ProfitBadge value={p.netResult} size="sm" />

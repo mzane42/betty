@@ -4,14 +4,14 @@ interface Props {
   data: MonthlyBankroll[];
 }
 
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTH_NAMES = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
 export function MonthlyHeatmap({ data }: Props): JSX.Element {
   if (data.length === 0) {
     return (
       <div className="card">
-        <h3 className="card-title">Monthly heatmap</h3>
-        <div className="muted">No data</div>
+        <h3 className="card-title">Heatmap mensuelle</h3>
+        <div className="muted">Aucune donnée</div>
       </div>
     );
   }
@@ -24,7 +24,7 @@ export function MonthlyHeatmap({ data }: Props): JSX.Element {
 
   return (
     <div className="card">
-      <h3 className="card-title">Monthly heatmap</h3>
+      <h3 className="card-title">Heatmap mensuelle</h3>
       <div className="heatmap">
         <div className="heatmap-row heatmap-header">
           <div className="heatmap-year-label" />
@@ -40,7 +40,7 @@ export function MonthlyHeatmap({ data }: Props): JSX.Element {
             {MONTH_NAMES.map((_, idx) => {
               const cell = cellByYearMonth.get(`${year}-${idx + 1}`);
               if (!cell) {
-                return <div key={idx} className="heatmap-cell heatmap-empty" title="No play" />;
+                return <div key={idx} className="heatmap-cell heatmap-empty" title="Pas de jeu" />;
               }
               const intensity = Math.min(1, Math.abs(cell.net) / maxAbs);
               const baseColor = cell.net >= 0 ? '74, 222, 128' : '248, 113, 113';
@@ -49,7 +49,7 @@ export function MonthlyHeatmap({ data }: Props): JSX.Element {
                   key={idx}
                   className="heatmap-cell"
                   style={{ background: `rgba(${baseColor}, ${0.15 + intensity * 0.75})` }}
-                  title={`${MONTH_NAMES[idx]} ${year}: ${cell.net.toFixed(2)}€ (${cell.tournamentsPlayed} tournaments)`}
+                  title={`${MONTH_NAMES[idx]} ${year} : ${cell.net.toFixed(2)}€ (${cell.tournamentsPlayed} tournois)`}
                 />
               );
             })}

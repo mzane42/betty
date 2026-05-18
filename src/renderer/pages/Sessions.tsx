@@ -18,7 +18,7 @@ export function Sessions(): JSX.Element {
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="loading">Loading sessions…</div>;
+  if (loading) return <div className="loading">Chargement des sessions…</div>;
 
   // Cumulative running bankroll
   let running = 0;
@@ -31,7 +31,7 @@ export function Sessions(): JSX.Element {
   return (
     <div className="sessions-page">
       <h2>Sessions</h2>
-      <p className="muted">Each row = all tournaments played on that calendar date.</p>
+      <p className="muted">Une ligne = tous les tournois joués le même jour calendaire.</p>
       <table className="data-table">
         <thead>
           <tr>
@@ -39,19 +39,19 @@ export function Sessions(): JSX.Element {
               Date<InfoTooltip text={TIPS.sessionDate} />
             </th>
             <th className="num">
-              Tournaments<InfoTooltip text={TIPS.tournaments} />
+              Tournois<InfoTooltip text={TIPS.tournaments} />
             </th>
             <th className="num">
               Buy-ins<InfoTooltip text={TIPS.buyIns} />
             </th>
             <th className="num">
-              Winnings<InfoTooltip text={TIPS.winnings} />
+              Gains<InfoTooltip text={TIPS.winnings} />
             </th>
             <th className="num">
               Net<InfoTooltip text={TIPS.netResult} />
             </th>
             <th className="num">
-              Bankroll after<InfoTooltip text={TIPS.bankrollAfter} />
+              Bankroll après<InfoTooltip text={TIPS.bankrollAfter} />
             </th>
           </tr>
         </thead>

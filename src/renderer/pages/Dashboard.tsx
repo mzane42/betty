@@ -44,9 +44,9 @@ export function Dashboard(): JSX.Element {
       });
   }, []);
 
-  if (loading) return <div className="loading">Loading bankroll data…</div>;
-  if (error) return <div className="error">Error: {error}</div>;
-  if (!summary) return <div className="error">No data</div>;
+  if (loading) return <div className="loading">Chargement de la bankroll…</div>;
+  if (error) return <div className="error">Erreur : {error}</div>;
+  if (!summary) return <div className="error">Aucune donnée</div>;
 
   return (
     <div className="dashboard">

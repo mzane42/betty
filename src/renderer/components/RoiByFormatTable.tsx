@@ -10,19 +10,19 @@ interface Props {
 export function RoiByFormatTable({ data }: Props): JSX.Element {
   return (
     <div className="card">
-      <h3 className="card-title">ROI by format</h3>
+      <h3 className="card-title">ROI par format</h3>
       <table className="data-table">
         <thead>
           <tr>
             <th>Format</th>
             <th className="num">
-              Tournaments<InfoTooltip text={TIPS.tournaments} />
+              Tournois<InfoTooltip text={TIPS.tournaments} />
             </th>
             <th className="num">
               Buy-ins<InfoTooltip text={TIPS.buyIns} />
             </th>
             <th className="num">
-              Winnings<InfoTooltip text={TIPS.winnings} />
+              Gains<InfoTooltip text={TIPS.winnings} />
             </th>
             <th className="num">
               Net<InfoTooltip text={TIPS.netResult} />

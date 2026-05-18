@@ -13,32 +13,32 @@ export function BankrollHero({ summary }: Props): JSX.Element {
     <div className={`bankroll-hero bankroll-${status}`}>
       <div className="bankroll-main">
         <span className="bankroll-label">
-          All-time net<InfoTooltip text={TIPS.allTimeNet} />
+          Net total<InfoTooltip text={TIPS.allTimeNet} />
         </span>
         <span className={`bankroll-value ${status}`}>
           {summary.allTimeNet >= 0 ? '+' : '-'}
           {Math.abs(summary.allTimeNet).toFixed(2)}€
         </span>
         <span className="bankroll-sub">
-          {summary.tournamentsPlayed} tournaments · {summary.handsPlayed.toLocaleString()} hands
+          {summary.tournamentsPlayed} tournois · {summary.handsPlayed.toLocaleString()} mains
         </span>
       </div>
       <div className="bankroll-stats">
         <div className="stat-card">
           <span className="stat-label">
-            This year<InfoTooltip text={TIPS.currentYearNet} />
+            Cette année<InfoTooltip text={TIPS.currentYearNet} />
           </span>
           <ProfitBadge value={summary.currentYearNet} size="lg" />
         </div>
         <div className="stat-card">
           <span className="stat-label">
-            This month<InfoTooltip text={TIPS.currentMonthNet} />
+            Ce mois-ci<InfoTooltip text={TIPS.currentMonthNet} />
           </span>
           <ProfitBadge value={summary.currentMonthNet} size="lg" />
         </div>
         <div className="stat-card">
           <span className="stat-label">
-            Best month<InfoTooltip text={TIPS.bestMonth} />
+            Meilleur mois<InfoTooltip text={TIPS.bestMonth} />
           </span>
           {summary.bestMonth ? (
             <>
@@ -51,7 +51,7 @@ export function BankrollHero({ summary }: Props): JSX.Element {
         </div>
         <div className="stat-card">
           <span className="stat-label">
-            Worst month<InfoTooltip text={TIPS.worstMonth} />
+            Pire mois<InfoTooltip text={TIPS.worstMonth} />
           </span>
           {summary.worstMonth ? (
             <>

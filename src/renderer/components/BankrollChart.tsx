@@ -8,7 +8,7 @@ interface Props {
 export function BankrollChart({ data }: Props): JSX.Element {
   return (
     <div className="card">
-      <h3 className="card-title">Cumulative bankroll</h3>
+      <h3 className="card-title">Bankroll cumulée</h3>
       <div style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>
           <AreaChart data={data}>
@@ -28,7 +28,7 @@ export function BankrollChart({ data }: Props): JSX.Element {
             <Tooltip
               contentStyle={{ background: '#1e2230', border: '1px solid #2a2f3d', borderRadius: 8 }}
               labelStyle={{ color: '#e6e9ef' }}
-              formatter={(value: number, name: string) => [`${value.toFixed(2)}€`, name === 'cumulativeNet' ? 'Cumulative' : 'Session']}
+              formatter={(value: number, name: string) => [`${value.toFixed(2)}€`, name === 'cumulativeNet' ? 'Cumulé' : 'Session']}
             />
             <Area
               type="monotone"

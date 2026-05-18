@@ -17,21 +17,21 @@ export function Progress(): JSX.Element {
     });
   }, [granularity]);
 
-  if (loading) return <div className="loading">Loading progress…</div>;
+  if (loading) return <div className="loading">Chargement des progrès…</div>;
 
   return (
     <div className="progress-page">
-      <h2>Progress</h2>
+      <h2>Progrès</h2>
       <div className="toolbar">
         <button className={granularity === 'quarter' ? 'active' : ''} onClick={() => setGranularity('quarter')}>
-          By quarter
+          Par trimestre
         </button>
         <button className={granularity === 'month' ? 'active' : ''} onClick={() => setGranularity('month')}>
-          By month
+          Par mois
         </button>
       </div>
       <div className="card">
-        <h3 className="card-title">Net by period</h3>
+        <h3 className="card-title">Net par période</h3>
         <div style={{ width: '100%', height: 300 }}>
           <ResponsiveContainer>
             <BarChart data={data}>
@@ -56,15 +56,15 @@ export function Progress(): JSX.Element {
         </div>
       </div>
       <div className="card">
-        <h3 className="card-title">Detailed metrics</h3>
+        <h3 className="card-title">Métriques détaillées</h3>
         <table className="data-table">
           <thead>
             <tr>
               <th>
-                Period<InfoTooltip text={TIPS.period} />
+                Période<InfoTooltip text={TIPS.period} />
               </th>
               <th className="num">
-                Tournaments<InfoTooltip text={TIPS.tournaments} />
+                Tournois<InfoTooltip text={TIPS.tournaments} />
               </th>
               <th className="num">
                 Net<InfoTooltip text={TIPS.netResult} />
