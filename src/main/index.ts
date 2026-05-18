@@ -5,6 +5,11 @@ import { registerIpcHandlers } from './ipc-handlers.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
+// Enable remote debugging when POKER_DEBUG_PORT is set
+if (process.env['POKER_DEBUG_PORT']) {
+  app.commandLine.appendSwitch('remote-debugging-port', process.env['POKER_DEBUG_PORT']!);
+}
+
 let mainWindow: BrowserWindow | null = null;
 
 function createMainWindow(): void {
