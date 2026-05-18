@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { pokerApi, type SessionRow } from '../api.js';
 import { ProfitBadge } from '../components/ProfitBadge.js';
+import { InfoTooltip } from '../components/InfoTooltip.js';
+import { TIPS } from '../glossary.js';
 
 export function Sessions(): JSX.Element {
   const [sessions, setSessions] = useState<SessionRow[]>([]);
@@ -33,12 +35,24 @@ export function Sessions(): JSX.Element {
       <table className="data-table">
         <thead>
           <tr>
-            <th>Date</th>
-            <th className="num">Tournaments</th>
-            <th className="num">Buy-ins</th>
-            <th className="num">Winnings</th>
-            <th className="num">Net</th>
-            <th className="num">Bankroll after</th>
+            <th>
+              Date<InfoTooltip text={TIPS.sessionDate} />
+            </th>
+            <th className="num">
+              Tournaments<InfoTooltip text={TIPS.tournaments} />
+            </th>
+            <th className="num">
+              Buy-ins<InfoTooltip text={TIPS.buyIns} />
+            </th>
+            <th className="num">
+              Winnings<InfoTooltip text={TIPS.winnings} />
+            </th>
+            <th className="num">
+              Net<InfoTooltip text={TIPS.netResult} />
+            </th>
+            <th className="num">
+              Bankroll after<InfoTooltip text={TIPS.bankrollAfter} />
+            </th>
           </tr>
         </thead>
         <tbody>

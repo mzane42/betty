@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import type { PlayerDerivedStats } from '../../types/player.js';
 import { pokerApi } from '../api.js';
 import { ProfitBadge } from '../components/ProfitBadge.js';
+import { InfoTooltip } from '../components/InfoTooltip.js';
+import { TIPS } from '../glossary.js';
 
 export function Players(): JSX.Element {
   const [players, setPlayers] = useState<PlayerDerivedStats[]>([]);
@@ -42,13 +44,27 @@ export function Players(): JSX.Element {
         <thead>
           <tr>
             <th>Player</th>
-            <th className="num">Hands</th>
-            <th className="num">VPIP</th>
-            <th className="num">PFR</th>
-            <th className="num">3-bet</th>
-            <th className="num">AF</th>
-            <th>Tendency</th>
-            <th className="num">Won vs you</th>
+            <th className="num">
+              Hands<InfoTooltip text={TIPS.handsSeen} />
+            </th>
+            <th className="num">
+              VPIP<InfoTooltip text={TIPS.vpip} />
+            </th>
+            <th className="num">
+              PFR<InfoTooltip text={TIPS.pfr} />
+            </th>
+            <th className="num">
+              3-bet<InfoTooltip text={TIPS.threeBet} />
+            </th>
+            <th className="num">
+              AF<InfoTooltip text={TIPS.af} />
+            </th>
+            <th>
+              Tendency<InfoTooltip text={TIPS.tendency} />
+            </th>
+            <th className="num">
+              Won vs you<InfoTooltip text={TIPS.wonVsYou} />
+            </th>
           </tr>
         </thead>
         <tbody>

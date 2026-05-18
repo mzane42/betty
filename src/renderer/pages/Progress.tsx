@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { pokerApi, type ProgressPoint } from '../api.js';
+import { InfoTooltip } from '../components/InfoTooltip.js';
+import { TIPS } from '../glossary.js';
 
 export function Progress(): JSX.Element {
   const [data, setData] = useState<ProgressPoint[]>([]);
@@ -58,11 +60,21 @@ export function Progress(): JSX.Element {
         <table className="data-table">
           <thead>
             <tr>
-              <th>Period</th>
-              <th className="num">Tournaments</th>
-              <th className="num">Net</th>
-              <th className="num">ROI</th>
-              <th className="num">ITM%</th>
+              <th>
+                Period<InfoTooltip text={TIPS.period} />
+              </th>
+              <th className="num">
+                Tournaments<InfoTooltip text={TIPS.tournaments} />
+              </th>
+              <th className="num">
+                Net<InfoTooltip text={TIPS.netResult} />
+              </th>
+              <th className="num">
+                ROI<InfoTooltip text={TIPS.roi} />
+              </th>
+              <th className="num">
+                ITM%<InfoTooltip text={TIPS.itm} />
+              </th>
             </tr>
           </thead>
           <tbody>
