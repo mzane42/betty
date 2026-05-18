@@ -1,0 +1,62 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - heading "Poker Coach" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Post-session analytics — bankroll first.
+      - navigation [ref=e8]:
+        - button "Bankroll" [ref=e9] [cursor=pointer]
+        - button "Sessions" [ref=e10] [cursor=pointer]
+        - button "Players" [active] [ref=e11] [cursor=pointer]
+        - button "Leaks" [ref=e12] [cursor=pointer]
+        - button "Games" [ref=e13] [cursor=pointer]
+        - button "Progress" [ref=e14] [cursor=pointer]
+    - main [ref=e15]:
+      - generic [ref=e334]:
+        - heading "Opponents" [level=2] [ref=e335]
+        - generic [ref=e336]:
+          - button "By hands seen" [ref=e337] [cursor=pointer]
+          - button "By winnings vs you" [ref=e338] [cursor=pointer]
+        - table [ref=e339]:
+          - rowgroup [ref=e340]:
+            - row "Player Hands VPIP PFR 3-bet AF Tendency Won vs you" [ref=e341]:
+              - columnheader "Player" [ref=e342]
+              - columnheader "Hands" [ref=e343]
+              - columnheader "VPIP" [ref=e344]
+              - columnheader "PFR" [ref=e345]
+              - columnheader "3-bet" [ref=e346]
+              - columnheader "AF" [ref=e347]
+              - columnheader "Tendency" [ref=e348]
+              - columnheader "Won vs you" [ref=e349]
+          - rowgroup [ref=e350]:
+            - row "Ka1ros 108 54% 26% 8% 1.1 loose-aggressive +1200.00€" [ref=e351]:
+              - cell "Ka1ros" [ref=e352]
+              - cell "108" [ref=e353]
+              - cell "54%" [ref=e354]
+              - cell "26%" [ref=e355]
+              - cell "8%" [ref=e356]
+              - cell "1.1" [ref=e357]
+              - cell "loose-aggressive" [ref=e358]:
+                - generic [ref=e359]: loose-aggressive
+              - cell "+1200.00€" [ref=e360]
+            - row "vincent1509 101 41% 22% 5% 1.2 loose-aggressive +800.00€" [ref=e361]:
+              - cell "vincent1509" [ref=e362]
+              - cell "101" [ref=e363]
+              - cell "41%" [ref=e364]
+              - cell "22%" [ref=e365]
+              - cell "5%" [ref=e366]
+              - cell "1.2" [ref=e367]
+              - cell "loose-aggressive" [ref=e368]:
+                - generic [ref=e369]: loose-aggressive
+              - cell "+800.00€" [ref=e370]
+            - row "Magik_2438. 101 51% 25% 7% 1.6 loose-aggressive -200.00€" [ref=e371]:
+              - cell "Magik_2438." [ref=e372]
+              - cell "101" [ref=e373]
+              - cell "51%" [ref=e374]
+              - cell "25%" [ref=e375]
+              - cell "7%" [ref=e376]
+              - cell "1.6" [ref=e377]
+              - cell "loose-aggressive" [ref=e378]:
+                - generic [ref=e379]: loose-aggressive
+              - cell "-200.00€" [ref=e380]
+  - generic [ref=e249]: "-800€"

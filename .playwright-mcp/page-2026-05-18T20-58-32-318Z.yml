@@ -1,0 +1,45 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - heading "Poker Coach" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Post-session analytics — bankroll first.
+      - navigation [ref=e8]:
+        - button "Bankroll" [ref=e9] [cursor=pointer]
+        - button "Sessions" [ref=e10] [cursor=pointer]
+        - button "Players" [ref=e11] [cursor=pointer]
+        - button "Leaks" [active] [ref=e12] [cursor=pointer]
+        - button "Games" [ref=e13] [cursor=pointer]
+        - button "Progress" [ref=e14] [cursor=pointer]
+    - main [ref=e15]:
+      - generic [ref=e261]:
+        - heading "Leak finder" [level=2] [ref=e262]
+        - paragraph [ref=e263]: Systematic weaknesses detected from your history.
+        - generic [ref=e264]:
+          - generic [ref=e265]:
+            - generic [ref=e266]: high
+            - heading "Small Blind leak" [level=3] [ref=e267]
+            - generic [ref=e268]: "-573 939 chips"
+          - paragraph [ref=e269]: Losing -573939 chips total from SB over 6177 hands.
+          - generic [ref=e270]:
+            - strong [ref=e271]: "Recommendation:"
+            - text: SB is the worst position. Tighten up. Avoid limping. Steal more, defend less.
+        - generic [ref=e272]:
+          - generic [ref=e273]:
+            - generic [ref=e274]: high
+            - heading "Pre-flop all-in pattern is unprofitable" [level=3] [ref=e275]
+            - generic [ref=e276]: "-445 068 chips"
+          - paragraph [ref=e277]: Went all-in pre-flop 1112 times, net -445068 chips.
+          - generic [ref=e278]:
+            - strong [ref=e279]: "Recommendation:"
+            - text: Your shove range is likely too wide or your call range is too loose. Tighten up shoving spots.
+        - generic [ref=e280]:
+          - generic [ref=e281]:
+            - generic [ref=e282]: high
+            - 'heading "Expresso: ROI -26.1%" [level=3] [ref=e283]'
+            - generic [ref=e284]: "-933€"
+          - paragraph [ref=e285]: Played 747 Expresso tournaments for -932.50€ net (-26.1% ROI).
+          - generic [ref=e286]:
+            - strong [ref=e287]: "Recommendation:"
+            - text: Stop playing Expresso or take coaching. Current ROI is unsustainable.
+  - generic [ref=e249]: "-800€"

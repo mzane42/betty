@@ -1,0 +1,61 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - heading "Poker Coach" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Post-session analytics — bankroll first.
+      - navigation [ref=e8]:
+        - button "Bankroll" [ref=e9] [cursor=pointer]
+        - button "Sessions" [ref=e10] [cursor=pointer]
+        - button "Players" [ref=e11] [cursor=pointer]
+        - button "Leaks" [ref=e12] [cursor=pointer]
+        - button "Games" [active] [ref=e13] [cursor=pointer]
+        - button "Progress" [ref=e14] [cursor=pointer]
+    - main [ref=e15]:
+      - generic [ref=e288]:
+        - heading "Game selection" [level=2] [ref=e289]
+        - paragraph [ref=e290]: Where you should play based on your ROI history.
+        - table [ref=e291]:
+          - rowgroup [ref=e292]:
+            - row "Format Stake Tournaments Net ROI Confidence Recommendation" [ref=e293]:
+              - columnheader "Format" [ref=e294]
+              - columnheader "Stake" [ref=e295]
+              - columnheader "Tournaments" [ref=e296]
+              - columnheader "Net" [ref=e297]
+              - columnheader "ROI" [ref=e298]
+              - columnheader "Confidence" [ref=e299]
+              - columnheader "Recommendation" [ref=e300]
+          - rowgroup [ref=e301]:
+            - row "Expresso 1.00€ 110 -5.00€ -4.5% medium keep playing" [ref=e302]:
+              - cell "Expresso" [ref=e303]
+              - cell "1.00€" [ref=e304]
+              - cell "110" [ref=e305]
+              - cell "-5.00€" [ref=e306]
+              - cell "-4.5%" [ref=e307]
+              - cell "medium" [ref=e308]
+              - cell "keep playing" [ref=e309]
+            - row "Expresso 2.00€ 165 -52.00€ -15.8% medium investigate" [ref=e310]:
+              - cell "Expresso" [ref=e311]
+              - cell "2.00€" [ref=e312]
+              - cell "165" [ref=e313]
+              - cell "-52.00€" [ref=e314]
+              - cell "-15.8%" [ref=e315]
+              - cell "medium" [ref=e316]
+              - cell "investigate" [ref=e317]
+            - row "Expresso 5.00€ 343 -345.00€ -20.1% high avoid" [ref=e318]:
+              - cell "Expresso" [ref=e319]
+              - cell "5.00€" [ref=e320]
+              - cell "343" [ref=e321]
+              - cell "-345.00€" [ref=e322]
+              - cell "-20.1%" [ref=e323]
+              - cell "high" [ref=e324]
+              - cell "avoid" [ref=e325]
+            - row "Expresso 10.00€ 117 -330.00€ -28.2% medium investigate" [ref=e326]:
+              - cell "Expresso" [ref=e327]
+              - cell "10.00€" [ref=e328]
+              - cell "117" [ref=e329]
+              - cell "-330.00€" [ref=e330]
+              - cell "-28.2%" [ref=e331]
+              - cell "medium" [ref=e332]
+              - cell "investigate" [ref=e333]
+  - generic [ref=e249]: "-800€"

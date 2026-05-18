@@ -1,0 +1,49 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - heading "Poker Coach" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Post-session analytics — bankroll first.
+      - navigation [ref=e8]:
+        - button "Bankroll" [ref=e9] [cursor=pointer]
+        - button "Sessions" [active] [ref=e10] [cursor=pointer]
+        - button "Players" [ref=e11] [cursor=pointer]
+        - button "Leaks" [ref=e12] [cursor=pointer]
+        - button "Games" [ref=e13] [cursor=pointer]
+        - button "Progress" [ref=e14] [cursor=pointer]
+    - main [ref=e15]:
+      - generic [ref=e483]:
+        - heading "Sessions" [level=2] [ref=e484]
+        - paragraph [ref=e485]: Each row = all tournaments played on that calendar date.
+        - table [ref=e486]:
+          - rowgroup [ref=e487]:
+            - row "Date Tournaments Buy-ins Winnings Net Bankroll after" [ref=e488]:
+              - columnheader "Date" [ref=e489]
+              - columnheader "Tournaments" [ref=e490]
+              - columnheader "Buy-ins" [ref=e491]
+              - columnheader "Winnings" [ref=e492]
+              - columnheader "Net" [ref=e493]
+              - columnheader "Bankroll after" [ref=e494]
+          - rowgroup [ref=e495]:
+            - row "2021-05-12 8 40.00€ 22.00€ -18.00€ -48.00€" [ref=e496]:
+              - cell "2021-05-12" [ref=e497]
+              - cell "8" [ref=e498]
+              - cell "40.00€" [ref=e499]
+              - cell "22.00€" [ref=e500]
+              - cell "-18.00€" [ref=e501]
+              - cell "-48.00€" [ref=e502]
+            - row "2021-04-30 5 25.00€ 30.00€ +5.00€ -30.00€" [ref=e503]:
+              - cell "2021-04-30" [ref=e504]
+              - cell "5" [ref=e505]
+              - cell "25.00€" [ref=e506]
+              - cell "30.00€" [ref=e507]
+              - cell "+5.00€" [ref=e508]
+              - cell "-30.00€" [ref=e509]
+            - row "2021-03-15 12 60.00€ 25.00€ -35.00€ -35.00€" [ref=e510]:
+              - cell "2021-03-15" [ref=e511]
+              - cell "12" [ref=e512]
+              - cell "60.00€" [ref=e513]
+              - cell "25.00€" [ref=e514]
+              - cell "-35.00€" [ref=e515]
+              - cell "-35.00€" [ref=e516]
+  - generic [ref=e249]: "-240€"

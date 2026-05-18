@@ -1,0 +1,83 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - heading "Poker Coach" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Post-session analytics — bankroll first.
+      - navigation [ref=e8]:
+        - button "Bankroll" [ref=e9] [cursor=pointer]
+        - button "Sessions" [ref=e10] [cursor=pointer]
+        - button "Players" [ref=e11] [cursor=pointer]
+        - button "Leaks" [ref=e12] [cursor=pointer]
+        - button "Games" [ref=e13] [cursor=pointer]
+        - button "Progress" [active] [ref=e14] [cursor=pointer]
+    - main [ref=e15]:
+      - generic [ref=e381]:
+        - heading "Progress" [level=2] [ref=e382]
+        - generic [ref=e383]:
+          - button "By quarter" [ref=e384] [cursor=pointer]
+          - button "By month" [ref=e385] [cursor=pointer]
+        - generic [ref=e386]:
+          - heading "Net by period" [level=3] [ref=e387]
+          - img [ref=e391]:
+            - generic [ref=e396]:
+              - generic [ref=e398]: 2018-Q3
+              - generic [ref=e400]: 2018-Q4
+              - generic [ref=e402]: 2019-Q1
+              - generic [ref=e404]: 2019-Q2
+              - generic [ref=e406]: 2020-Q4
+              - generic [ref=e408]: 2021-Q1
+            - generic [ref=e410]:
+              - generic [ref=e412]: "-240€"
+              - generic [ref=e414]: "-180€"
+              - generic [ref=e416]: "-120€"
+              - generic [ref=e418]: "-60€"
+              - generic [ref=e420]: 0€
+        - generic [ref=e436]:
+          - heading "Detailed metrics" [level=3] [ref=e437]
+          - table [ref=e438]:
+            - rowgroup [ref=e439]:
+              - row "Period Tournaments Net ROI ITM%" [ref=e440]:
+                - columnheader "Period" [ref=e441]
+                - columnheader "Tournaments" [ref=e442]
+                - columnheader "Net" [ref=e443]
+                - columnheader "ROI" [ref=e444]
+                - columnheader "ITM%" [ref=e445]
+            - rowgroup [ref=e446]:
+              - row "2018-Q3 37 -61.00€ -41.5% 30.0%" [ref=e447]:
+                - cell "2018-Q3" [ref=e448]
+                - cell "37" [ref=e449]
+                - cell "-61.00€" [ref=e450]
+                - cell "-41.5%" [ref=e451]
+                - cell "30.0%" [ref=e452]
+              - row "2018-Q4 119 -182.00€ -32.9% 27.0%" [ref=e453]:
+                - cell "2018-Q4" [ref=e454]
+                - cell "119" [ref=e455]
+                - cell "-182.00€" [ref=e456]
+                - cell "-32.9%" [ref=e457]
+                - cell "27.0%" [ref=e458]
+              - row "2019-Q1 32 -2.00€ -1.0% 38.0%" [ref=e459]:
+                - cell "2019-Q1" [ref=e460]
+                - cell "32" [ref=e461]
+                - cell "-2.00€" [ref=e462]
+                - cell "-1.0%" [ref=e463]
+                - cell "38.0%" [ref=e464]
+              - row "2019-Q2 35 -25.00€ -11.9% 34.0%" [ref=e465]:
+                - cell "2019-Q2" [ref=e466]
+                - cell "35" [ref=e467]
+                - cell "-25.00€" [ref=e468]
+                - cell "-11.9%" [ref=e469]
+                - cell "34.0%" [ref=e470]
+              - row "2020-Q4 329 -238.50€ -18.7% 31.0%" [ref=e471]:
+                - cell "2020-Q4" [ref=e472]
+                - cell "329" [ref=e473]
+                - cell "-238.50€" [ref=e474]
+                - cell "-18.7%" [ref=e475]
+                - cell "31.0%" [ref=e476]
+              - row "2021-Q1 74 -108.00€ -26.8% 31.0%" [ref=e477]:
+                - cell "2021-Q1" [ref=e478]
+                - cell "74" [ref=e479]
+                - cell "-108.00€" [ref=e480]
+                - cell "-26.8%" [ref=e481]
+                - cell "31.0%" [ref=e482]
+  - generic [ref=e249]: "-240€"

@@ -15,7 +15,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "import": "tsx src/cli/import.ts",
     "package": "electron-vite build && electron-builder",
-    "package:mac": "electron-vite build && electron-builder --mac"
+    "package:mac": "electron-vite build && electron-builder --mac",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "postinstall": "electron-rebuild -f -w better-sqlite3 || true"
   },
   "dependencies": {
     "better-sqlite3": "^12.10.0",
