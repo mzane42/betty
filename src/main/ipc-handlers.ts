@@ -114,6 +114,24 @@ export function registerIpcHandlers(): void {
     return derivePlayerStats(rowToRaw(row));
   });
 
+  // Equity backfill
+  ipcMain.handle('equity:backfill', async (_, opts: { limit?: number } = {}) => {
+    const { backfillEquity } = await import('../equity/equity-calculator.js');
+    return backfillEquity(db(), { limit: opts.limit });
+  });
+
+  ipcMain.handle('equity:stats', () => {
+    const row = db()
+      .prepare(
+        `SELECT COUNT(*) as total,
+          SUM(CASE WHEN equity_computed_at IS NOT NULL THEN 1 ELSE 0 END) as computed
+         FROM hands WHERE hero_cards IS NOT NULL
+           AND EXISTS (SELECT 1 FROM hand_players hp WHERE hp.hand_id = hands.hand_id AND hp.is_hero = 0 AND hp.cards IS NOT NULL)`
+      )
+      .get() as { total: number; computed: number };
+    return row;
+  });
+
   // Hands
   ipcMain.handle('hands:detail', (_, handId: string) => {
     const hand = db().prepare(`SELECT * FROM hands WHERE hand_id = ?`).get(handId);
@@ -157,7 +175,11 @@ export function registerIpcHandlers(): void {
           h.hero_won,
           h.total_pot,
           h.played_at,
-          (h.hero_won - h.hero_invested) as hero_net
+          (h.hero_won - h.hero_invested) as hero_net,
+          h.hero_equity_preflop,
+          h.hero_equity_flop,
+          h.hero_equity_turn,
+          h.hero_equity_river
         FROM hands h
         JOIN tournaments t ON h.tournament_id = t.tournament_id
         WHERE t.hero_account = ? AND DATE(t.start_time) = ?
@@ -176,6 +198,10 @@ export function registerIpcHandlers(): void {
       total_pot: number;
       played_at: string;
       hero_net: number;
+      hero_equity_preflop: number | null;
+      hero_equity_flop: number | null;
+      hero_equity_turn: number | null;
+      hero_equity_river: number | null;
     }>;
 
     const hands = handsRaw.map((h, i) => ({

@@ -316,6 +316,7 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
               <SortHeader label="Pot (jetons)" sortKey="total_pot" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} numeric />
               <SortHeader label="Investi (jetons)" sortKey="hero_invested" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} numeric />
               <SortHeader label="Net (jetons)" sortKey="hero_net" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} numeric />
+              <SortHeader label="Équity" sortKey="hero_equity_river" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} numeric />
               <th></th>
               <SortHeader label="IA" sortKey="review_verdict" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} />
             </tr>
@@ -349,6 +350,14 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
                     <td className="num">
                       <ProfitBadge value={h.hero_net} size="sm" unit="chips" />
                     </td>
+                    <td className="num">
+                      <EquitySpan
+                        preflop={h.hero_equity_preflop}
+                        flop={h.hero_equity_flop}
+                        turn={h.hero_equity_turn}
+                        river={h.hero_equity_river}
+                      />
+                    </td>
                     <td>
                       <ResultIcon net={h.hero_net} invested={h.hero_invested} />
                     </td>
@@ -363,7 +372,7 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
                   </tr>
                   {expanded && (
                     <tr className="replay-row">
-                      <td colSpan={10}>
+                      <td colSpan={11}>
                         <HandReplay handId={h.hand_id} />
                       </td>
                     </tr>
@@ -411,6 +420,31 @@ function ChipNumber({ value }: { value: number }): JSX.Element {
         <line x1="0.6" y1="8" x2="3" y2="8" stroke="currentColor" strokeWidth="1.2" />
         <line x1="13" y1="8" x2="15.4" y2="8" stroke="currentColor" strokeWidth="1.2" />
       </svg>
+    </span>
+  );
+}
+
+function EquitySpan({
+  preflop,
+  flop,
+  turn,
+  river
+}: {
+  preflop: number | null | undefined;
+  flop: number | null | undefined;
+  turn: number | null | undefined;
+  river: number | null | undefined;
+}): JSX.Element {
+  const last = river ?? turn ?? flop ?? preflop;
+  if (last == null) return <span className="muted">—</span>;
+  const cls = last >= 65 ? 'eq-strong' : last >= 45 ? 'eq-mid' : last >= 25 ? 'eq-weak' : 'eq-bad';
+  const seq = [preflop, flop, turn, river]
+    .filter((v): v is number => v != null)
+    .map((v) => v.toFixed(0))
+    .join(' → ');
+  return (
+    <span className={`equity-cell ${cls}`} title={`Préflop → flop → turn → river : ${seq}%`}>
+      {last.toFixed(0)}%
     </span>
   );
 }

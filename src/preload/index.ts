@@ -36,6 +36,9 @@ const api = {
     ipcRenderer.invoke('reviews:tournament-cached', tournamentId),
   getHandReviewsForSession: (sessionDate: string) =>
     ipcRenderer.invoke('reviews:hands-for-session', sessionDate),
+  backfillEquity: (limit?: number) =>
+    ipcRenderer.invoke('equity:backfill', { limit }),
+  getEquityStats: () => ipcRenderer.invoke('equity:stats'),
 
   getLeaks: () => ipcRenderer.invoke('analytics:leaks'),
   getGameRecommendations: () => ipcRenderer.invoke('analytics:game-recommendations'),

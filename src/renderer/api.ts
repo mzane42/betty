@@ -52,6 +52,10 @@ export interface SessionHand {
   hero_net: number;
   total_pot: number;
   played_at: string;
+  hero_equity_preflop?: number | null;
+  hero_equity_flop?: number | null;
+  hero_equity_turn?: number | null;
+  hero_equity_river?: number | null;
 }
 
 export interface SessionDetailResult {
@@ -129,6 +133,8 @@ interface PokerApi {
   getCachedSessionReview(sessionDate: string): Promise<SessionReviewResult | null>;
   getCachedTournamentReview(tournamentId: string): Promise<TournamentReviewResult | null>;
   getHandReviewsForSession(sessionDate: string): Promise<Record<string, { verdict: string; overall: string }>>;
+  backfillEquity(limit?: number): Promise<{ processed: number; updated: number }>;
+  getEquityStats(): Promise<{ total: number; computed: number }>;
   getLeaks(): Promise<Leak[]>;
   getGameRecommendations(): Promise<GameRecommendation[]>;
   getProgress(granularity?: 'quarter' | 'month'): Promise<ProgressPoint[]>;

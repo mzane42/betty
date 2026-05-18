@@ -26,6 +26,28 @@ function initializeSchema(db: Database): void {
   const schemaPath = locateSchemaFile();
   const ddl = readFileSync(schemaPath, 'utf-8');
   runSql(db, ddl);
+  applyAdHocMigrations(db);
+}
+
+/**
+ * For schemas that pre-date a new column, add columns idempotently.
+ * SQLite ALTER TABLE ADD COLUMN with try/catch on error 'duplicate column'.
+ */
+function applyAdHocMigrations(db: Database): void {
+  const handsExtra: Array<[string, string]> = [
+    ['hero_equity_preflop', 'REAL'],
+    ['hero_equity_flop', 'REAL'],
+    ['hero_equity_turn', 'REAL'],
+    ['hero_equity_river', 'REAL'],
+    ['equity_computed_at', 'TEXT']
+  ];
+  for (const [col, type] of handsExtra) {
+    try {
+      runSql(db, `ALTER TABLE hands ADD COLUMN ${col} ${type}`);
+    } catch (err) {
+      if (!String(err).includes('duplicate column')) throw err;
+    }
+  }
 }
 
 /**

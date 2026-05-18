@@ -1447,3 +1447,19 @@ body,
 .decision-text {
   flex: 1;
 }
+
+/* Equity badges */
+.equity-badge,
+.equity-cell {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.eq-strong { background: rgba(74, 222, 128, 0.18); color: #86efac; }
+.eq-mid    { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; }
+.eq-weak   { background: rgba(251, 146, 60, 0.18); color: #fdba74; }
+.eq-bad    { background: rgba(248, 113, 113, 0.18); color: #fca5a5; }

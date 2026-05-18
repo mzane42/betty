@@ -34,6 +34,20 @@ interface HandRow {
   board: string | null;
   total_pot: number;
   hero_cards: string | null;
+  hero_equity_preflop: number | null;
+  hero_equity_flop: number | null;
+  hero_equity_turn: number | null;
+  hero_equity_river: number | null;
+}
+
+function EquityBadge({ value }: { value: number | null }): JSX.Element | null {
+  if (value == null) return null;
+  const cls = value >= 65 ? 'eq-strong' : value >= 45 ? 'eq-mid' : value >= 25 ? 'eq-weak' : 'eq-bad';
+  return (
+    <span className={`equity-badge ${cls}`} title="Hero équity à ce stade">
+      {value.toFixed(0)}%
+    </span>
+  );
 }
 
 export function HandReplay({ handId }: Props): JSX.Element {
@@ -82,6 +96,13 @@ export function HandReplay({ handId }: Props): JSX.Element {
     RIVER: board.slice(4, 5)
   };
 
+  const streetEquity: Record<StreetName, number | null> = {
+    'PRE-FLOP': data.hand.hero_equity_preflop,
+    FLOP: data.hand.hero_equity_flop,
+    TURN: data.hand.hero_equity_turn,
+    RIVER: data.hand.hero_equity_river
+  };
+
   return (
     <div className="hand-replay">
       <div className="replay-controls">
@@ -116,6 +137,7 @@ export function HandReplay({ handId }: Props): JSX.Element {
               <div className="replay-street-header">
                 <span className="replay-street-name">{street}</span>
                 {cards.length > 0 && <CardGroup cards={cards} size="md" />}
+                <EquityBadge value={streetEquity[street]} />
               </div>
               {acts.length > 0 && (
                 <div className="replay-actions">

@@ -52,6 +52,11 @@ CREATE TABLE IF NOT EXISTS hands (
   hero_position TEXT,
   hero_won REAL NOT NULL DEFAULT 0,
   hero_invested REAL NOT NULL DEFAULT 0,
+  hero_equity_preflop REAL,
+  hero_equity_flop REAL,
+  hero_equity_turn REAL,
+  hero_equity_river REAL,
+  equity_computed_at TEXT,
   FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id)
 );
 
