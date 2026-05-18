@@ -6,6 +6,8 @@ import { PositionBadge } from '../components/PositionBadge.js';
 import { ResultIcon } from '../components/ResultIcon.js';
 import { BoardTextureTags } from '../components/BoardTextureTags.js';
 import { HandReplay } from '../components/HandReplay.js';
+import { SortHeader, SearchBox } from '../components/SortHeader.js';
+import { useTable } from '../lib/use-table.js';
 
 interface Props {
   sessionDate: string;
@@ -51,6 +53,26 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
         setReviewLoading(false);
       });
   }
+
+  const handsTable = useTable<SessionHand>(data?.hands ?? [], {
+    defaultSort: { key: 'hand_number', dir: 'asc' },
+    getValue: (h, key) => {
+      if (key === 'hero_cards') return h.hero_cards_parsed?.join('') ?? '';
+      if (key === 'board') return h.board_parsed.join('');
+      return (h as unknown as Record<string, unknown>)[key] as string | number | null;
+    },
+    searchFn: (h, q) => {
+      const cards = (h.hero_cards_parsed ?? []).join('').toLowerCase();
+      const board = h.board_parsed.join('').toLowerCase();
+      const pos = (h.hero_position ?? '').toLowerCase();
+      return cards.includes(q) || board.includes(q) || pos.includes(q);
+    }
+  });
+
+  const tournamentsTable = useTable(data?.tournaments ?? [], {
+    defaultSort: { key: 'start_time', dir: 'asc' },
+    searchFn: (t, q) => t.name.toLowerCase().includes(q)
+  });
 
   if (loading) return <div className="loading">Chargement de la session…</div>;
   if (error) return <div className="error">{error}</div>;
@@ -150,19 +172,22 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
       </div>
 
       <div className="card">
-        <h3 className="card-title">Tournois</h3>
+        <div className="card-title-row">
+          <h3 className="card-title">Tournois</h3>
+          <SearchBox value={tournamentsTable.search} onChange={tournamentsTable.setSearch} placeholder="Type de tournoi…" />
+        </div>
         <table className="data-table">
           <thead>
             <tr>
-              <th>Tournoi</th>
-              <th className="num">Buy-in</th>
-              <th className="num">Position</th>
-              <th className="num">Gain</th>
+              <SortHeader label="Tournoi" sortKey="name" activeKey={tournamentsTable.sortKey} dir={tournamentsTable.sortDir} onClick={tournamentsTable.toggleSort} />
+              <SortHeader label="Buy-in" sortKey="buy_in" activeKey={tournamentsTable.sortKey} dir={tournamentsTable.sortDir} onClick={tournamentsTable.toggleSort} numeric />
+              <SortHeader label="Position" sortKey="hero_finish_position" activeKey={tournamentsTable.sortKey} dir={tournamentsTable.sortDir} onClick={tournamentsTable.toggleSort} numeric />
+              <SortHeader label="Gain" sortKey="hero_winnings" activeKey={tournamentsTable.sortKey} dir={tournamentsTable.sortDir} onClick={tournamentsTable.toggleSort} numeric />
               <th className="num">Net</th>
             </tr>
           </thead>
           <tbody>
-            {data.tournaments.map((t) => {
+            {tournamentsTable.rows.map((t) => {
               const cost = t.buy_in + t.rake;
               const won = t.hero_winnings ?? 0;
               return (
@@ -182,23 +207,26 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
       </div>
 
       <div className="card">
-        <h3 className="card-title">Mains ({data.hands.length})</h3>
+        <div className="card-title-row">
+          <h3 className="card-title">Mains ({handsTable.rows.length}/{data.hands.length})</h3>
+          <SearchBox value={handsTable.search} onChange={handsTable.setSearch} placeholder="Position, cartes, board…" />
+        </div>
         <table className="data-table">
           <thead>
             <tr>
               <th></th>
-              <th>#</th>
-              <th>Pos</th>
-              <th>Cartes</th>
-              <th>Board</th>
-              <th className="num">Pot (jetons)</th>
-              <th className="num">Investi (jetons)</th>
-              <th className="num">Net (jetons)</th>
+              <SortHeader label="#" sortKey="hand_number" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} />
+              <SortHeader label="Pos" sortKey="hero_position" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} />
+              <SortHeader label="Cartes" sortKey="hero_cards" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} />
+              <SortHeader label="Board" sortKey="board" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} />
+              <SortHeader label="Pot (jetons)" sortKey="total_pot" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} numeric />
+              <SortHeader label="Investi (jetons)" sortKey="hero_invested" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} numeric />
+              <SortHeader label="Net (jetons)" sortKey="hero_net" activeKey={handsTable.sortKey} dir={handsTable.sortDir} onClick={handsTable.toggleSort} numeric />
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {data.hands.map((h) => {
+            {handsTable.rows.map((h) => {
               const expanded = expandedHand === h.hand_id;
               return (
                 <Fragment key={h.hand_id}>

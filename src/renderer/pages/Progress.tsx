@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { pokerApi, type ProgressPoint } from '../api.js';
 import { InfoTooltip } from '../components/InfoTooltip.js';
+import { SortHeader, SearchBox } from '../components/SortHeader.js';
+import { useTable } from '../lib/use-table.js';
 import { TIPS } from '../glossary.js';
 
 export function Progress(): JSX.Element {
@@ -16,6 +18,11 @@ export function Progress(): JSX.Element {
       setLoading(false);
     });
   }, [granularity]);
+
+  const table = useTable<ProgressPoint>(data, {
+    defaultSort: { key: 'period', dir: 'desc' },
+    searchFn: (p, q) => p.period.toLowerCase().includes(q)
+  });
 
   if (loading) return <div className="loading">Chargement des progrès…</div>;
 
@@ -56,29 +63,22 @@ export function Progress(): JSX.Element {
         </div>
       </div>
       <div className="card">
-        <h3 className="card-title">Métriques détaillées</h3>
+        <div className="card-title-row">
+          <h3 className="card-title">Métriques détaillées</h3>
+          <SearchBox value={table.search} onChange={table.setSearch} placeholder="Période…" />
+        </div>
         <table className="data-table">
           <thead>
             <tr>
-              <th>
-                Période<InfoTooltip text={TIPS.period} />
-              </th>
-              <th className="num">
-                Tournois<InfoTooltip text={TIPS.tournaments} />
-              </th>
-              <th className="num">
-                Net<InfoTooltip text={TIPS.netResult} />
-              </th>
-              <th className="num">
-                ROI<InfoTooltip text={TIPS.roi} />
-              </th>
-              <th className="num">
-                ITM%<InfoTooltip text={TIPS.itm} />
-              </th>
+              <SortHeader label={<>Période<InfoTooltip text={TIPS.period} /></>} sortKey="period" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} />
+              <SortHeader label={<>Tournois<InfoTooltip text={TIPS.tournaments} /></>} sortKey="tournamentsPlayed" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
+              <SortHeader label={<>Net<InfoTooltip text={TIPS.netResult} /></>} sortKey="net" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
+              <SortHeader label={<>ROI<InfoTooltip text={TIPS.roi} /></>} sortKey="roi" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
+              <SortHeader label={<>ITM%<InfoTooltip text={TIPS.itm} /></>} sortKey="itm" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
             </tr>
           </thead>
           <tbody>
-            {data.map((d) => (
+            {table.rows.map((d) => (
               <tr key={d.period}>
                 <td>{d.period}</td>
                 <td className="num">{d.tournamentsPlayed}</td>

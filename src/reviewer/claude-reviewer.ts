@@ -8,8 +8,8 @@ import type {
   SessionVerdict
 } from './review-types.js';
 
-const CLAUDE_BIN = '/Users/bubblz/.nvm/versions/node/v23.3.0/bin/claude';
-const DEFAULT_TIMEOUT_MS = 60_000;
+const CLAUDE_BIN = process.env.POKER_CLAUDE_BIN || '/Users/bubblz/.nvm/versions/node/v23.3.0/bin/claude';
+const DEFAULT_TIMEOUT_MS = 180_000;
 
 export interface ClaudeReviewOptions {
   systemPrompt: string;
@@ -35,8 +35,10 @@ export async function invokeClaude(opts: ClaudeReviewOptions): Promise<string> {
       'text'
     ];
 
+    console.log('[claude-reviewer] spawning', CLAUDE_BIN, 'with', opts.userPrompt.length, 'chars');
     const child = spawn(CLAUDE_BIN, args, {
-      stdio: ['pipe', 'pipe', 'pipe']
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, HOME: process.env.HOME ?? '/Users/bubblz' }
     });
 
     let stdout = '';
@@ -45,7 +47,7 @@ export async function invokeClaude(opts: ClaudeReviewOptions): Promise<string> {
 
     const timer = setTimeout(() => {
       child.kill('SIGTERM');
-      reject(new Error(`Claude CLI timed out after ${timeoutMs}ms`));
+      reject(new Error(`Claude CLI timed out after ${timeoutMs}ms. stderr: ${stderr.slice(0, 500)}`));
     }, timeoutMs);
 
     child.stdout.on('data', (d) => {
@@ -53,15 +55,18 @@ export async function invokeClaude(opts: ClaudeReviewOptions): Promise<string> {
     });
     child.stderr.on('data', (d) => {
       stderr += d.toString();
+      console.error('[claude-reviewer:stderr]', d.toString());
     });
     child.on('error', (err) => {
       clearTimeout(timer);
-      reject(err);
+      console.error('[claude-reviewer:error]', err);
+      reject(new Error(`Failed to spawn Claude CLI: ${err.message}. Path: ${CLAUDE_BIN}`));
     });
     child.on('close', (code) => {
       clearTimeout(timer);
+      console.log('[claude-reviewer] exited code=', code, 'stdout len=', stdout.length);
       if (code !== 0) {
-        reject(new Error(`Claude CLI exited with code ${code}: ${stderr}`));
+        reject(new Error(`Claude CLI exited with code ${code}. stderr: ${stderr.slice(0, 500)}`));
         return;
       }
       resolve(stdout.trim());
@@ -99,7 +104,7 @@ export async function reviewSession(
   const raw = await invokeClaude({
     systemPrompt,
     userPrompt: `Review this session and respond ONLY with a JSON object as specified.\n\n${sessionText}`,
-    timeoutMs: 90_000
+    timeoutMs: 240_000
   });
 
   const json = extractJson(raw);

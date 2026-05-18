@@ -204,12 +204,20 @@ export function registerIpcHandlers(): void {
   });
 
   ipcMain.handle('review:session', async (_, sessionDate: string) => {
-    const { loadSessionPrompt, renderSessionForReview, reviewSession } = await import(
-      '../reviewer/index.js'
-    );
-    const systemPrompt = loadSessionPrompt();
-    const sessionText = renderSessionForReview(db(), sessionDate, HERO_ACCOUNT);
-    return reviewSession(systemPrompt, sessionText);
+    try {
+      const { loadSessionPrompt, renderSessionForReview, reviewSession } = await import(
+        '../reviewer/index.js'
+      );
+      const systemPrompt = loadSessionPrompt();
+      const sessionText = renderSessionForReview(db(), sessionDate, HERO_ACCOUNT);
+      console.log('[review:session]', sessionDate, 'prompt:', sessionText.length, 'chars');
+      const result = await reviewSession(systemPrompt, sessionText);
+      console.log('[review:session] done, verdict:', result.sessionVerdict);
+      return result;
+    } catch (err) {
+      console.error('[review:session] failed:', err);
+      throw err;
+    }
   });
 }
 

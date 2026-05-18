@@ -3,6 +3,8 @@ import type { PlayerDerivedStats } from '../../types/player.js';
 import { pokerApi } from '../api.js';
 import { ProfitBadge } from '../components/ProfitBadge.js';
 import { InfoTooltip } from '../components/InfoTooltip.js';
+import { SortHeader, SearchBox } from '../components/SortHeader.js';
+import { useTable } from '../lib/use-table.js';
 import { TIPS } from '../glossary.js';
 
 const TENDENCY_FR: Record<string, string> = {
@@ -22,67 +24,47 @@ function translateTendency(t: string): string {
 export function Players(): JSX.Element {
   const [players, setPlayers] = useState<PlayerDerivedStats[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<'hands_played' | 'total_won'>('hands_played');
 
   useEffect(() => {
     setLoading(true);
     pokerApi
-      .getPlayers(100, 0, sortBy)
+      .getPlayers(500, 0, 'hands_played')
       .then((p) => {
         setPlayers(p);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [sortBy]);
+  }, []);
+
+  const table = useTable<PlayerDerivedStats>(players, {
+    defaultSort: { key: 'handsPlayed', dir: 'desc' },
+    searchFn: (p, q) => p.playerName.toLowerCase().includes(q) || p.tendency.toLowerCase().includes(q)
+  });
 
   if (loading) return <div className="loading">Chargement des adversaires…</div>;
 
   return (
     <div className="players-page">
       <h2>Adversaires</h2>
-      <div className="toolbar">
-        <button
-          className={sortBy === 'hands_played' ? 'active' : ''}
-          onClick={() => setSortBy('hands_played')}
-        >
-          Par mains jouées
-        </button>
-        <button
-          className={sortBy === 'total_won' ? 'active' : ''}
-          onClick={() => setSortBy('total_won')}
-        >
-          Par gains contre toi
-        </button>
+      <div className="table-toolbar">
+        <p className="muted">{table.rows.length}/{players.length} adversaires</p>
+        <SearchBox value={table.search} onChange={table.setSearch} placeholder="Nom ou profil…" />
       </div>
       <table className="data-table">
         <thead>
           <tr>
-            <th>Joueur</th>
-            <th className="num">
-              Mains<InfoTooltip text={TIPS.handsSeen} />
-            </th>
-            <th className="num">
-              VPIP<InfoTooltip text={TIPS.vpip} />
-            </th>
-            <th className="num">
-              PFR<InfoTooltip text={TIPS.pfr} />
-            </th>
-            <th className="num">
-              3-bet<InfoTooltip text={TIPS.threeBet} />
-            </th>
-            <th className="num">
-              AF<InfoTooltip text={TIPS.af} />
-            </th>
-            <th>
-              Profil<InfoTooltip text={TIPS.tendency} />
-            </th>
-            <th className="num">
-              Gains vs toi<InfoTooltip text={TIPS.wonVsYou} />
-            </th>
+            <SortHeader label="Joueur" sortKey="playerName" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} />
+            <SortHeader label={<>Mains<InfoTooltip text={TIPS.handsSeen} /></>} sortKey="handsPlayed" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
+            <SortHeader label={<>VPIP<InfoTooltip text={TIPS.vpip} /></>} sortKey="vpip" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
+            <SortHeader label={<>PFR<InfoTooltip text={TIPS.pfr} /></>} sortKey="pfr" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
+            <SortHeader label={<>3-bet<InfoTooltip text={TIPS.threeBet} /></>} sortKey="threeBet" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
+            <SortHeader label={<>AF<InfoTooltip text={TIPS.af} /></>} sortKey="aggressionFactor" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
+            <SortHeader label={<>Profil<InfoTooltip text={TIPS.tendency} /></>} sortKey="tendency" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} />
+            <SortHeader label={<>Gains vs toi<InfoTooltip text={TIPS.wonVsYou} /></>} sortKey="netResult" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} numeric />
           </tr>
         </thead>
         <tbody>
-          {players.map((p) => (
+          {table.rows.map((p) => (
             <tr key={p.playerName}>
               <td>{p.playerName}</td>
               <td className="num">{p.handsPlayed}</td>
