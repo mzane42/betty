@@ -188,3 +188,106 @@ CREATE TABLE IF NOT EXISTS player_notes (
   updated_at TEXT NOT NULL,
   PRIMARY KEY (player_name, hero_account)
 );
+
+-- ============================================================================
+-- Tennis Coach (Roland Garros 2026 MVP)
+-- Additive: never alter poker tables. Bankroll computed from tennis_bets.
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS tennis_players (
+  player_id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  country TEXT,
+  hand TEXT,
+  height_cm INTEGER,
+  birth_date TEXT,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS tennis_matches (
+  match_id TEXT PRIMARY KEY,
+  tournament TEXT NOT NULL,
+  surface TEXT NOT NULL,
+  round TEXT NOT NULL,
+  player1_id TEXT NOT NULL,
+  player2_id TEXT NOT NULL,
+  scheduled_at TEXT NOT NULL,
+  status TEXT NOT NULL,
+  winner_id TEXT,
+  score TEXT,
+  FOREIGN KEY (player1_id) REFERENCES tennis_players(player_id),
+  FOREIGN KEY (player2_id) REFERENCES tennis_players(player_id)
+);
+
+CREATE TABLE IF NOT EXISTS tennis_odds_snapshots (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  match_id TEXT NOT NULL,
+  book TEXT NOT NULL,
+  market TEXT NOT NULL,
+  selection TEXT NOT NULL,
+  decimal_odds REAL NOT NULL,
+  captured_at TEXT NOT NULL,
+  FOREIGN KEY (match_id) REFERENCES tennis_matches(match_id)
+);
+
+CREATE TABLE IF NOT EXISTS tennis_picks (
+  pick_id TEXT PRIMARY KEY,
+  match_id TEXT NOT NULL,
+  selection TEXT NOT NULL,
+  model_prob REAL NOT NULL,
+  fair_decimal_odds REAL NOT NULL,
+  book_decimal_odds REAL NOT NULL,
+  best_book TEXT NOT NULL,
+  edge_pct REAL NOT NULL,
+  kelly_stake_pct REAL NOT NULL,
+  signal_score INTEGER NOT NULL,
+  verdict TEXT NOT NULL,
+  claude_review_json TEXT,
+  generated_at TEXT NOT NULL,
+  FOREIGN KEY (match_id) REFERENCES tennis_matches(match_id)
+);
+
+CREATE TABLE IF NOT EXISTS tennis_bets (
+  bet_id TEXT PRIMARY KEY,
+  pick_id TEXT,
+  match_id TEXT NOT NULL,
+  selection TEXT NOT NULL,
+  book TEXT NOT NULL,
+  decimal_odds REAL NOT NULL,
+  stake_eur REAL NOT NULL,
+  placed_at TEXT NOT NULL,
+  result TEXT,
+  pnl_eur REAL,
+  closing_odds REAL,
+  FOREIGN KEY (pick_id) REFERENCES tennis_picks(pick_id),
+  FOREIGN KEY (match_id) REFERENCES tennis_matches(match_id)
+);
+
+CREATE TABLE IF NOT EXISTS tennis_signal_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  match_id TEXT NOT NULL,
+  source TEXT NOT NULL,
+  signal_kind TEXT NOT NULL,
+  payload_json TEXT NOT NULL,
+  captured_at TEXT NOT NULL,
+  FOREIGN KEY (match_id) REFERENCES tennis_matches(match_id)
+);
+
+CREATE TABLE IF NOT EXISTS tennis_ingest_errors (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  source TEXT NOT NULL,
+  match_id TEXT,
+  error_message TEXT NOT NULL,
+  raw_context TEXT,
+  occurred_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_tennis_matches_status ON tennis_matches(status, scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_tennis_matches_tournament ON tennis_matches(tournament, scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_tennis_odds_match_time ON tennis_odds_snapshots(match_id, captured_at DESC);
+CREATE INDEX IF NOT EXISTS idx_tennis_picks_match ON tennis_picks(match_id, generated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_tennis_picks_verdict ON tennis_picks(verdict, generated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_tennis_bets_match ON tennis_bets(match_id);
+CREATE INDEX IF NOT EXISTS idx_tennis_bets_placed ON tennis_bets(placed_at);
+CREATE INDEX IF NOT EXISTS idx_tennis_bets_result ON tennis_bets(result);
+CREATE INDEX IF NOT EXISTS idx_tennis_signal_log_match ON tennis_signal_log(match_id, captured_at DESC);

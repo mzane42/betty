@@ -5,6 +5,7 @@ import { InfoTooltip } from '../components/InfoTooltip.js';
 import { SortHeader, SearchBox } from '../components/SortHeader.js';
 import { useTable } from '../lib/use-table.js';
 import { TIPS } from '../glossary.js';
+import { Icon } from '../components/Icon.js';
 
 const AUTO_REVIEW_KEY = 'pokerCoach.autoReviewOnImport';
 
@@ -108,7 +109,15 @@ export function Sessions({ onSelect }: SessionsProps): JSX.Element {
         <h2>Sessions</h2>
         <div className="sessions-import-controls">
           <button className="import-btn" onClick={runImport} disabled={importing}>
-            {importing ? '⟳ Import en cours…' : '⬇ Importer nouvelles mains'}
+            {importing ? (
+              <>
+                <Icon.Loader size={14} className="spin" /> Import en cours…
+              </>
+            ) : (
+              <>
+                <Icon.Download size={14} /> Importer nouvelles mains
+              </>
+            )}
           </button>
           <label className="auto-review-toggle" title="Lance l'analyse IA automatiquement après import">
             <input type="checkbox" checked={autoReview} onChange={toggleAutoReview} />

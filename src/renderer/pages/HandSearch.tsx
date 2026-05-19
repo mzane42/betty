@@ -4,6 +4,7 @@ import { CardGroup } from '../components/PlayingCard.js';
 import { PositionBadge } from '../components/PositionBadge.js';
 import { ProfitBadge } from '../components/ProfitBadge.js';
 import { coachBus } from '../lib/coach-bus.js';
+import { Icon } from '../components/Icon.js';
 
 interface Row {
   hand_id: string;
@@ -121,7 +122,7 @@ export function HandSearch(): JSX.Element {
         </div>
         <div className="filter-actions">
           <button className="sparkle-btn" onClick={search} disabled={loading}>
-            {loading ? 'Recherche…' : '🔍 Chercher'}
+            {loading ? 'Recherche…' : <><Icon.Search size={14} /> Chercher</>}
           </button>
           <button className="ohmy-btn ghost" onClick={reset}>
             Reset
@@ -135,7 +136,7 @@ export function HandSearch(): JSX.Element {
                 )
               }
             >
-              ✨ Analyser pattern avec coach
+              <Icon.Sparkles size={12} /> Analyser pattern avec coach
             </button>
           )}
         </div>

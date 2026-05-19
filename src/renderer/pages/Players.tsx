@@ -21,7 +21,11 @@ function translateTendency(t: string): string {
   return TENDENCY_FR[t] ?? t;
 }
 
-export function Players(): JSX.Element {
+interface Props {
+  onSelect?: (name: string) => void;
+}
+
+export function Players({ onSelect }: Props = {}): JSX.Element {
   const [players, setPlayers] = useState<PlayerDerivedStats[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,7 +54,7 @@ export function Players(): JSX.Element {
         <p className="muted">{table.rows.length}/{players.length} adversaires</p>
         <SearchBox value={table.search} onChange={table.setSearch} placeholder="Nom ou profil…" />
       </div>
-      <table className="data-table">
+      <table className={`data-table ${onSelect ? 'clickable-rows' : ''}`}>
         <thead>
           <tr>
             <SortHeader label="Joueur" sortKey="playerName" activeKey={table.sortKey} dir={table.sortDir} onClick={table.toggleSort} />
@@ -65,7 +69,11 @@ export function Players(): JSX.Element {
         </thead>
         <tbody>
           {table.rows.map((p) => (
-            <tr key={p.playerName}>
+            <tr
+              key={p.playerName}
+              className={onSelect ? 'clickable-row' : ''}
+              onClick={() => onSelect?.(p.playerName)}
+            >
               <td>{p.playerName}</td>
               <td className="num">{p.handsPlayed}</td>
               <td className="num">{p.vpip === null ? '—' : `${p.vpip.toFixed(0)}%`}</td>

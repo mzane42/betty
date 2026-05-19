@@ -62,8 +62,19 @@ function applyAdHocMigrations(db: Database): void {
         PRIMARY KEY (player_name, hero_account)
       )`
     );
+    runSql(
+      db,
+      `CREATE TABLE IF NOT EXISTS session_annotations (
+        session_date TEXT NOT NULL,
+        hero_account TEXT NOT NULL,
+        annotation TEXT,
+        mood TEXT,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (session_date, hero_account)
+      )`
+    );
   } catch (err) {
-    console.error('player_notes migration failed', err);
+    console.error('migration failed', err);
   }
 }
 

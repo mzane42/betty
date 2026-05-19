@@ -74,6 +74,22 @@ const api = {
   searchHands: (filters: Record<string, unknown>) => ipcRenderer.invoke('hands:search', filters),
   exportSessionMd: (sessionDate: string) => ipcRenderer.invoke('export:session-md', sessionDate),
   backupDb: () => ipcRenderer.invoke('db:backup'),
+  listAccounts: () => ipcRenderer.invoke('account:list'),
+  getActiveAccount: () => ipcRenderer.invoke('account:get'),
+  setActiveAccount: (acc: string) => ipcRenderer.invoke('account:set', acc),
+  getSettings: () => ipcRenderer.invoke('settings:get'),
+  updateSettings: (partial: Record<string, unknown>) =>
+    ipcRenderer.invoke('settings:update', partial),
+  getSessionAnnotation: (date: string) =>
+    ipcRenderer.invoke('session-annotation:get', date),
+  saveSessionAnnotation: (date: string, annotation: string, mood: string) =>
+    ipcRenderer.invoke('session-annotation:save', date, annotation, mood),
+  getDashboardTrackers: () => ipcRenderer.invoke('dashboard:trackers'),
+  compareSessions: (a: string, b: string) =>
+    ipcRenderer.invoke('sessions:compare', a, b),
+  runVarianceSim: (opts: { tournaments?: number; iterations?: number } = {}) =>
+    ipcRenderer.invoke('analytics:variance-sim', opts),
+  getPlayerDeep: (name: string) => ipcRenderer.invoke('players:deep', name),
 
   getLeaks: () => ipcRenderer.invoke('analytics:leaks'),
   getGameRecommendations: () => ipcRenderer.invoke('analytics:game-recommendations'),

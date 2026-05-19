@@ -28,10 +28,14 @@ import {
   getTournamentReview,
   getHandReviewsForSession
 } from '../db/repositories/review-repository.js';
+import { getActiveAccount, setActiveAccount, getSettings, updateSettings } from './account-store.js';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-const HERO_ACCOUNT = 'mzane42';
+/** Resolves the current hero account at call time (changes when user switches). */
+function hero(): string {
+  return getActiveAccount();
+}
 
 let dbInstance: Database | null = null;
 
@@ -43,18 +47,33 @@ function db(): Database {
 }
 
 export function registerIpcHandlers(): void {
+  // Account / settings
+  ipcMain.handle('account:list', () => {
+    const rows = db()
+      .prepare(`SELECT DISTINCT hero_account FROM tournaments ORDER BY hero_account`)
+      .all() as Array<{ hero_account: string }>;
+    return rows.map((r) => r.hero_account);
+  });
+  ipcMain.handle('account:get', () => getActiveAccount());
+  ipcMain.handle('account:set', (_, account: string) => {
+    setActiveAccount(account);
+    return getActiveAccount();
+  });
+  ipcMain.handle('settings:get', () => getSettings());
+  ipcMain.handle('settings:update', (_, partial: Record<string, unknown>) => updateSettings(partial));
+
   // Bankroll
-  ipcMain.handle('bankroll:summary', () => getBankrollSummary(db(), HERO_ACCOUNT));
-  ipcMain.handle('bankroll:yearly', () => getYearlyBankroll(db(), HERO_ACCOUNT));
-  ipcMain.handle('bankroll:monthly', () => getMonthlyBankroll(db(), HERO_ACCOUNT));
-  ipcMain.handle('bankroll:roi-format', () => getRoiByFormat(db(), HERO_ACCOUNT));
-  ipcMain.handle('bankroll:roi-stake', () => getRoiByStake(db(), HERO_ACCOUNT));
-  ipcMain.handle('bankroll:chart', () => getBankrollChart(db(), HERO_ACCOUNT));
+  ipcMain.handle('bankroll:summary', () => getBankrollSummary(db(), hero()));
+  ipcMain.handle('bankroll:yearly', () => getYearlyBankroll(db(), hero()));
+  ipcMain.handle('bankroll:monthly', () => getMonthlyBankroll(db(), hero()));
+  ipcMain.handle('bankroll:roi-format', () => getRoiByFormat(db(), hero()));
+  ipcMain.handle('bankroll:roi-stake', () => getRoiByStake(db(), hero()));
+  ipcMain.handle('bankroll:chart', () => getBankrollChart(db(), hero()));
 
   // Analytics
   ipcMain.handle('analytics:leaks', () => {
     try {
-      return findLeaks(db(), HERO_ACCOUNT);
+      return findLeaks(db(), hero());
     } catch (err) {
       console.error('[analytics:leaks] failed:', err);
       throw err;
@@ -62,7 +81,7 @@ export function registerIpcHandlers(): void {
   });
   ipcMain.handle('analytics:game-recommendations', () => {
     try {
-      return recommendGames(db(), HERO_ACCOUNT);
+      return recommendGames(db(), hero());
     } catch (err) {
       console.error('[analytics:game-recommendations] failed:', err);
       throw err;
@@ -70,7 +89,7 @@ export function registerIpcHandlers(): void {
   });
   ipcMain.handle('analytics:progress', (_, granularity: 'quarter' | 'month' = 'quarter') => {
     try {
-      return getProgress(db(), HERO_ACCOUNT, granularity);
+      return getProgress(db(), hero(), granularity);
     } catch (err) {
       console.error('[analytics:progress] failed:', err);
       throw err;
@@ -79,7 +98,7 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('analytics:ev-bankroll', () => {
     try {
-      return getEvBankroll(db(), HERO_ACCOUNT);
+      return getEvBankroll(db(), hero());
     } catch (err) {
       console.error('[analytics:ev-bankroll] failed:', err);
       throw err;
@@ -88,7 +107,7 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('analytics:time-of-day', () => {
     try {
-      return analyzeTimeOfDay(db(), HERO_ACCOUNT);
+      return analyzeTimeOfDay(db(), hero());
     } catch (err) {
       console.error('[analytics:time-of-day] failed:', err);
       throw err;
@@ -111,14 +130,14 @@ export function registerIpcHandlers(): void {
         ORDER BY session_date DESC
         LIMIT ? OFFSET ?`
       )
-      .all(HERO_ACCOUNT, limit, offset);
+      .all(hero(), limit, offset);
   });
 
   // Player notes
   ipcMain.handle('player-notes:get', (_, playerName: string) => {
     const row = db()
       .prepare(`SELECT note, tags_json FROM player_notes WHERE hero_account = ? AND player_name = ?`)
-      .get(HERO_ACCOUNT, playerName) as { note: string | null; tags_json: string | null } | undefined;
+      .get(hero(), playerName) as { note: string | null; tags_json: string | null } | undefined;
     if (!row) return { note: '', tags: [] };
     return { note: row.note ?? '', tags: row.tags_json ? (JSON.parse(row.tags_json) as string[]) : [] };
   });
@@ -133,14 +152,14 @@ export function registerIpcHandlers(): void {
            tags_json = excluded.tags_json,
            updated_at = excluded.updated_at`
       )
-      .run(playerName, HERO_ACCOUNT, note, JSON.stringify(tags), new Date().toISOString());
+      .run(playerName, hero(), note, JSON.stringify(tags), new Date().toISOString());
     return { ok: true };
   });
 
   ipcMain.handle('player-notes:list', () => {
     const rows = db()
       .prepare(`SELECT player_name, note, tags_json FROM player_notes WHERE hero_account = ?`)
-      .all(HERO_ACCOUNT) as Array<{ player_name: string; note: string | null; tags_json: string | null }>;
+      .all(hero()) as Array<{ player_name: string; note: string | null; tags_json: string | null }>;
     const map: Record<string, { note: string; tags: string[] }> = {};
     for (const r of rows) {
       map[r.player_name] = {
@@ -161,14 +180,14 @@ export function registerIpcHandlers(): void {
          ORDER BY ${validSort} DESC
          LIMIT ? OFFSET ?`
       )
-      .all(HERO_ACCOUNT, HERO_ACCOUNT, limit, offset) as Array<Record<string, unknown>>;
+      .all(hero(), hero(), limit, offset) as Array<Record<string, unknown>>;
     return rows.map((r) => derivePlayerStats(rowToRaw(r)));
   });
 
   ipcMain.handle('players:detail', (_, playerName: string) => {
     const row = db()
       .prepare(`SELECT * FROM player_stats WHERE hero_account = ? AND player_name = ?`)
-      .get(HERO_ACCOUNT, playerName) as Record<string, unknown> | undefined;
+      .get(hero(), playerName) as Record<string, unknown> | undefined;
     if (!row) return null;
     return derivePlayerStats(rowToRaw(row));
   });
@@ -180,7 +199,7 @@ export function registerIpcHandlers(): void {
         `SELECT * FROM tournaments WHERE hero_account = ? AND DATE(start_time) = ?
          ORDER BY start_time ASC`
       )
-      .all(HERO_ACCOUNT, sessionDate) as Array<{
+      .all(hero(), sessionDate) as Array<{
       tournament_id: string;
       name: string;
       buy_in: number;
@@ -201,7 +220,7 @@ export function registerIpcHandlers(): void {
          WHERE t.hero_account = ? AND DATE(t.start_time) = ?
          ORDER BY h.played_at ASC, h.hand_id ASC`
       )
-      .all(HERO_ACCOUNT, sessionDate) as Array<{
+      .all(hero(), sessionDate) as Array<{
       hand_id: string;
       hero_position: string | null;
       hero_cards: string | null;
@@ -216,7 +235,7 @@ export function registerIpcHandlers(): void {
 
     const sessionReview = db()
       .prepare(`SELECT * FROM session_reviews WHERE session_date = ? AND hero_account = ?`)
-      .get(sessionDate, HERO_ACCOUNT) as
+      .get(sessionDate, hero()) as
       | {
           session_verdict: string;
           summary: string;
@@ -234,7 +253,7 @@ export function registerIpcHandlers(): void {
     const totalCost = tournaments.reduce((s, t) => s + t.buy_in + t.rake, 0);
     const totalWon = tournaments.reduce((s, t) => s + (t.hero_winnings ?? 0), 0);
     const net = totalWon - totalCost;
-    lines.push(`- **Joueur:** ${HERO_ACCOUNT}`);
+    lines.push(`- **Joueur:** ${hero()}`);
     lines.push(`- **Tournois:** ${tournaments.length}`);
     lines.push(`- **Mains:** ${hands.length}`);
     lines.push(`- **Buy-ins:** ${totalCost.toFixed(2)}€`);
@@ -355,7 +374,7 @@ export function registerIpcHandlers(): void {
     limit?: number;
   } = {}) => {
     const where: string[] = ['h.hero_account = ?'];
-    const params: (string | number)[] = [HERO_ACCOUNT];
+    const params: (string | number)[] = [hero()];
 
     if (filters.position) {
       where.push('h.hero_position = ?');
@@ -461,7 +480,7 @@ export function registerIpcHandlers(): void {
          WHERE hero_account = ? AND DATE(start_time) = ?
          ORDER BY start_time ASC`
       )
-      .all(HERO_ACCOUNT, sessionDate) as Array<{
+      .all(hero(), sessionDate) as Array<{
       tournament_id: string;
       name: string;
       buy_in: number;
@@ -495,7 +514,7 @@ export function registerIpcHandlers(): void {
         WHERE t.hero_account = ? AND DATE(t.start_time) = ?
         ORDER BY h.played_at ASC, h.hand_id ASC`
       )
-      .all(HERO_ACCOUNT, sessionDate) as Array<{
+      .all(hero(), sessionDate) as Array<{
       hand_id: string;
       tournament_id: string;
       tournament_name: string;
@@ -565,10 +584,10 @@ export function registerIpcHandlers(): void {
         '../reviewer/index.js'
       );
       const systemPrompt = loadSessionPrompt();
-      const sessionText = renderSessionForReview(db(), sessionDate, HERO_ACCOUNT);
+      const sessionText = renderSessionForReview(db(), sessionDate, hero());
       console.log('[review:session]', sessionDate, 'prompt:', sessionText.length, 'chars');
       const result = await reviewSession(systemPrompt, sessionText);
-      saveSessionReview(db(), sessionDate, HERO_ACCOUNT, result);
+      saveSessionReview(db(), sessionDate, hero(), result);
       const { appendSessionMemory } = await import('../reviewer/coach-memory.js');
       appendSessionMemory(sessionDate, result);
       console.log('[review:session] done, verdict:', result.sessionVerdict);
@@ -585,7 +604,7 @@ export function registerIpcHandlers(): void {
         '../reviewer/index.js'
       );
       const systemPrompt = loadTournamentPrompt();
-      const tournamentText = renderTournamentForReview(db(), tournamentId, HERO_ACCOUNT);
+      const tournamentText = renderTournamentForReview(db(), tournamentId, hero());
       console.log('[review:tournament]', tournamentId, 'prompt:', tournamentText.length, 'chars');
       const result = await reviewTournament(systemPrompt, tournamentText);
       saveTournamentReview(db(), tournamentId, result);
@@ -597,6 +616,183 @@ export function registerIpcHandlers(): void {
       console.error('[review:tournament] failed:', err);
       throw err;
     }
+  });
+
+  // Session annotations
+  ipcMain.handle('session-annotation:get', (_, sessionDate: string) => {
+    const row = db()
+      .prepare(`SELECT annotation, mood FROM session_annotations WHERE session_date = ? AND hero_account = ?`)
+      .get(sessionDate, hero()) as { annotation: string | null; mood: string | null } | undefined;
+    return { annotation: row?.annotation ?? '', mood: row?.mood ?? '' };
+  });
+  ipcMain.handle('session-annotation:save', (_, sessionDate: string, annotation: string, mood: string) => {
+    db()
+      .prepare(
+        `INSERT INTO session_annotations (session_date, hero_account, annotation, mood, updated_at)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(session_date, hero_account) DO UPDATE SET
+           annotation = excluded.annotation,
+           mood = excluded.mood,
+           updated_at = excluded.updated_at`
+      )
+      .run(sessionDate, hero(), annotation, mood, new Date().toISOString());
+    return { ok: true };
+  });
+
+  // Streak detection + goal/stop-loss derived metrics
+  ipcMain.handle('dashboard:trackers', () => {
+    const sessions = db()
+      .prepare(
+        `SELECT DATE(start_time) as date,
+          COALESCE(SUM(hero_winnings),0) - COALESCE(SUM(buy_in+rake),0) as net
+         FROM tournaments WHERE hero_account = ? AND start_time IS NOT NULL
+         GROUP BY date ORDER BY date ASC`
+      )
+      .all(hero()) as Array<{ date: string; net: number }>;
+
+    // Current streak
+    let streakLen = 0;
+    let streakType: 'winning' | 'losing' | 'neutral' = 'neutral';
+    const reversed = [...sessions].reverse();
+    if (reversed.length > 0) {
+      const sign = Math.sign(reversed[0]!.net);
+      if (sign > 0) streakType = 'winning';
+      else if (sign < 0) streakType = 'losing';
+      for (const s of reversed) {
+        if (Math.sign(s.net) === sign && sign !== 0) streakLen++;
+        else break;
+      }
+    }
+
+    // Today net
+    const today = new Date().toISOString().slice(0, 10);
+    const todayNet = sessions.find((s) => s.date === today)?.net ?? 0;
+
+    // Year-to-date
+    const year = today.slice(0, 4);
+    const ytdNet = sessions.filter((s) => s.date.startsWith(year)).reduce((a, b) => a + b.net, 0);
+
+    const settings = getSettings();
+
+    // Goal progress
+    let goalPct = 0;
+    if (settings.goalAnnualNet && settings.goalAnnualNet > 0) {
+      goalPct = (ytdNet / settings.goalAnnualNet) * 100;
+    }
+
+    // Stop-loss state for today
+    const stopLossHit = settings.stopLossDaily ? todayNet <= -settings.stopLossDaily : false;
+
+    return {
+      streak: { length: streakLen, type: streakType, latestDate: reversed[0]?.date ?? null },
+      todayNet,
+      ytdNet,
+      goalAnnualNet: settings.goalAnnualNet ?? null,
+      goalPct,
+      stopLossDaily: settings.stopLossDaily ?? null,
+      stopLossHit
+    };
+  });
+
+  // Compare sessions
+  ipcMain.handle('sessions:compare', (_, dateA: string, dateB: string) => {
+    const fetch = (d: string) => {
+      const totals = db()
+        .prepare(
+          `SELECT COUNT(*) as tournaments,
+            COALESCE(SUM(hero_winnings),0) as winnings,
+            COALESCE(SUM(buy_in+rake),0) as buy_ins,
+            COALESCE(SUM(hero_winnings),0) - COALESCE(SUM(buy_in+rake),0) as net
+           FROM tournaments WHERE hero_account = ? AND DATE(start_time) = ?`
+        )
+        .get(hero(), d) as { tournaments: number; winnings: number; buy_ins: number; net: number };
+      const handsAgg = db()
+        .prepare(
+          `SELECT COUNT(*) as hands,
+            COALESCE(AVG(total_pot),0) as avg_pot,
+            COALESCE(SUM(CASE WHEN hero_won - hero_invested > 0 THEN 1 ELSE 0 END), 0) * 100.0 / NULLIF(COUNT(*),0) as win_rate
+           FROM hands h JOIN tournaments t ON h.tournament_id = t.tournament_id
+           WHERE t.hero_account = ? AND DATE(t.start_time) = ?`
+        )
+        .get(hero(), d) as { hands: number; avg_pot: number; win_rate: number };
+      return { date: d, ...totals, ...handsAgg };
+    };
+    return { a: fetch(dateA), b: fetch(dateB) };
+  });
+
+  // Variance simulator: Monte Carlo bankroll given hero ROI + stake + n tournaments
+  ipcMain.handle('analytics:variance-sim', (_, opts: { tournaments?: number; iterations?: number } = {}) => {
+    const heroAcc = hero();
+    const stats = db()
+      .prepare(
+        `SELECT
+          COALESCE(SUM(hero_winnings),0) - COALESCE(SUM(buy_in+rake),0) as net,
+          COALESCE(SUM(buy_in+rake),0) as paid,
+          COUNT(*) as n,
+          COALESCE(AVG(buy_in+rake),0) as avg_buyin
+         FROM tournaments WHERE hero_account = ? AND name != 'CashGame'`
+      )
+      .get(heroAcc) as { net: number; paid: number; n: number; avg_buyin: number };
+    const roi = stats.paid > 0 ? stats.net / stats.paid : 0;
+    if (stats.n < 30) return { runs: [], message: 'Pas assez de données', meta: { historicalRoi: roi, n: stats.n } };
+
+    // Get per-tournament net to derive std dev
+    const nets = db()
+      .prepare(
+        `SELECT (COALESCE(hero_winnings,0) - (buy_in+rake)) as net
+         FROM tournaments WHERE hero_account = ? AND name != 'CashGame'`
+      )
+      .all(heroAcc) as Array<{ net: number }>;
+    const mean = nets.reduce((a, b) => a + b.net, 0) / nets.length;
+    const variance = nets.reduce((a, b) => a + (b.net - mean) ** 2, 0) / nets.length;
+    const std = Math.sqrt(variance);
+
+    const tournaments = opts.tournaments ?? 200;
+    const iterations = opts.iterations ?? 200;
+    const runs: number[][] = [];
+    for (let it = 0; it < iterations; it++) {
+      const path: number[] = [0];
+      let cum = 0;
+      for (let i = 0; i < tournaments; i++) {
+        const sample = mean + std * normalRandom();
+        cum += sample;
+        path.push(cum);
+      }
+      runs.push(path);
+    }
+    return {
+      runs,
+      meta: { historicalRoi: roi, perTournamentMean: mean, perTournamentStd: std, n: stats.n }
+    };
+  });
+
+  // Per-opponent deep dive
+  ipcMain.handle('players:deep', (_, playerName: string) => {
+    const stats = db()
+      .prepare(`SELECT * FROM player_stats WHERE hero_account = ? AND player_name = ?`)
+      .get(hero(), playerName) as Record<string, unknown> | undefined;
+    const hands = db()
+      .prepare(
+        `SELECT h.hand_id, h.played_at, h.hero_cards, h.hero_position, h.big_blind,
+          h.board, h.hero_invested, h.hero_won, h.total_pot,
+          (h.hero_won - h.hero_invested) as hero_net,
+          hp.cards as villain_cards, hp.won as villain_won,
+          DATE(h.played_at) as session_date
+         FROM hands h
+         JOIN hand_players hp ON hp.hand_id = h.hand_id AND hp.player_name = ?
+         WHERE h.hero_account = ?
+         ORDER BY h.played_at DESC LIMIT 200`
+      )
+      .all(playerName, hero()) as Array<Record<string, unknown>>;
+    const note = db()
+      .prepare(`SELECT note, tags_json FROM player_notes WHERE hero_account = ? AND player_name = ?`)
+      .get(hero(), playerName) as { note: string | null; tags_json: string | null } | undefined;
+    return {
+      stats,
+      hands,
+      note: note?.note ?? '',
+      tags: note?.tags_json ? (JSON.parse(note.tags_json) as string[]) : []
+    };
   });
 
   // Coach terminal: opens Terminal.app with claude CLI primed by brief
@@ -611,13 +807,13 @@ export function registerIpcHandlers(): void {
   // Cached review fetches (no Claude call, just DB read)
   ipcMain.handle('reviews:hand-cached', (_, handId: string) => getHandReview(db(), handId));
   ipcMain.handle('reviews:session-cached', (_, sessionDate: string) =>
-    getSessionReview(db(), sessionDate, HERO_ACCOUNT)
+    getSessionReview(db(), sessionDate, hero())
   );
   ipcMain.handle('reviews:tournament-cached', (_, tournamentId: string) =>
     getTournamentReview(db(), tournamentId)
   );
   ipcMain.handle('reviews:hands-for-session', (_, sessionDate: string) => {
-    const map = getHandReviewsForSession(db(), sessionDate, HERO_ACCOUNT);
+    const map = getHandReviewsForSession(db(), sessionDate, hero());
     return Object.fromEntries(map);
   });
 
@@ -628,7 +824,7 @@ export function registerIpcHandlers(): void {
   // Nash compliance scan
   ipcMain.handle('nash:scan', async () => {
     const { tagNashCompliance, nashStats } = await import('../nash/nash-tagger.js');
-    const tags = tagNashCompliance(db(), HERO_ACCOUNT);
+    const tags = tagNashCompliance(db(), hero());
     return { tags, stats: nashStats(tags) };
   });
 
@@ -642,7 +838,7 @@ export function registerIpcHandlers(): void {
          WHERE t.hero_account = ? AND sr.session_date IS NULL
          ORDER BY session_date DESC`
       )
-      .all(HERO_ACCOUNT) as Array<{ session_date: string }>;
+      .all(hero()) as Array<{ session_date: string }>;
 
     const tournaments = db()
       .prepare(
@@ -652,7 +848,7 @@ export function registerIpcHandlers(): void {
          WHERE t.hero_account = ? AND tr.tournament_id IS NULL
          ORDER BY t.start_time DESC`
       )
-      .all(HERO_ACCOUNT) as Array<{ tournament_id: string; session_date: string }>;
+      .all(hero()) as Array<{ tournament_id: string; session_date: string }>;
 
     return { sessions: sessions.map((s) => s.session_date), tournaments };
   });
@@ -660,7 +856,7 @@ export function registerIpcHandlers(): void {
 
 function runImport(force: boolean) {
   const dirs = [
-    join(homedir(), 'Documents', 'Winamax Poker', 'accounts', HERO_ACCOUNT, 'history'),
+    join(homedir(), 'Documents', 'Winamax Poker', 'accounts', hero(), 'history'),
     join(
       homedir(),
       'Library',
@@ -668,7 +864,7 @@ function runImport(force: boolean) {
       'winamax',
       'documents',
       'accounts',
-      HERO_ACCOUNT,
+      hero(),
       'history'
     )
   ];
@@ -678,7 +874,7 @@ function runImport(force: boolean) {
   const errors: { file: string; message: string }[] = [];
   for (const historyDir of dirs) {
     try {
-      const result = bulkImport(db(), { historyDir, heroAccount: HERO_ACCOUNT, force });
+      const result = bulkImport(db(), { historyDir, heroAccount: hero(), force });
       totalFiles += result.filesProcessed;
       totalHands += result.handsImported;
       totalTournaments += result.tournamentsImported;
@@ -687,8 +883,17 @@ function runImport(force: boolean) {
       // dir missing — skip
     }
   }
-  rebuildPlayerStats(db(), HERO_ACCOUNT);
+  rebuildPlayerStats(db(), hero());
   return { filesProcessed: totalFiles, handsImported: totalHands, tournamentsImported: totalTournaments, errors };
+}
+
+// Box-Muller for variance sim
+function normalRandom(): number {
+  let u = 0;
+  let v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
 }
 
 function rowToRaw(r: Record<string, unknown>): PlayerStatsRaw {

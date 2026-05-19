@@ -4,6 +4,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import 'xterm/css/xterm.css';
 import { coachBus } from '../lib/coach-bus.js';
+import { Icon } from './Icon.js';
 
 declare global {
   interface Window {
@@ -27,29 +28,35 @@ interface Props {
 
 const STORAGE_AUTOSTART = 'pokerCoach.sidebarAutostart';
 
-const QUICK_PROMPTS: Array<{ label: string; prompt: string }> = [
+const QUICK_PROMPTS: Array<{ label: string; iconKey: keyof typeof Icon; prompt: string }> = [
   {
-    label: '📊 État bankroll',
+    label: 'État bankroll',
+    iconKey: 'BarChart',
     prompt: 'Récap bref: où en est ma bankroll, mon top leak actuel, et le focus pour la prochaine session ?'
   },
   {
-    label: '🔥 Dernière session',
+    label: 'Dernière session',
+    iconKey: 'Flame',
     prompt: 'Analyse ma dernière session de jeu: 1 pattern positif, 1 erreur récurrente, 1 conseil concret.'
   },
   {
-    label: '🎯 Top leak',
+    label: 'Top leak',
+    iconKey: 'Target',
     prompt: 'Quel est mon leak #1 actuellement (impact € + impact BB), et donne moi un exemple concret de main où ça s\'est manifesté avec la correction.'
   },
   {
-    label: '⚡ Push/fold Nash',
+    label: 'Push/fold Nash',
+    iconKey: 'Zap',
     prompt: 'Sur mes décisions push/fold à <12 BB, identifie les 3 ranges où je dévie le plus de Nash et explique comment les corriger.'
   },
   {
-    label: '🃏 Adversaires actifs',
+    label: 'Adversaires',
+    iconKey: 'Spade',
     prompt: 'Donne moi les 3 adversaires que j\'affronte le plus souvent avec leurs profils (VPIP/PFR/AF) et un conseil tactique contre chacun.'
   },
   {
-    label: '💸 ROI par format',
+    label: 'ROI par format',
+    iconKey: 'Banknote',
     prompt: 'Compare mes ROI par format/buy-in. Sur lequel je suis le plus rentable ? Lequel je devrais arrêter ?'
   }
 ];
@@ -59,11 +66,14 @@ function QuickPrompts(): JSX.Element {
     <div className="quick-prompts">
       <div className="qp-label">prompts rapides</div>
       <div className="qp-list">
-        {QUICK_PROMPTS.map((qp) => (
-          <button key={qp.label} className="qp-btn" onClick={() => coachBus.send(qp.prompt)} title={qp.prompt}>
-            {qp.label}
-          </button>
-        ))}
+        {QUICK_PROMPTS.map((qp) => {
+          const IconComp = Icon[qp.iconKey];
+          return (
+            <button key={qp.label} className="qp-btn" onClick={() => coachBus.send(qp.prompt)} title={qp.prompt}>
+              <IconComp size={12} /> {qp.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -283,7 +293,7 @@ export function CoachSidebar({ collapsed, onToggle, width, onResize }: Props): J
     <aside className={`coach-sidebar ${collapsed ? 'collapsed' : ''}`} style={{ width: collapsed ? 36 : width }}>
       {!collapsed && <div className="resize-handle" onMouseDown={onHandleMouseDown} />}
       <button className="sidebar-toggle" onClick={onToggle} title={collapsed ? 'Ouvrir le coach' : 'Réduire'}>
-        {collapsed ? '✨' : '›'}
+        {collapsed ? <Icon.Sparkles size={14} /> : <Icon.ChevronRight size={14} />}
       </button>
 
       {!collapsed && (
@@ -307,29 +317,29 @@ export function CoachSidebar({ collapsed, onToggle, width, onResize }: Props): J
               {status === 'idle' && (
                 <>
                   <button className="ohmy-btn primary" onClick={() => start('bun run coach-brief && claude', true)}>
-                    <span className="btn-glyph">⚡</span> brief + claude
+                    <Icon.Zap size={12} /> brief + claude
                   </button>
                   <button className="ohmy-btn" onClick={() => start('claude', true)}>
-                    <span className="btn-glyph">◇</span> claude
+                    <Icon.Diamond size={12} /> claude
                   </button>
                   <button className="ohmy-btn" onClick={() => start('', false)}>
-                    <span className="btn-glyph">$</span> shell
+                    <Icon.MessageCircle size={12} /> shell
                   </button>
                 </>
               )}
               {status === 'running' && (
                 <button className="ohmy-btn ghost" onClick={reset}>
-                  <span className="btn-glyph">✕</span> reset
+                  <Icon.X size={12} /> reset
                 </button>
               )}
               {status === 'exited' && (
                 <>
                   <span className="muted">session terminée</span>
                   <button className="ohmy-btn primary" onClick={() => start('bun run coach-brief && claude', true)}>
-                    <span className="btn-glyph">↻</span> relancer
+                    <Icon.RefreshCw size={12} /> relancer
                   </button>
                   <button className="ohmy-btn" onClick={reset}>
-                    <span className="btn-glyph">✕</span> clean
+                    <Icon.X size={12} /> clean
                   </button>
                 </>
               )}

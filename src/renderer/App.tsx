@@ -7,8 +7,13 @@ import { LeakFinder } from './pages/LeakFinder.js';
 import { GameSelection } from './pages/GameSelection.js';
 import { Progress } from './pages/Progress.js';
 import { HandSearch } from './pages/HandSearch.js';
+import { PlayerDetail } from './pages/PlayerDetail.js';
 import { CoachSidebar } from './components/CoachSidebar.js';
+import { ToastHost } from './components/ToastHost.js';
+import { AccountSwitcher } from './components/AccountSwitcher.js';
+import { Icon } from './components/Icon.js';
 import { pokerApi } from './api.js';
+import { toast } from './lib/toast.js';
 
 type Page = 'dashboard' | 'sessions' | 'players' | 'leaks' | 'games' | 'progress' | 'search';
 
@@ -18,6 +23,7 @@ const SIDEBAR_WIDTH_KEY = 'pokerCoach.sidebarWidth';
 export function App(): JSX.Element {
   const [page, setPage] = useState<Page>('dashboard');
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1'
   );
@@ -39,6 +45,7 @@ export function App(): JSX.Element {
 
   function navigate(p: Page): void {
     setSelectedSession(null);
+    setSelectedPlayer(null);
     setPage(p);
   }
 
@@ -69,19 +76,20 @@ export function App(): JSX.Element {
             Progrès
           </button>
           <button className={page === 'search' ? 'active' : ''} onClick={() => navigate('search')}>
-            🔍 Recherche
+            <Icon.Search size={14} /> Recherche
           </button>
           <button
             className="backup-btn"
             onClick={async () => {
               const res = await pokerApi.backupDb();
-              if (res.saved) alert(`Backup sauvegardé: ${res.path}`);
-              else if (res.error) alert(`Erreur backup: ${res.error}`);
+              if (res.saved) toast.success(`Backup sauvegardé: ${res.path}`);
+              else if (res.error) toast.error(`Erreur backup: ${res.error}`);
             }}
             title="Sauvegarder la DB SQLite"
           >
-            💾
+            <Icon.Save size={14} />
           </button>
+          <AccountSwitcher />
         </nav>
       </header>
       <div className="app-body">
@@ -91,7 +99,10 @@ export function App(): JSX.Element {
           {page === 'sessions' && selectedSession && (
             <SessionDetail sessionDate={selectedSession} onBack={() => setSelectedSession(null)} />
           )}
-          {page === 'players' && <Players />}
+          {page === 'players' && !selectedPlayer && <Players onSelect={(name) => setSelectedPlayer(name)} />}
+          {page === 'players' && selectedPlayer && (
+            <PlayerDetail playerName={selectedPlayer} onBack={() => setSelectedPlayer(null)} />
+          )}
           {page === 'leaks' && <LeakFinder />}
           {page === 'games' && <GameSelection />}
           {page === 'progress' && <Progress />}
@@ -104,6 +115,7 @@ export function App(): JSX.Element {
           onResize={updateWidth}
         />
       </div>
+      <ToastHost />
     </div>
   );
 }

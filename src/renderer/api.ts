@@ -178,6 +178,37 @@ interface PokerApi {
   }>>;
   exportSessionMd(sessionDate: string): Promise<{ saved: boolean; path?: string; markdown: string }>;
   backupDb(): Promise<{ saved: boolean; path?: string; error?: string }>;
+  listAccounts(): Promise<string[]>;
+  getActiveAccount(): Promise<string>;
+  setActiveAccount(account: string): Promise<string>;
+  getSettings(): Promise<{ activeAccount: string; goalAnnualNet?: number; stopLossDaily?: number }>;
+  updateSettings(partial: Record<string, unknown>): Promise<{ activeAccount: string; goalAnnualNet?: number; stopLossDaily?: number }>;
+  getSessionAnnotation(date: string): Promise<{ annotation: string; mood: string }>;
+  saveSessionAnnotation(date: string, annotation: string, mood: string): Promise<{ ok: boolean }>;
+  getDashboardTrackers(): Promise<{
+    streak: { length: number; type: 'winning' | 'losing' | 'neutral'; latestDate: string | null };
+    todayNet: number;
+    ytdNet: number;
+    goalAnnualNet: number | null;
+    goalPct: number;
+    stopLossDaily: number | null;
+    stopLossHit: boolean;
+  }>;
+  compareSessions(a: string, b: string): Promise<{
+    a: { date: string; tournaments: number; winnings: number; buy_ins: number; net: number; hands: number; avg_pot: number; win_rate: number };
+    b: { date: string; tournaments: number; winnings: number; buy_ins: number; net: number; hands: number; avg_pot: number; win_rate: number };
+  }>;
+  runVarianceSim(opts?: { tournaments?: number; iterations?: number }): Promise<{
+    runs: number[][];
+    meta: { historicalRoi: number; perTournamentMean?: number; perTournamentStd?: number; n: number };
+    message?: string;
+  }>;
+  getPlayerDeep(name: string): Promise<{
+    stats: Record<string, unknown> | undefined;
+    hands: Array<Record<string, unknown>>;
+    note: string;
+    tags: string[];
+  }>;
   getTimeOfDay(): Promise<{
     buckets: { bucket: 'morning' | 'afternoon' | 'evening' | 'night'; tournaments: number; net: number; roi: number }[];
     tilt: { firstAvgRoi: number; lastAvgRoi: number; delta: number; multiSessionCount: number };

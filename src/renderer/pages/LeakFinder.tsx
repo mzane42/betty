@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { pokerApi, type Leak } from '../api.js';
 import { coachBus } from '../lib/coach-bus.js';
+import { Icon } from '../components/Icon.js';
 
 interface NashScan {
   tags: Array<{
@@ -78,7 +79,7 @@ export function LeakFinder(): JSX.Element {
                 )
               }
             >
-              ✨ Discuter avec coach
+              <Icon.Sparkles size={12} /> Discuter avec coach
             </button>
           </div>
           <div className="nash-stats-grid">

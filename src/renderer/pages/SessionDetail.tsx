@@ -9,6 +9,7 @@ import { HandReplay } from '../components/HandReplay.js';
 import { SortHeader, SearchBox } from '../components/SortHeader.js';
 import { useTable } from '../lib/use-table.js';
 import { coachBus } from '../lib/coach-bus.js';
+import { Icon } from '../components/Icon.js';
 
 interface Props {
   sessionDate: string;
@@ -233,7 +234,7 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
               )
             }
           >
-            ✨ Demander coach
+            <Icon.Sparkles size={12} /> Demander coach
           </button>
           <button
             className="copy-btn"
@@ -243,7 +244,6 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
                 setCopiedLabel(`Exporté: ${res.path}`);
                 setTimeout(() => setCopiedLabel(null), 2500);
               } else {
-                // Fall back to clipboard
                 await navigator.clipboard.writeText(res.markdown);
                 setCopiedLabel('Markdown copié');
                 setTimeout(() => setCopiedLabel(null), 1500);
@@ -251,7 +251,7 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
             }}
             title="Sauvegarder la session en fichier Markdown"
           >
-            📄 Export MD
+            <Icon.FileText size={12} /> Export MD
           </button>
         </div>
       </div>
@@ -287,28 +287,28 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
                   onClick={() => copyText(reviewToMarkdown(review), 'Markdown copié')}
                   title="Copier la review entière (Markdown)"
                 >
-                  📋 Copier tout
+                  <Icon.Clipboard size={12} /> Copier tout
                 </button>
                 <button
                   className="copy-btn"
                   onClick={() => copyText(review.summary, 'Résumé copié')}
                   title="Copier juste le résumé"
                 >
-                  📋 Résumé
+                  <Icon.Clipboard size={12} /> Résumé
                 </button>
                 <button
                   className="copy-btn"
                   onClick={() => data && copyText(buildSessionDiscussionPrompt(sessionDate, data), 'Prompt copié')}
                   title="Copier le prompt brut pour re-soumettre à Claude"
                 >
-                  📋 Prompt
+                  <Icon.Clipboard size={12} /> Prompt
                 </button>
                 <button
                   className="coach-link-btn"
                   onClick={() => data && coachBus.send(buildSessionDiscussionPrompt(sessionDate, data))}
                   title="Discuter cette session avec le coach"
                 >
-                  ✨ Discuter avec coach
+                  <Icon.Sparkles size={12} /> Discuter avec coach
                 </button>
                 {copiedLabel && <span className="copied-flash">{copiedLabel}</span>}
               </div>

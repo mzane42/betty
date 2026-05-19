@@ -13,6 +13,10 @@ import { BankrollChart } from '../components/BankrollChart.js';
 import { YearlyChart } from '../components/YearlyChart.js';
 import { MonthlyHeatmap } from '../components/MonthlyHeatmap.js';
 import { RoiByFormatTable } from '../components/RoiByFormatTable.js';
+import { DashboardTrackers } from '../components/DashboardTrackers.js';
+import { VarianceSim } from '../components/VarianceSim.js';
+import { SessionCompare } from '../components/SessionCompare.js';
+import { RangeGrid } from '../components/RangeGrid.js';
 
 interface EvPoint {
   date: string;
@@ -63,12 +67,16 @@ export function Dashboard(): JSX.Element {
   return (
     <div className="dashboard">
       <BankrollHero summary={summary} />
+      <DashboardTrackers />
       <div className="grid-2">
         <YearlyChart data={yearly} />
         <MonthlyHeatmap data={monthly} />
       </div>
       <BankrollChart data={chart} />
       <EvVsActualChart data={evChart} />
+      <RangeGrid />
+      <SessionCompare />
+      <VarianceSim />
       <RoiByFormatTable data={roi} />
     </div>
   );
