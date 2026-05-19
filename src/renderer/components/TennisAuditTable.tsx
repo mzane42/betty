@@ -64,7 +64,7 @@ export function TennisAuditTable(): JSX.Element {
               alert(`${n} ancien(s) pick(s) supprimé(s).`);
             }}
           >
-            🗑 Purger >24h
+            🗑 Purger {'>'}24h
           </button>
           <button className="primary" onClick={() => void load()}>
             ↻
