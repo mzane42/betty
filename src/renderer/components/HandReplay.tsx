@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { pokerApi } from '../api.js';
 import { CardGroup } from './PlayingCard.js';
+import { TableReplay } from './TableReplay.js';
 import type { PlayerDerivedStats } from '../../types/player.js';
 
 interface Props {
@@ -39,6 +40,81 @@ interface HandRow {
   hero_equity_flop: number | null;
   hero_equity_turn: number | null;
   hero_equity_river: number | null;
+}
+
+function PlayerNoteEditor({ playerName }: { playerName: string }): JSX.Element {
+  const [editing, setEditing] = useState(false);
+  const [note, setNote] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [savedFlag, setSavedFlag] = useState(false);
+
+  useEffect(() => {
+    pokerApi.getPlayerNote(playerName).then((d) => {
+      setNote(d.note);
+      setTags(d.tags);
+    });
+  }, [playerName]);
+
+  async function save(): Promise<void> {
+    await pokerApi.savePlayerNote(playerName, note, tags);
+    setSavedFlag(true);
+    setEditing(false);
+    setTimeout(() => setSavedFlag(false), 1500);
+  }
+
+  function toggleTag(tag: string): void {
+    setTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
+  }
+
+  const presetTags = ['fish', 'reg', 'aggro', 'passif', 'tilt', 'à éviter', 'à cibler'];
+
+  return (
+    <div className="player-note-wrap">
+      {!editing && (
+        <div className="player-note-display" onClick={() => setEditing(true)}>
+          {tags.length > 0 && (
+            <span className="note-tags">
+              {tags.map((t) => (
+                <span key={t} className="note-tag">{t}</span>
+              ))}
+            </span>
+          )}
+          {note ? (
+            <span className="note-text">{note}</span>
+          ) : (
+            <span className="muted note-placeholder">+ note</span>
+          )}
+          {savedFlag && <span className="note-saved">✓ sauvé</span>}
+        </div>
+      )}
+      {editing && (
+        <div className="player-note-edit">
+          <div className="note-tags-row">
+            {presetTags.map((t) => (
+              <button
+                key={t}
+                className={`tag-toggle ${tags.includes(t) ? 'active' : ''}`}
+                onClick={() => toggleTag(t)}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Note libre (ex: bluff la river, fold trop facile, suit ses paires)"
+            rows={2}
+            autoFocus
+          />
+          <div className="note-actions">
+            <button className="ohmy-btn primary" onClick={save}>Sauvegarder</button>
+            <button className="ohmy-btn ghost" onClick={() => setEditing(false)}>Annuler</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function HudStat({ label, value, flag }: { label: string; value: string; flag?: 'fish' | 'aggro' | null }): JSX.Element {
@@ -154,6 +230,14 @@ export function HandReplay({ handId }: Props): JSX.Element {
         </div>
       </div>
 
+      <TableReplay
+        players={data.players}
+        board={board}
+        bigBlind={data.hand.big_blind}
+        totalPot={data.hand.total_pot}
+        street={STREET_ORDER[revealed]!}
+      />
+
       <div className="replay-hero">
         <span className="muted">Hero:</span>
         <CardGroup cards={heroCards} size="md" withStrength />
@@ -185,6 +269,7 @@ export function HandReplay({ handId }: Props): JSX.Element {
                   ) : (
                     <span className="muted">Pas de stats (nouveau)</span>
                   )}
+                  <PlayerNoteEditor playerName={p.player_name} />
                 </div>
               );
             })}

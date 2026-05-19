@@ -27,6 +27,48 @@ interface Props {
 
 const STORAGE_AUTOSTART = 'pokerCoach.sidebarAutostart';
 
+const QUICK_PROMPTS: Array<{ label: string; prompt: string }> = [
+  {
+    label: '📊 État bankroll',
+    prompt: 'Récap bref: où en est ma bankroll, mon top leak actuel, et le focus pour la prochaine session ?'
+  },
+  {
+    label: '🔥 Dernière session',
+    prompt: 'Analyse ma dernière session de jeu: 1 pattern positif, 1 erreur récurrente, 1 conseil concret.'
+  },
+  {
+    label: '🎯 Top leak',
+    prompt: 'Quel est mon leak #1 actuellement (impact € + impact BB), et donne moi un exemple concret de main où ça s\'est manifesté avec la correction.'
+  },
+  {
+    label: '⚡ Push/fold Nash',
+    prompt: 'Sur mes décisions push/fold à <12 BB, identifie les 3 ranges où je dévie le plus de Nash et explique comment les corriger.'
+  },
+  {
+    label: '🃏 Adversaires actifs',
+    prompt: 'Donne moi les 3 adversaires que j\'affronte le plus souvent avec leurs profils (VPIP/PFR/AF) et un conseil tactique contre chacun.'
+  },
+  {
+    label: '💸 ROI par format',
+    prompt: 'Compare mes ROI par format/buy-in. Sur lequel je suis le plus rentable ? Lequel je devrais arrêter ?'
+  }
+];
+
+function QuickPrompts(): JSX.Element {
+  return (
+    <div className="quick-prompts">
+      <div className="qp-label">prompts rapides</div>
+      <div className="qp-list">
+        {QUICK_PROMPTS.map((qp) => (
+          <button key={qp.label} className="qp-btn" onClick={() => coachBus.send(qp.prompt)} title={qp.prompt}>
+            {qp.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function CoachSidebar({ collapsed, onToggle, width, onResize }: Props): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<Terminal | null>(null);
@@ -296,6 +338,8 @@ export function CoachSidebar({ collapsed, onToggle, width, onResize }: Props): J
                 auto
               </label>
             </div>
+
+            <QuickPrompts />
           </div>
 
           <div className="sidebar-terminal" ref={containerRef} />

@@ -48,6 +48,23 @@ function applyAdHocMigrations(db: Database): void {
       if (!String(err).includes('duplicate column')) throw err;
     }
   }
+
+  // Ensure player_notes table exists for older DBs that pre-date it.
+  try {
+    runSql(
+      db,
+      `CREATE TABLE IF NOT EXISTS player_notes (
+        player_name TEXT NOT NULL,
+        hero_account TEXT NOT NULL,
+        note TEXT,
+        tags_json TEXT,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (player_name, hero_account)
+      )`
+    );
+  } catch (err) {
+    console.error('player_notes migration failed', err);
+  }
 }
 
 /**

@@ -179,3 +179,12 @@ CREATE TABLE IF NOT EXISTS session_reviews (
 
 CREATE INDEX IF NOT EXISTS idx_hand_reviews_verdict ON hand_reviews(verdict);
 CREATE INDEX IF NOT EXISTS idx_tournament_reviews_verdict ON tournament_reviews(tournament_verdict);
+
+CREATE TABLE IF NOT EXISTS player_notes (
+  player_name TEXT NOT NULL,
+  hero_account TEXT NOT NULL,
+  note TEXT,
+  tags_json TEXT,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (player_name, hero_account)
+);

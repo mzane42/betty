@@ -144,6 +144,9 @@ interface PokerApi {
     cumulative_actual: number;
     cumulative_ev: number;
   }[]>;
+  getPlayerNote(name: string): Promise<{ note: string; tags: string[] }>;
+  savePlayerNote(name: string, note: string, tags: string[]): Promise<{ ok: boolean }>;
+  listPlayerNotes(): Promise<Record<string, { note: string; tags: string[] }>>;
   getTimeOfDay(): Promise<{
     buckets: { bucket: 'morning' | 'afternoon' | 'evening' | 'night'; tournaments: number; net: number; roi: number }[];
     tilt: { firstAvgRoi: number; lastAvgRoi: number; delta: number; multiSessionCount: number };

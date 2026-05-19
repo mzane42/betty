@@ -67,6 +67,10 @@ const api = {
   scanNash: () => ipcRenderer.invoke('nash:scan'),
   getEvBankroll: () => ipcRenderer.invoke('analytics:ev-bankroll'),
   getTimeOfDay: () => ipcRenderer.invoke('analytics:time-of-day'),
+  getPlayerNote: (name: string) => ipcRenderer.invoke('player-notes:get', name),
+  savePlayerNote: (name: string, note: string, tags: string[]) =>
+    ipcRenderer.invoke('player-notes:save', name, note, tags),
+  listPlayerNotes: () => ipcRenderer.invoke('player-notes:list'),
 
   getLeaks: () => ipcRenderer.invoke('analytics:leaks'),
   getGameRecommendations: () => ipcRenderer.invoke('analytics:game-recommendations'),

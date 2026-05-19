@@ -2215,3 +2215,285 @@ body,
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* Player notes (in HUD card) */
+.player-note-wrap {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.player-note-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  flex-wrap: wrap;
+  transition: background 0.15s;
+}
+
+.player-note-display:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.note-tags {
+  display: inline-flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.note-tag {
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(168, 85, 247, 0.15);
+  color: #d8b4fe;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.note-text {
+  font-style: italic;
+  color: var(--fg);
+}
+
+.note-placeholder {
+  font-size: 11px;
+}
+
+.note-saved {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  animation: fade-in 0.2s ease;
+}
+
+.player-note-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.note-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.tag-toggle {
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--fg-muted);
+  cursor: pointer;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+}
+
+.tag-toggle:hover {
+  color: var(--fg);
+}
+
+.tag-toggle.active {
+  background: rgba(168, 85, 247, 0.2);
+  color: #d8b4fe;
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.player-note-edit textarea {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  color: var(--fg);
+  font-size: 12px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.player-note-edit textarea:focus {
+  outline: none;
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+.note-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Quick prompts in sidebar */
+.quick-prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+.qp-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.qp-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.qp-btn {
+  padding: 4px 9px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.qp-btn:hover {
+  background: rgba(168, 85, 247, 0.15);
+  color: #d8b4fe;
+  border-color: rgba(168, 85, 247, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Visual oval poker table */
+.table-replay {
+  width: 100%;
+  margin: 10px 0;
+}
+
+.table-svg {
+  width: 100%;
+  max-width: 720px;
+  display: block;
+  margin: 0 auto;
+}
+
+.table-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 8px;
+}
+
+.table-board {
+  display: flex;
+  gap: 4px;
+  min-height: 36px;
+  align-items: center;
+}
+
+.table-board .board-card {
+  animation: card-flip 0.4s ease forwards;
+  opacity: 0;
+  transform: rotateY(180deg);
+}
+
+@keyframes card-flip {
+  0% { opacity: 0; transform: rotateY(180deg) scale(0.6); }
+  100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+}
+
+.table-pot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 12px;
+  border-radius: 12px;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.table-seat {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: white;
+  font-size: 11px;
+}
+
+.table-seat.hero-seat {
+  border-color: rgba(74, 222, 128, 0.4);
+  background: rgba(0, 30, 15, 0.7);
+  box-shadow: 0 0 16px rgba(74, 222, 128, 0.15);
+}
+
+.seat-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.seat-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+}
+
+.seat-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+}
+
+.seat-position {
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.seat-stack {
+  color: #facc15;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+
+.seat-cards {
+  display: flex;
+  gap: 3px;
+}
+
+.card-back {
+  width: 22px;
+  height: 28px;
+  display: inline-block;
+  border-radius: 3px;
+  background:
+    linear-gradient(135deg, #4338ca, #7c3aed),
+    repeating-linear-gradient(45deg, transparent 0, transparent 3px, rgba(255, 255, 255, 0.06) 3px, rgba(255, 255, 255, 0.06) 5px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}

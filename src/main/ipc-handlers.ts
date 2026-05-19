@@ -113,6 +113,43 @@ export function registerIpcHandlers(): void {
       .all(HERO_ACCOUNT, limit, offset);
   });
 
+  // Player notes
+  ipcMain.handle('player-notes:get', (_, playerName: string) => {
+    const row = db()
+      .prepare(`SELECT note, tags_json FROM player_notes WHERE hero_account = ? AND player_name = ?`)
+      .get(HERO_ACCOUNT, playerName) as { note: string | null; tags_json: string | null } | undefined;
+    if (!row) return { note: '', tags: [] };
+    return { note: row.note ?? '', tags: row.tags_json ? (JSON.parse(row.tags_json) as string[]) : [] };
+  });
+
+  ipcMain.handle('player-notes:save', (_, playerName: string, note: string, tags: string[]) => {
+    db()
+      .prepare(
+        `INSERT INTO player_notes (player_name, hero_account, note, tags_json, updated_at)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(player_name, hero_account) DO UPDATE SET
+           note = excluded.note,
+           tags_json = excluded.tags_json,
+           updated_at = excluded.updated_at`
+      )
+      .run(playerName, HERO_ACCOUNT, note, JSON.stringify(tags), new Date().toISOString());
+    return { ok: true };
+  });
+
+  ipcMain.handle('player-notes:list', () => {
+    const rows = db()
+      .prepare(`SELECT player_name, note, tags_json FROM player_notes WHERE hero_account = ?`)
+      .all(HERO_ACCOUNT) as Array<{ player_name: string; note: string | null; tags_json: string | null }>;
+    const map: Record<string, { note: string; tags: string[] }> = {};
+    for (const r of rows) {
+      map[r.player_name] = {
+        note: r.note ?? '',
+        tags: r.tags_json ? (JSON.parse(r.tags_json) as string[]) : []
+      };
+    }
+    return map;
+  });
+
   // Players
   ipcMain.handle('players:list', (_, { limit = 50, offset = 0, sortBy = 'hands_played' } = {}) => {
     const validSort = ['hands_played', 'total_won'].includes(sortBy) ? sortBy : 'hands_played';
