@@ -5,6 +5,7 @@ import { registerIpcHandlers } from './ipc-handlers.js';
 import { registerTerminalIpc, killAllTerminals } from './terminal-manager.js';
 import { startTelegramBot } from '../tennis/telegram-bot.js';
 import { startSignalDaemon } from '../tennis/signal-daemon.js';
+import { createOddsApiScrapers } from '../tennis/ingest/odds-api.js';
 import { defaultDbPath, openDatabase, type Database } from '../db/index.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
@@ -69,9 +70,13 @@ app.whenReady().then(async () => {
     console.log(`[main] Telegram bot disabled: ${tg.reason}`);
   }
 
-  const daemon = await startSignalDaemon(telegramDbHandle);
+  const oddsApiKey = process.env.ODDS_API_KEY;
+  const scrapers = oddsApiKey ? createOddsApiScrapers({ apiKey: oddsApiKey }) : undefined;
+  const daemon = await startSignalDaemon(telegramDbHandle, scrapers ? { scrapers } : {});
   if (daemon.enabled) {
-    console.log('[main] Signal daemon started');
+    console.log(
+      `[main] Signal daemon started${oddsApiKey ? ' with The Odds API' : ' with noop scrapers'}`
+    );
   } else {
     console.log(`[main] Signal daemon disabled: ${daemon.reason}`);
   }

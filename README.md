@@ -122,6 +122,10 @@ npm run dev                       # bot auto-starts; silent no-op otherwise
 # Enable the signal daemon (cron jobs T-24h / T-6h / T-1h + 30min line-poll)
 bun add node-cron                 # or: npm install node-cron
 npm run dev                       # daemon starts automatically once installed
+
+# Wire in real odds via The Odds API (free tier 500 req/mo; sign up at the-odds-api.com)
+export ODDS_API_KEY="your_key"    # daemon auto-uses createOddsApiScrapers when set
+# Otherwise daemon runs with NOOP_SCRAPERS (manual pick entry only)
 ```
 
 Telegram commands once enabled:
