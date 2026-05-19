@@ -12,6 +12,7 @@ export function TennisAuditTable(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'STRONG' | 'PLAY' | 'SKIP'>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('upcoming');
+  const [hideQualifiers, setHideQualifiers] = useState(true);
 
   async function load(): Promise<void> {
     setLoading(true);
@@ -38,11 +39,21 @@ export function TennisAuditTable(): JSX.Element {
           return r.matchStatus !== 'finished' && r.matchStatus !== 'withdrawn' && t > now - 2 * 3600_000;
         })
       : rows;
-  const filtered = filter === 'all' ? statusFiltered : statusFiltered.filter((r) => r.verdict === filter);
+  const qualifierFiltered = hideQualifiers
+    ? statusFiltered.filter((r) => {
+        const r1 = r.player1Rank ?? 0;
+        const r2 = r.player2Rank ?? 0;
+        // Both ranked beyond top 100 → almost certainly qualifying / Challenger feed
+        if (r1 > 100 && r2 > 100) return false;
+        return true;
+      })
+    : statusFiltered;
+  const filtered = filter === 'all' ? qualifierFiltered : qualifierFiltered.filter((r) => r.verdict === filter);
+  const qualifierHidden = statusFiltered.length - qualifierFiltered.length;
   const counts = {
-    STRONG: statusFiltered.filter((r) => r.verdict === 'STRONG').length,
-    PLAY: statusFiltered.filter((r) => r.verdict === 'PLAY').length,
-    SKIP: statusFiltered.filter((r) => r.verdict === 'SKIP').length
+    STRONG: qualifierFiltered.filter((r) => r.verdict === 'STRONG').length,
+    PLAY: qualifierFiltered.filter((r) => r.verdict === 'PLAY').length,
+    SKIP: qualifierFiltered.filter((r) => r.verdict === 'SKIP').length
   };
   const hiddenCount = rows.length - statusFiltered.length;
 
@@ -72,6 +83,17 @@ export function TennisAuditTable(): JSX.Element {
             <option value="upcoming">À venir uniquement</option>
             <option value="all">Tous (inclut passés)</option>
           </select>
+          <label className="audit-toggle" title="Cache matchs où les 2 joueurs sont rank > 100 (qualifs / lower rounds)">
+            <input
+              type="checkbox"
+              checked={hideQualifiers}
+              onChange={(e) => setHideQualifiers(e.target.checked)}
+            />
+            Cacher qualifs
+            {hideQualifiers && qualifierHidden > 0 && (
+              <span className="muted small"> ({qualifierHidden})</span>
+            )}
+          </label>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as typeof filter)}
@@ -205,7 +227,11 @@ export function TennisAuditTable(): JSX.Element {
                     <td>
                       <div className="audit-match-line">
                         <span>
-                          {r.player1Name} <span className="muted">vs</span> {r.player2Name}
+                          {r.player1Name}
+                          {r.player1Rank != null && <span className="muted small"> #{r.player1Rank}</span>}
+                          <span className="muted"> vs </span>
+                          {r.player2Name}
+                          {r.player2Rank != null && <span className="muted small"> #{r.player2Rank}</span>}
                         </span>
                         <UnibetLink matchId={r.matchId} compact />
                       </div>

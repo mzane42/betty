@@ -392,6 +392,8 @@ export interface TennisPickAuditRowDto extends TennisPickRow {
   matchStatus: string;
   winnerId: string | null;
   matchScore: string | null;
+  player1Rank: number | null;
+  player2Rank: number | null;
 }
 
 export interface TennisMatchRow {
