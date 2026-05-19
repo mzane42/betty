@@ -165,7 +165,7 @@ export function TennisCuratorFeed({
         <p className="curator-daily-message">{curated.daily_message}</p>
       )}
 
-      {!hasCurated && !running && scanLog.length === 0 && !lastScanStats && (
+      {!hasCurated && !running && scanLog.length === 0 && !lastScanStats && !curated && (
         <div className="empty-state">
           <p>Pas encore de picks pour aujourd'hui.</p>
           <p className="muted">
@@ -175,15 +175,22 @@ export function TennisCuratorFeed({
         </div>
       )}
 
-      {!hasCurated && !running && lastScanStats && (
+      {!hasCurated && !running && (lastScanStats || curated) && (
         <div className="empty-state empty-state-scanned">
           <p>
             <strong>Scan terminé — aucun pick +EV trouvé aujourd'hui.</strong>
           </p>
-          <p className="muted">
-            {lastScanStats.events} events analysés · {lastScanStats.strong} STRONG ·{' '}
-            {lastScanStats.play} PLAY · {lastScanStats.skip} SKIP.
-          </p>
+          {lastScanStats && (
+            <p className="muted">
+              {lastScanStats.events} events analysés · {lastScanStats.strong} STRONG ·{' '}
+              {lastScanStats.play} PLAY · {lastScanStats.skip} SKIP.
+            </p>
+          )}
+          {curated?.daily_message && (
+            <p className="muted curator-daily-message-inline">
+              💬 {curated.daily_message}
+            </p>
+          )}
           <p className="muted">
             Cela arrive : Unibet alignée sur Pinnacle (cotes serrées sur les têtes de
             série, marges élevées sur les outsiders). Réessaie demain ou plus tard
