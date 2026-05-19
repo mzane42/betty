@@ -3578,3 +3578,32 @@ button svg:last-child {
   background: rgba(239, 68, 68, 0.25);
 }
 
+
+.audit-table th[title] {
+  cursor: help;
+  position: relative;
+}
+
+.audit-table th .th-help {
+  display: inline-block;
+  margin-left: 4px;
+  width: 12px;
+  height: 12px;
+  line-height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted, #9ba3ae);
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.audit-table th[title]:hover .th-help {
+  background: var(--accent, #10b981);
+  color: #042f1e;
+}
+
+.audit-table td[title] {
+  cursor: help;
+}
+
