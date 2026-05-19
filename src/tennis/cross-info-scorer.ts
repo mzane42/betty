@@ -130,6 +130,10 @@ export function scoreSignals(input: CrossInfoInput, opts: ScoreOptions): CrossIn
 }
 
 function pickVerdict(score: number, edge: number, t: VerdictThresholds): PickVerdict {
+  // Hard floor: zero-signal or non-positive edge can never be PLAY/STRONG,
+  // regardless of threshold config. Prevents ghost picks where the model has
+  // no inputs (priors-only fallback that scored 0) from leaking into the feed.
+  if (score <= 0 || edge <= 0) return 'SKIP';
   if (score >= t.strong.score && edge >= t.strong.edge) return 'STRONG';
   if (score >= t.play.score && edge >= t.play.edge) return 'PLAY';
   return 'SKIP';

@@ -165,7 +165,7 @@ export function HandReplay({ handId }: Props): JSX.Element {
         setLoading(false);
 
         // Fetch HUD stats for each villain in parallel
-        const players = (d as { players?: PlayerRow[] })?.players ?? [];
+        const players = (d as unknown as { players?: PlayerRow[] })?.players ?? [];
         const villains = players.filter((p) => p.is_hero === 0).map((p) => p.player_name);
         Promise.all(villains.map((name) => pokerApi.getPlayerDetail(name))).then((rows) => {
           const map: Record<string, PlayerDerivedStats | null> = {};

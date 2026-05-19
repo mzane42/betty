@@ -1,11 +1,16 @@
-# Poker Coach
+# Coach
 
-Post-session poker analytics platform with bankroll focus. Built for mzane42 on Winamax.
+Multi-domain post-session analytics. Two domains today, more later:
+
+- **♠️ Poker** — Winamax Expresso hand history import → bankroll, sessions, players, leaks, Claude reviews
+- **🎾 Paris sportifs** — Tennis (Roland Garros 2026 + ATP/WTA tour) +EV pick suggestions on Unibet, daily Claude curator, bankroll, CLV tracking, Telegram push
+
+The Electron app boots on a **home selector** — pick the domain you want to work in. Each domain has its own header, navigation, Claude Code terminal sidebar, and dashboard. The poker side is untouched; the tennis side lives under "Paris".
 
 ## Setup
 
 ```bash
-# Install deps (use npm, not bun — Bun installs x86_64 Electron)
+# Install deps (use npm, not bun for the initial install — Bun installs x86_64 Electron)
 npm install
 
 # Import all your Winamax history into SQLite (both legacy + new dirs)
@@ -15,6 +20,18 @@ npm run import
 The import scans **both** Winamax history locations automatically:
 - Legacy: `~/Documents/Winamax Poker/accounts/<account>/history/`
 - Current: `~/Library/Application Support/winamax/documents/accounts/<account>/history/`
+
+### Environment (`.env.local`, gitignored)
+
+Optional but enables the autonomous tennis flow:
+
+```env
+ODDS_API_KEY=your_key_here                # the-odds-api.com free tier 500 req/mo
+TELEGRAM_BOT_TOKEN=123:abc                # token from @BotFather
+TELEGRAM_ALLOWED_USER_IDS=123456789       # your Telegram user_id (csv supported)
+```
+
+Without these the app still runs — picks just become manual-entry only and Telegram push silently no-ops.
 
 ## Run
 
@@ -87,45 +104,56 @@ rm -rf node_modules
 npm install
 ```
 
-## Tennis (Roland Garros 2026 sub-project)
+## Paris (Tennis MVP — Roland Garros 2026 + tour)
 
-The Tennis tab adds post-session tennis analytics: +EV pick suggestions, manual
-bet logging, CLV + ROI tracking, and an optional Telegram bot. Same compliance
-posture as poker — picks are suggestions you place manually, no automation
-crosses the wallet boundary, no auto-bet on any French operator.
+Post-session tennis analytics: +EV pick suggestions on Unibet, daily Claude curator, bankroll, CLV tracking, optional Telegram bot. Same compliance posture as poker — picks are suggestions you place manually on Unibet, no automation crosses the wallet boundary, no auto-bet on any French operator.
 
-### Quick start
+### Daily flow
 
 ```bash
-# 1. Open the Tennis tab (🎾 Tennis in the top nav)
-# 2. Go to "Nouveau pick", enter players + ranks + Winamax/Betclic/Unibet odds
-#    Optional: Pinnacle odds for BOTH players → no-vig prob auto-computed
-# 3. Verdict (STRONG/PLAY/SKIP) + Kelly stake previewed live
-# 4. Submit → Claude FR review attached → pick saved
-# 5. Place the bet on the book of choice, click "Placé X€"
-# 6. After the match: settle (won/lost/void) in Historique → bankroll updates
+# 1. (Optional) Refresh picks from the terminal — same pipeline the daemon runs
+bun run tennis-scan
+
+# 2. Open Coach → Paris → "🤖 Aujourd'hui"
+#    Claude curator's top 3-6 picks across all active tournaments, with Kelly-sized stake suggestions
+
+# 3. Place the bet on Unibet (manually — no auto-bet). Copy the ticket text.
+
+# 4. Log the bet via terminal — Claude parses the Unibet/Winamax/Betclic ticket
+pbpaste | bun run tennis-paste-bet
+# or: bun run tennis-paste-bet "<paste ticket text>"
+
+# 5. Match starts → the signal daemon auto-snapshots closing odds (CLV).
+#    Manual trigger if daemon isn't running:
+bun run tennis-capture-closing
+
+# 6. After match — settle via UI (Paris → Historique → ✓/✗/⊘) or via CLI:
+bun run tennis-settle <bet_id> <won|lost|void> [closing_odds]
+# Claude post-match review fires automatically and shows up in the Review column
 ```
 
-### Optional features
+### Tennis CLIs
+
+| Command | Purpose |
+|---|---|
+| `bun run tennis-scan [--reddit] [--window=N]` | Run full pipeline (auto-scorer + curator) from terminal. Same as the daemon's T-6h batch. |
+| `bun run tennis-paste-bet "<ticket>"` | Claude parses Unibet/Winamax/Betclic ticket, fuzzy-matches players against DB, inserts bet. |
+| `bun run tennis-capture-closing [--before=N --after=N]` | Snapshot closing odds for unsettled bets near match start (CLV). |
+| `bun run tennis-settle <bet_id> <won\|lost\|void> [closing_odds]` | Settle bet + fire post-match Claude review. |
+| `bun run tennis-telegram-test [--getme\|--strong\|--digest\|--getupdates\|"text"]` | Raw Telegram Bot API tester. |
+
+### CLV (Closing Line Value)
+
+Variance-free measure of edge: `(your_odds - closing_odds) / closing_odds × 100`.
+
+Positive CLV across many bets means your timing/model consistently beats the market consensus at match start — even when individual results vary. Pros track CLV more than win-rate. The signal daemon snapshots closing odds at `*/30 * * * *` for any unsettled bet whose match is within `[-5min, +30min]` of start; CLV computes automatically in the Historique table.
+
+### Optional: clay-Elo cache
 
 ```bash
 # Build clay-Elo cache from JeffSackmann/tennis_atp + tennis_wta (~30s, one-time)
 npx tsx src/cli/tennis-load-elo.ts
 # Re-run with --force after grand slams; --atp-only / --wta-only available
-
-# Enable Telegram bot (skip if you don't want push notifications)
-bun add node-telegram-bot-api    # or: npm install node-telegram-bot-api
-export TELEGRAM_BOT_TOKEN="123:abc"     # token from @BotFather
-export TELEGRAM_ALLOWED_USER_IDS="123456789"   # your Telegram user_id (csv supported)
-npm run dev                       # bot auto-starts; silent no-op otherwise
-
-# Enable the signal daemon (cron jobs T-24h / T-6h / T-1h + 30min line-poll)
-bun add node-cron                 # or: npm install node-cron
-npm run dev                       # daemon starts automatically once installed
-
-# Wire in real odds via The Odds API (free tier 500 req/mo; sign up at the-odds-api.com)
-export ODDS_API_KEY="your_key"    # daemon auto-uses createOddsApiScrapers when set
-# Otherwise daemon runs with NOOP_SCRAPERS (manual pick entry only)
 ```
 
 Telegram commands once enabled:
@@ -163,26 +191,29 @@ The risk banner at the top of the Tennis tab shows the current state.
 ### Architecture
 
 ```
-Electron main                  Renderer (React)
-─────────────                  ────────────────
-ipc-handlers ──┐               pages/Tennis.tsx
-               │                 ├─ TennisRiskBanner
-               ├─ tennis-       ├─ TennisPickCard
-               │  repository      ├─ TennisNewPickForm (live preview)
-               │                 ├─ TennisSettleControls
-               ├─ pick-          └─ TennisBankrollHero
-               │  generator
-               │   ├─ kelly       Claude CLI (reused)
-               │   ├─ cross-info-scorer
-               │   ├─ model/rating + sackmann-loader
+Electron main                       Renderer (React)
+─────────────                       ────────────────
+ipc-handlers ──┐                    App.tsx (mode router: home | poker | paris)
+               │                      ├─ Home.tsx (domain selector)
+               ├─ tennis-             ├─ PokerShell (Dashboard/Sessions/Players/Leaks/Jeux/Progrès/Recherche)
+               │  repository          └─ ParisShell
+               │                            ├─ ParisDashboard (KPI tiles + chart)
+               ├─ pick-                     ├─ TennisCuratorFeed (Aujourd'hui)
+               │  generator                 ├─ TennisAuditTable (Audit)
+               │   ├─ kelly                 ├─ TennisNewPickForm (Pick manuel)
+               │   ├─ cross-info-scorer     ├─ Historique + BetReviewCell
+               │   ├─ model/rating          └─ TennisBankrollHero + Recharts
                │   └─ claude-tennis-reviewer
-               │
+               │                           Both shells: CoachSidebar (xterm + Claude Code, domain-aware)
+               ├─ auto-scorer + curator (Claude CLI)
+               ├─ closing-odds capture (CLV)
                ├─ risk-gate (~/.poker-coach/config/tennis-risk.json)
                ├─ telegram-bot (dynamic import, optional)
-               ├─ signal-daemon (cron, dynamic node-cron, optional)
-               └─ ingest/{pinnacle,reddit,betfair,line-movement}
+               ├─ signal-daemon (cron T-24h/T-6h/T-1h + 30min line-poll + 21h digest)
+               └─ ingest/{odds-api, pinnacle, reddit, betfair, line-movement}
 
-SQLite (poker.db, shared) — tennis_* tables added additively (no ALTER on poker tables)
+SQLite (poker.db, shared) — tennis_* tables additive (no ALTER on poker tables)
+                            tennis_bets.post_match_review_json + closing_odds added post-MVP
 ```
 
 ## CGU Compliance

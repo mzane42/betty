@@ -166,7 +166,7 @@ export function registerTennisIpc(getDb: () => Database): void {
               bestBook: pick?.bestBook ?? bet.book,
               edgePct: pick?.edgePct ?? 0,
               kellyStakePct: pick?.kellyStakePct ?? 0,
-              verdict: pick?.verdict ?? 'PLAY',
+              verdict: pick?.verdict ?? 'SKIP',
               signalScore: pick?.signalScore ?? 0
             },
             bet: {

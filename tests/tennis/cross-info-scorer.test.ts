@@ -105,6 +105,26 @@ describe('scoreSignals', () => {
     expect(res.verdict).toBe('SKIP');
   });
 
+  it('hard-floor: score=0 forces SKIP even if thresholds allow it', () => {
+    const res = scoreSignals(
+      { ...base, modelProb: 0.5 },
+      { decimalOdds: 5.0, thresholds: { strong: { score: 0, edge: 0 }, play: { score: 0, edge: 0 } } }
+    );
+    expect(res.verdict).toBe('SKIP');
+  });
+
+  it('hard-floor: non-positive edge forces SKIP even with high score', () => {
+    const input: CrossInfoInput = {
+      modelProb: 0.5,
+      pinnacleProb: 0.5,
+      betfairVolume: 1,
+      tipsterAlignedCount: 5,
+      lineMovementPct: 0.1
+    };
+    const res = scoreSignals(input, { decimalOdds: 2.0 }); // edge=0 exactly
+    expect(res.verdict).toBe('SKIP');
+  });
+
   it('rationale lines describe active signals', () => {
     const input: CrossInfoInput = {
       modelProb: 0.6,

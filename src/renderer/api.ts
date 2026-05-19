@@ -113,6 +113,14 @@ export interface TournamentReviewResult {
 }
 
 interface PokerApi {
+  // Terminal (PTY) — exposed via preload for in-app Claude Code sidebar
+  createTerminal(opts?: { cwd?: string; cmd?: string }): Promise<{ id: string }>;
+  writeTerminal(id: string, data: string): Promise<void>;
+  resizeTerminal(id: string, cols: number, rows: number): Promise<void>;
+  closeTerminal(id: string): Promise<void>;
+  onTerminalData(id: string, listener: (data: string) => void): () => void;
+  onTerminalExit(id: string, listener: (code: number) => void): () => void;
+
   getBankrollSummary(): Promise<BankrollSummary>;
   getYearlyBankroll(): Promise<YearlyBankroll[]>;
   getMonthlyBankroll(): Promise<MonthlyBankroll[]>;

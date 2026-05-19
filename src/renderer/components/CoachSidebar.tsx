@@ -6,18 +6,7 @@ import 'xterm/css/xterm.css';
 import { coachBus } from '../lib/coach-bus.js';
 import { Icon } from './Icon.js';
 
-declare global {
-  interface Window {
-    pokerApi: {
-      createTerminal: (opts?: { cwd?: string; cmd?: string }) => Promise<{ id: string }>;
-      writeTerminal: (id: string, data: string) => Promise<void>;
-      resizeTerminal: (id: string, cols: number, rows: number) => Promise<void>;
-      closeTerminal: (id: string) => Promise<void>;
-      onTerminalData: (id: string, l: (data: string) => void) => () => void;
-      onTerminalExit: (id: string, l: (code: number) => void) => () => void;
-    };
-  }
-}
+// `window.pokerApi` typed globally in src/renderer/api.ts
 
 type Domain = 'poker' | 'paris';
 

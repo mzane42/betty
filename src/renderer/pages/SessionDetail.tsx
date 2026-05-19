@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react';
-import { pokerApi, type SessionDetailResult, type SessionHand, type SessionReviewResult, type TournamentReviewResult, type HandReviewResult } from '../api.js';
+import { pokerApi, type SessionDetailResult, type SessionHand, type SessionReviewResult, type TournamentReviewResult } from '../api.js';
 import { ProfitBadge } from '../components/ProfitBadge.js';
 import { CardGroup } from '../components/PlayingCard.js';
 import { PositionBadge } from '../components/PositionBadge.js';

@@ -23,5 +23,5 @@
     },
     "types": ["vite/client"]
   },
-  "include": ["src/renderer/**/*", "src/shared/**/*", "src/types/**/*"]
+  "include": ["src/renderer/**/*", "src/shared/**/*", "src/types/**/*", "src/nash/nash-3max.ts"]
 }

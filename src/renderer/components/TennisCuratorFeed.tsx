@@ -227,15 +227,17 @@ export function TennisCuratorFeed({
 
       {hasCurated && (
         <div className="curator-pick-list">
-          {enriched.map((s) => (
-            <CuratorPickRow
-              key={s.pick.pickId}
-              selection={s}
-              riskStakeMultiplier={riskStakeMultiplier}
-              bankrollEur={bankrollEur}
-              onPlace={handlePlace}
-            />
-          ))}
+          {enriched
+            .filter((s): s is EnrichedSelection & { pick: TennisPickRow } => s.pick != null)
+            .map((s) => (
+              <CuratorPickRow
+                key={s.pick.pickId}
+                selection={s}
+                riskStakeMultiplier={riskStakeMultiplier}
+                bankrollEur={bankrollEur}
+                onPlace={handlePlace}
+              />
+            ))}
         </div>
       )}
 
@@ -258,7 +260,7 @@ export function TennisCuratorFeed({
 }
 
 interface RowProps {
-  selection: EnrichedSelection;
+  selection: EnrichedSelection & { pick: TennisPickRow };
   riskStakeMultiplier: number;
   bankrollEur: number;
   onPlace: (pick: TennisPickRow, stakeEur: number) => Promise<void>;
@@ -290,6 +292,7 @@ function CuratorPickRow({
   const confClass = `confidence-${selection.confidence}`;
 
   async function place(): Promise<void> {
+    if (!pick) return;
     const stakeEur = parseFloat(stake);
     if (!Number.isFinite(stakeEur) || stakeEur <= 0) return;
     setBusy(true);
