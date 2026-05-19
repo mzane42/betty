@@ -127,6 +127,7 @@ const api = {
   tennisListBets: () => ipcRenderer.invoke('tennis:bets:list'),
   tennisDeleteBet: (betId: string) => ipcRenderer.invoke('tennis:bets:delete', betId),
   tennisUnibetUrl: (matchId: string) => ipcRenderer.invoke('tennis:unibet-url', matchId),
+  tennisSyncMatchStatus: () => ipcRenderer.invoke('tennis:matches:sync-status'),
   tennisPlayerForm: (playerName: string) =>
     ipcRenderer.invoke('tennis:player-form', playerName),
   tennisGetBetReview: (betId: string) => ipcRenderer.invoke('tennis:bets:get-review', betId),

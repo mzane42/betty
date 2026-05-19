@@ -18,6 +18,7 @@
 import type { Database } from '../db/database.js';
 import { captureClosingOdds } from './closing-odds.js';
 import { createOddsApiClient } from './ingest/odds-api.js';
+import { syncMatchStatuses } from './status-sync.js';
 import { ingestTipsterCount } from './ingest/reddit.js';
 import { lineMovementPct } from './ingest/line-movement.js';
 import { pushTelegramMessage } from './telegram-bot.js';
@@ -153,6 +154,7 @@ async function runOnce(
       case 'line-poll':
         await runRefreshOdds(db, scrapers, tournament, 2);
         await runClosingOddsCapture(db);
+        await runStatusSync(db);
         break;
       case 'daily-digest':
         await runDailyDigest(db, tournament);
@@ -250,6 +252,22 @@ async function runScoreUpcoming(
   const { runCurator } = await import('./curator.js');
   const curated = await runCurator(db, { pushTelegram: true });
   console.log(`[signal-daemon] curator: ${curated.selected_picks.length} selected`);
+}
+
+async function runStatusSync(db: Database): Promise<void> {
+  const apiKey = process.env.ODDS_API_KEY;
+  if (!apiKey) {
+    console.log('[signal-daemon] status-sync: ODDS_API_KEY missing, skipped');
+    return;
+  }
+  const client = createOddsApiClient({ apiKey });
+  const res = await syncMatchStatuses(db, client);
+  for (const line of res.logs) console.log(`[signal-daemon] ${line}`);
+  if (res.withdrawn > 0 || res.finished > 0) {
+    console.log(
+      `[signal-daemon] status-sync: ${res.withdrawn} withdrawn, ${res.finished} finished`
+    );
+  }
 }
 
 async function runClosingOddsCapture(db: Database): Promise<void> {

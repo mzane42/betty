@@ -205,6 +205,17 @@ export function registerTennisIpc(getDb: () => Database): void {
 
   ipcMain.handle('tennis:bets:delete', (_, betId: string) => deleteBet(getDb(), betId));
 
+  ipcMain.handle('tennis:matches:sync-status', async () => {
+    const apiKey = process.env.ODDS_API_KEY;
+    if (!apiKey) {
+      throw new Error('ODDS_API_KEY non configuré — sync impossible');
+    }
+    const { createOddsApiClient } = await import('./ingest/odds-api.js');
+    const { syncMatchStatuses } = await import('./status-sync.js');
+    const client = createOddsApiClient({ apiKey });
+    return syncMatchStatuses(getDb(), client);
+  });
+
   ipcMain.handle('tennis:unibet-url', async (_, matchId: string) => {
     const { unibetTournamentUrl } = await import('./unibet-url.js');
     const row = getDb()

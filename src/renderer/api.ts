@@ -290,6 +290,12 @@ interface PokerApi {
   tennisListBets(): Promise<TennisBetRow[]>;
   tennisDeleteBet(betId: string): Promise<{ deleted: boolean }>;
   tennisUnibetUrl(matchId: string): Promise<{ fallback: string; matchLabel: string }>;
+  tennisSyncMatchStatus(): Promise<{
+    scanned: number;
+    withdrawn: number;
+    finished: number;
+    logs: string[];
+  }>;
   tennisPlayerForm(playerName: string): Promise<TennisPlayerFormRow>;
   tennisGetBetReview(betId: string): Promise<string | null>;
   onTennisReviewReady(listener: (betId: string) => void): () => void;

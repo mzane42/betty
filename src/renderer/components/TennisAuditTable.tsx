@@ -84,6 +84,23 @@ export function TennisAuditTable(): JSX.Element {
           </select>
           <button
             className="audit-prune"
+            title="Cross-check Odds API : flag matchs disparus du feed comme 'withdrawn', flag matchs >5h passés comme 'finished'"
+            onClick={async () => {
+              try {
+                const r = await pokerApi.tennisSyncMatchStatus();
+                await load();
+                alert(
+                  `Sync statuts : ${r.scanned} vérifiés, ${r.withdrawn} retirés, ${r.finished} terminés`
+                );
+              } catch (err) {
+                alert(`Sync échouée : ${(err as Error).message}`);
+              }
+            }}
+          >
+            <Icon.RefreshCw size={14} /> Sync statuts
+          </button>
+          <button
+            className="audit-prune"
             title="Supprime les picks de plus de 24h (libère la DB des anciens scans bogués)"
             onClick={async () => {
               const n = await pokerApi.tennisPrunePicks(1);
