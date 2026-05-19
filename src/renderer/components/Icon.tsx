@@ -30,7 +30,10 @@ import {
   ArrowDown,
   Eye,
   MessageCircle,
-  CircleDollarSign
+  CircleDollarSign,
+  Trash2,
+  Filter,
+  Ban
 } from 'lucide-react';
 
 export const Icon = {
@@ -65,7 +68,10 @@ export const Icon = {
   ArrowDown,
   Eye,
   MessageCircle,
-  Coins: CircleDollarSign
+  Coins: CircleDollarSign,
+  Trash: Trash2,
+  Filter,
+  Ban
 };
 
 export type IconName = keyof typeof Icon;

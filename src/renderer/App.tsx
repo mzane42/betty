@@ -422,7 +422,7 @@ function ParisShell({ onBackHome }: { onBackHome: () => void }): JSX.Element {
                             }
                           }}
                         >
-                          🗑
+                          <Icon.Trash size={14} />
                         </button>
                       </td>
                     </tr>

@@ -6,6 +6,7 @@ import {
 } from '../api.js';
 import { toast } from '../lib/toast.js';
 import { PlayerFormHud } from './PlayerFormHud.js';
+import { Icon } from './Icon.js';
 
 interface Props {
   /** Called after any successful action so the parent can refresh siblings. */
@@ -157,7 +158,13 @@ export function TennisCuratorFeed({
             onClick={() => void handleRunNow()}
             title="Scan Odds API + auto-score + Claude curator"
           >
-            {running ? 'Scan en cours…' : '↻ Scanner maintenant'}
+            {running ? (
+              <>Scan en cours…</>
+            ) : (
+              <>
+                <Icon.RefreshCw size={14} /> Scanner maintenant
+              </>
+            )}
           </button>
         </div>
       </div>

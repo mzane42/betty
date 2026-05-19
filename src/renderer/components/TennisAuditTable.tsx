@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { pokerApi, type TennisPickAuditRowDto } from '../api.js';
 import { InfoTooltip } from './InfoTooltip.js';
+import { Icon } from './Icon.js';
 
 export function TennisAuditTable(): JSX.Element {
   const [rows, setRows] = useState<TennisPickAuditRowDto[]>([]);
@@ -65,10 +66,10 @@ export function TennisAuditTable(): JSX.Element {
               alert(`${n} ancien(s) pick(s) supprimé(s).`);
             }}
           >
-            🗑 Purger {'>'}24h
+            <Icon.Trash size={14} /> Purger {'>'}24h
           </button>
-          <button className="primary" onClick={() => void load()}>
-            ↻
+          <button className="primary" onClick={() => void load()} title="Rafraîchir">
+            <Icon.RefreshCw size={14} />
           </button>
         </div>
       </div>

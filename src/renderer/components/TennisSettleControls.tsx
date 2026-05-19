@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { pokerApi, type TennisBetRow } from '../api.js';
 import { toast } from '../lib/toast.js';
+import { Icon } from './Icon.js';
 
 interface Props {
   bet: TennisBetRow;
@@ -39,14 +40,14 @@ export function SettleControls({ bet, onSettled }: Props): JSX.Element {
         onChange={(e) => setClosingOdds(e.target.value)}
         title="Cote de clôture (optionnel — sert au calcul CLV)"
       />
-      <button disabled={busy} onClick={() => void settle('won')} className="settle-won">
-        ✓
+      <button disabled={busy} onClick={() => void settle('won')} className="settle-won" title="Gagné">
+        <Icon.Check size={14} />
       </button>
-      <button disabled={busy} onClick={() => void settle('lost')} className="settle-lost">
-        ✗
+      <button disabled={busy} onClick={() => void settle('lost')} className="settle-lost" title="Perdu">
+        <Icon.X size={14} />
       </button>
-      <button disabled={busy} onClick={() => void settle('void')} className="settle-void">
-        ⊘
+      <button disabled={busy} onClick={() => void settle('void')} className="settle-void" title="Annulé / void">
+        <Icon.Ban size={14} />
       </button>
     </div>
   );
