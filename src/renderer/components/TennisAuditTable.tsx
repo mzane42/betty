@@ -4,11 +4,14 @@ import { InfoTooltip } from './InfoTooltip.js';
 import { Icon } from './Icon.js';
 import { UnibetLink } from './UnibetLink.js';
 
+type StatusFilter = 'upcoming' | 'all';
+
 export function TennisAuditTable(): JSX.Element {
   const [rows, setRows] = useState<TennisPickAuditRowDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'STRONG' | 'PLAY' | 'SKIP'>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('upcoming');
 
   async function load(): Promise<void> {
     setLoading(true);
@@ -27,12 +30,21 @@ export function TennisAuditTable(): JSX.Element {
     void load();
   }, []);
 
-  const filtered = filter === 'all' ? rows : rows.filter((r) => r.verdict === filter);
+  const now = Date.now();
+  const statusFiltered =
+    statusFilter === 'upcoming'
+      ? rows.filter((r) => {
+          const t = new Date(r.scheduledAt).getTime();
+          return r.matchStatus !== 'finished' && r.matchStatus !== 'withdrawn' && t > now - 2 * 3600_000;
+        })
+      : rows;
+  const filtered = filter === 'all' ? statusFiltered : statusFiltered.filter((r) => r.verdict === filter);
   const counts = {
-    STRONG: rows.filter((r) => r.verdict === 'STRONG').length,
-    PLAY: rows.filter((r) => r.verdict === 'PLAY').length,
-    SKIP: rows.filter((r) => r.verdict === 'SKIP').length
+    STRONG: statusFiltered.filter((r) => r.verdict === 'STRONG').length,
+    PLAY: statusFiltered.filter((r) => r.verdict === 'PLAY').length,
+    SKIP: statusFiltered.filter((r) => r.verdict === 'SKIP').length
   };
+  const hiddenCount = rows.length - statusFiltered.length;
 
   if (loading) return <div className="loading">Chargement audit…</div>;
   if (error) return <div className="error">Erreur : {error}</div>;
@@ -43,17 +55,29 @@ export function TennisAuditTable(): JSX.Element {
         <div>
           <h3>Tous les scans — aujourd'hui</h3>
           <p className="muted">
-            {rows.length} pick(s) générés · {counts.STRONG} STRONG · {counts.PLAY} PLAY ·{' '}
+            {statusFiltered.length} pick(s) actifs · {counts.STRONG} STRONG · {counts.PLAY} PLAY ·{' '}
             {counts.SKIP} SKIP
+            {hiddenCount > 0 && statusFilter === 'upcoming' && (
+              <> · <span className="muted">{hiddenCount} terminés/passés cachés</span></>
+            )}
           </p>
         </div>
         <div className="tennis-feed-controls">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+            className="audit-filter"
+            title="Filtre matchs à venir (>= now-2h) vs tous"
+          >
+            <option value="upcoming">À venir uniquement</option>
+            <option value="all">Tous (inclut passés)</option>
+          </select>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as typeof filter)}
             className="audit-filter"
           >
-            <option value="all">Tous</option>
+            <option value="all">Tous verdicts</option>
             <option value="STRONG">STRONG only</option>
             <option value="PLAY">PLAY only</option>
             <option value="SKIP">SKIP only</option>
@@ -125,6 +149,10 @@ export function TennisAuditTable(): JSX.Element {
                 <th>
                   Heure
                   <InfoTooltip text="Date + heure de début prévue du match (Europe/Paris)." />
+                </th>
+                <th>
+                  Statut
+                  <InfoTooltip text="Statut DB du match : scheduled (à venir), live (en cours), finished (terminé), withdrawn (retiré). Set par auto-scorer / IPC manuel." />
                 </th>
               </tr>
             </thead>
@@ -198,6 +226,9 @@ export function TennisAuditTable(): JSX.Element {
                         minute: '2-digit'
                       })}
                     </td>
+                    <td>
+                      <MatchStatusBadge status={r.matchStatus} scheduledAt={r.scheduledAt} score={r.matchScore} />
+                    </td>
                   </tr>
                 );
               })}
@@ -207,6 +238,39 @@ export function TennisAuditTable(): JSX.Element {
       )}
     </section>
   );
+}
+
+function MatchStatusBadge({
+  status,
+  scheduledAt,
+  score
+}: {
+  status: string;
+  scheduledAt: string;
+  score: string | null;
+}): JSX.Element {
+  const t = new Date(scheduledAt).getTime();
+  const now = Date.now();
+  let label: string;
+  let cls: string;
+  if (status === 'finished') {
+    label = score ? `Terminé ${score}` : 'Terminé';
+    cls = 'status-finished';
+  } else if (status === 'withdrawn') {
+    label = 'Retiré';
+    cls = 'status-withdrawn';
+  } else if (status === 'live' || (status === 'scheduled' && t < now && now - t < 5 * 3600_000)) {
+    label = 'Live';
+    cls = 'status-live';
+  } else if (t < now) {
+    label = 'Passé';
+    cls = 'status-past';
+  } else {
+    const mins = Math.round((t - now) / 60_000);
+    label = mins < 60 ? `Dans ${mins}m` : mins < 60 * 24 ? `Dans ${Math.round(mins / 60)}h` : 'À venir';
+    cls = 'status-upcoming';
+  }
+  return <span className={`match-status ${cls}`}>{label}</span>;
 }
 
 function prettyTournament(raw: string): string {

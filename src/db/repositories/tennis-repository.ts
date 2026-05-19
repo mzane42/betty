@@ -322,6 +322,9 @@ export interface TennisPickAuditRow extends TennisPick {
   round: string;
   surface: string;
   scheduledAt: string;
+  matchStatus: string;
+  winnerId: string | null;
+  matchScore: string | null;
 }
 
 /**
@@ -349,6 +352,7 @@ export function listAllPicksForDate(
          ) WHERE rn = 1
        )
        SELECT p.*, m.tournament, m.round, m.surface, m.scheduled_at,
+              m.status as match_status, m.winner_id, m.score as match_score,
               p1.name as p1_name, p2.name as p2_name
        FROM tennis_picks p
        JOIN latest l ON l.pick_id = p.pick_id
@@ -372,7 +376,10 @@ export function listAllPicksForDate(
     tournament: row.tournament as string,
     round: row.round as string,
     surface: row.surface as string,
-    scheduledAt: row.scheduled_at as string
+    scheduledAt: row.scheduled_at as string,
+    matchStatus: (row.match_status as string) ?? 'scheduled',
+    winnerId: (row.winner_id as string) ?? null,
+    matchScore: (row.match_score as string) ?? null
   }));
 }
 
