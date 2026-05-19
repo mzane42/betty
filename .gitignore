@@ -13,3 +13,4 @@ poker-coach.db
 *.db-wal
 *.db-shm
 electron.vite.config.*.mjs
+.claude/settings.local.json

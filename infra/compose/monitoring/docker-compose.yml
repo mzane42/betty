@@ -1,0 +1,38 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: unless-stopped
+    volumes:
+      - /opt/stack/data/uptime-kuma:/app/data
+    networks:
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.uptime.rule=Host(`uptime.${DOMAIN}`)
+      - traefik.http.routers.uptime.entrypoints=websecure
+      - traefik.http.routers.uptime.tls.certresolver=letsencrypt
+      - traefik.http.services.uptime.loadbalancer.server.port=3001
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik_proxy
+    environment:
+      - DOZZLE_AUTH_PROVIDER=simple
+      - DOZZLE_AUTH_USER=${DOZZLE_USER}
+      - DOZZLE_AUTH_PASSWORD=${DOZZLE_PASS}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dozzle.rule=Host(`logs.${DOMAIN}`)
+      - traefik.http.routers.dozzle.entrypoints=websecure
+      - traefik.http.routers.dozzle.tls.certresolver=letsencrypt
+      - traefik.http.services.dozzle.loadbalancer.server.port=8080
+
+networks:
+  traefik_proxy:
+    external: true

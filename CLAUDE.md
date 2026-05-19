@@ -77,6 +77,21 @@ Toute review générée est sauvegardée dans la DB (`hand_reviews`, `tournament
 - **Vite** bundler, **Vitest** tests
 - **Recharts** dashboards
 
+## Skills (`.claude/skills/`)
+
+Charger via le `Skill` tool quand le contexte matche. Source de vérité — préférer aux duplications dans ce fichier.
+
+| Skill | Quand l'invoquer |
+|-------|------------------|
+| `poker-coaching` | Toute review/prompt poker FR — ton, vocab, anchors, contrat JSON |
+| `poker-data` | Import HH, schéma DB poker, cache review, CLI `import`/`stats`/`leaks` |
+| `tennis-pipeline` | Scan → score → curator → bet → settle → review, CLI `tennis-*` |
+| `tennis-scoring` | Verdict thresholds, Kelly, signal weights, hard floor SKIP |
+| `tennis-phantom-detection` | "Match introuvable Unibet", qualifs, surface mapping, status sync |
+| `electron-ipc` | Nouveau channel IPC — main/preload/renderer triangle |
+| `electron-sqlite` | ABI mismatch, nouvelle colonne DB, rebuild rules |
+| `vps-deployment` | Déploiement OVH, nouveau service Docker, Traefik routing |
+
 ## Compliance CGU Winamax
 
 **POST-SESSION UNIQUEMENT.**

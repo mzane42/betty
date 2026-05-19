@@ -1,0 +1,15 @@
+# Generate API token: https://api.ovh.com/createToken/
+# Required perms: GET/POST/PUT/DELETE on /cloud/* and /domain/zone/*
+ovh_application_key       = "xxxxxxxxxxxxxxxx"
+ovh_application_secret    = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ovh_consumer_key          = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# UUID du Cloud Project — Manager OVH → Public Cloud → Identifiant du projet
+ovh_cloud_project_service = "00000000000000000000000000000000"
+
+# OpenStack creds — Manager OVH → Public Cloud → Users & Roles → "Create OpenStack RC"
+openstack_user            = "user-XXXXXXXX"
+openstack_password        = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Récupère après achat VPS Elite via web — Manager → Bare Metal Cloud → VPS → IP
+vps_ipv4                  = "X.X.X.X"

@@ -1,0 +1,29 @@
+services:
+  tennis-daemon:
+    build:
+      context: ../../..
+      dockerfile: infra/compose/tennis/Dockerfile
+    image: poker-coach/tennis-daemon:latest
+    container_name: tennis-daemon
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Paris
+      - NODE_ENV=production
+      - POKER_DB_PATH=/app/data/poker.db
+      - ODDS_API_KEY=${ODDS_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_ALLOWED_USER_IDS=${TELEGRAM_ALLOWED_USER_IDS}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - /opt/stack/data/tennis:/app/data
+    networks:
+      - traefik_proxy
+    healthcheck:
+      test: ["CMD", "test", "-f", "/app/data/poker.db"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+
+networks:
+  traefik_proxy:
+    external: true
