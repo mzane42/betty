@@ -504,6 +504,7 @@ body,
   display: inline-flex;
   align-items: center;
   margin-left: 6px;
+  z-index: 50;
 }
 
 .info-tooltip-icon {
@@ -549,9 +550,10 @@ body,
   letter-spacing: normal;
   text-align: left;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-  z-index: 1000;
+  z-index: 9999;
   pointer-events: none;
 }
+
 
 .info-tooltip-bubble::after {
   content: '';
@@ -3510,7 +3512,10 @@ button svg:last-child {
 }
 
 .audit-table-wrapper {
-  overflow-x: auto;
+  /* overflow:auto clips tooltip bubbles. We allow visible by default and only
+     clamp the width via min-width on the table. If horizontal scroll becomes
+     necessary on smaller screens, swap to a portal-based tooltip. */
+  overflow: visible;
   border: 1px solid var(--border, #2a2e36);
   border-radius: 8px;
 }
