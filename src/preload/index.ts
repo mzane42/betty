@@ -125,6 +125,8 @@ const api = {
     closingOdds: number | null
   ) => ipcRenderer.invoke('tennis:bets:settle', betId, result, pnlEur, closingOdds),
   tennisListBets: () => ipcRenderer.invoke('tennis:bets:list'),
+  tennisPlayerForm: (playerName: string) =>
+    ipcRenderer.invoke('tennis:player-form', playerName),
   tennisGetBetReview: (betId: string) => ipcRenderer.invoke('tennis:bets:get-review', betId),
   onTennisReviewReady: (listener: (betId: string) => void) => {
     const wrapped = (_: unknown, payload: { betId: string }): void => listener(payload.betId);

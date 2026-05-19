@@ -3981,3 +3981,145 @@ button svg:last-child {
   cursor: pointer;
   font-weight: 600;
 }
+
+/* ----- Home page: cross-domain bankroll widget ----- */
+.home-bankroll {
+  width: 100%;
+  margin-top: 16px;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.home-bankroll header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+
+.home-bankroll header h3 {
+  margin: 0;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--fg-muted);
+}
+
+.home-bankroll-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+}
+
+.hb-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.hb-cell-combined {
+  border-width: 2px;
+}
+
+.hb-label {
+  font-size: 11px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hb-value {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.hb-cell-combined .hb-value {
+  font-size: 32px;
+}
+
+.hb-sub {
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+
+.hb-cell.hb-pos .hb-value {
+  color: var(--accent);
+}
+
+.hb-cell.hb-neg .hb-value {
+  color: var(--danger);
+}
+
+/* ----- Player-form HUD ----- */
+.form-hud {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 11px;
+}
+
+.form-hud.compact {
+  padding: 4px 8px;
+  margin-top: 4px;
+}
+
+.form-hud-pills {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.form-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.form-pill.form-w {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+}
+
+.form-pill.form-l {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+.form-hud-meta {
+  display: inline-flex;
+  gap: 8px;
+  color: var(--fg-muted);
+}
+
+.form-hud-meta .fatigue {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.form-hud-loading,
+.form-hud-error,
+.form-hud-empty {
+  font-size: 11px;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
+.form-hud-error {
+  color: var(--danger);
+}

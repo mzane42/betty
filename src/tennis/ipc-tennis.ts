@@ -202,6 +202,20 @@ export function registerTennisIpc(getDb: () => Database): void {
     return bet?.postMatchReviewJson ?? null;
   });
 
+  ipcMain.handle('tennis:player-form', async (_, playerKey: string) => {
+    const { getPlayerForm } = await import('./player-form.js');
+    // playerKey may be a slug ("zhang_s") or a display name ("Shuai Zhang").
+    // If it's a slug, resolve to canonical name from tennis_players.
+    let name = playerKey;
+    if (/^[a-z]+_[a-z]$|^[a-z]+_[a-z][a-z]?$/.test(playerKey)) {
+      const row = getDb()
+        .prepare(`SELECT name FROM tennis_players WHERE player_id = ?`)
+        .get(playerKey) as { name: string } | undefined;
+      if (row?.name) name = row.name;
+    }
+    return getPlayerForm(name);
+  });
+
   ipcMain.handle('tennis:bets:list', () => listAllBets(getDb()));
 
   ipcMain.handle('tennis:bankroll:summary', (_, tournament?: string) =>

@@ -5,6 +5,7 @@ import {
   type TennisPickRow
 } from '../api.js';
 import { toast } from '../lib/toast.js';
+import { PlayerFormHud } from './PlayerFormHud.js';
 
 interface Props {
   /** Called after any successful action so the parent can refresh siblings. */
@@ -309,6 +310,9 @@ function CuratorPickRow({
       <div className="curator-pick-body">
         <div className="curator-pick-tldr">{selection.tldr}</div>
         <div className="curator-pick-why">{selection.why}</div>
+        <div className="curator-pick-form">
+          <PlayerFormHud playerName={pick.selection} compact />
+        </div>
         <div className="curator-pick-meta">
           <span>Modèle {(pick.modelProb * 100).toFixed(1)}%</span>
           <span>·</span>

@@ -288,6 +288,7 @@ interface PokerApi {
     closingOdds: number | null
   ): Promise<{ ok: true }>;
   tennisListBets(): Promise<TennisBetRow[]>;
+  tennisPlayerForm(playerName: string): Promise<TennisPlayerFormRow>;
   tennisGetBetReview(betId: string): Promise<string | null>;
   onTennisReviewReady(listener: (betId: string) => void): () => void;
   onTennisReviewFailed(listener: (betId: string, message: string) => void): () => void;
@@ -392,6 +393,22 @@ export interface TennisMatchRow {
   status: 'scheduled' | 'live' | 'finished' | 'withdrawn' | 'delayed';
   winnerId: string | null;
   score: string | null;
+}
+
+export interface TennisPlayerFormRow {
+  playerName: string;
+  matchesPlayed: number;
+  last5: Array<{
+    date: string;
+    surface: string;
+    result: 'W' | 'L';
+    opponentName: string;
+    round: string;
+  }>;
+  clayWinPct: number;
+  clayMatches: number;
+  daysSinceLast: number | null;
+  lastMatchDate: string | null;
 }
 
 export interface TennisBetRow {
