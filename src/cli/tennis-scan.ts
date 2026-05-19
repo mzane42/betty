@@ -14,6 +14,7 @@ import { defaultDbPath, openDatabase } from '../db/index.js';
 import { createOddsApiClient } from '../tennis/ingest/odds-api.js';
 import { runAutoScore } from '../tennis/auto-scorer.js';
 import { runCurator } from '../tennis/curator.js';
+import { syncMatchStatuses } from '../tennis/status-sync.js';
 
 const PROJECT_ROOT = resolve(import.meta.dirname, '..', '..');
 for (const file of ['.env.local', '.env']) {
@@ -37,6 +38,9 @@ const client = createOddsApiClient({ apiKey });
 
 console.log(`▶ Tennis scan — window=${windowHours}h, reddit=${enableReddit}`);
 const t0 = Date.now();
+
+const syncRes = await syncMatchStatuses(db, client);
+console.log(`▶ Status sync: ${syncRes.withdrawn} withdrawn, ${syncRes.finished} finished`);
 
 const score = await runAutoScore(db, client, { enableReddit, windowHours });
 for (const line of score.logs) console.log(line);

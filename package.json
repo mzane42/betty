@@ -34,6 +34,8 @@
     "tennis-paste-bet": "tsx src/cli/tennis-paste-bet.ts",
     "pretennis-capture-closing": "npm rebuild better-sqlite3 --target_arch=arm64",
     "tennis-capture-closing": "tsx src/cli/tennis-capture-closing.ts",
+    "pretennis-sync-status": "npm rebuild better-sqlite3 --target_arch=arm64",
+    "tennis-sync-status": "tsx src/cli/tennis-sync-status.ts",
     "tennis-load-elo": "tsx src/cli/tennis-load-elo.ts",
     "tennis-load-ranks": "tsx src/cli/tennis-load-ranks.ts",
     "coach": "./scripts/open-coach-terminal.sh",

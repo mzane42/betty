@@ -12,3 +12,4 @@ poker-coach.db
 *.db-journal
 *.db-wal
 *.db-shm
+electron.vite.config.*.mjs
