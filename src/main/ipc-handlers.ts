@@ -240,6 +240,8 @@ export function registerIpcHandlers(): void {
       console.log('[review:hand]', handId, 'prompt:', handText.length, 'chars');
       const result = await reviewHand(systemPrompt, handText);
       saveHandReview(db(), handId, result);
+      const { appendHandMemory } = await import('../reviewer/coach-memory.js');
+      appendHandMemory(handId, result);
       console.log('[review:hand] done, verdict:', result.verdict);
       return result;
     } catch (err) {
@@ -258,6 +260,8 @@ export function registerIpcHandlers(): void {
       console.log('[review:session]', sessionDate, 'prompt:', sessionText.length, 'chars');
       const result = await reviewSession(systemPrompt, sessionText);
       saveSessionReview(db(), sessionDate, HERO_ACCOUNT, result);
+      const { appendSessionMemory } = await import('../reviewer/coach-memory.js');
+      appendSessionMemory(sessionDate, result);
       console.log('[review:session] done, verdict:', result.sessionVerdict);
       return result;
     } catch (err) {
@@ -276,6 +280,8 @@ export function registerIpcHandlers(): void {
       console.log('[review:tournament]', tournamentId, 'prompt:', tournamentText.length, 'chars');
       const result = await reviewTournament(systemPrompt, tournamentText);
       saveTournamentReview(db(), tournamentId, result);
+      const { appendTournamentMemory } = await import('../reviewer/coach-memory.js');
+      appendTournamentMemory(tournamentId, result);
       console.log('[review:tournament] done, verdict:', result.tournamentVerdict);
       return result;
     } catch (err) {
@@ -304,6 +310,42 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('reviews:hands-for-session', (_, sessionDate: string) => {
     const map = getHandReviewsForSession(db(), sessionDate, HERO_ACCOUNT);
     return Object.fromEntries(map);
+  });
+
+  /**
+   * List sessions and tournaments that have no AI review yet.
+   * Used for auto-review after import.
+   */
+  // Nash compliance scan
+  ipcMain.handle('nash:scan', async () => {
+    const { tagNashCompliance, nashStats } = await import('../nash/nash-tagger.js');
+    const tags = tagNashCompliance(db(), HERO_ACCOUNT);
+    return { tags, stats: nashStats(tags) };
+  });
+
+  ipcMain.handle('auto-review:pending', () => {
+    const sessions = db()
+      .prepare(
+        `SELECT DISTINCT DATE(t.start_time) as session_date
+         FROM tournaments t
+         LEFT JOIN session_reviews sr
+           ON sr.session_date = DATE(t.start_time) AND sr.hero_account = t.hero_account
+         WHERE t.hero_account = ? AND sr.session_date IS NULL
+         ORDER BY session_date DESC`
+      )
+      .all(HERO_ACCOUNT) as Array<{ session_date: string }>;
+
+    const tournaments = db()
+      .prepare(
+        `SELECT t.tournament_id, DATE(t.start_time) as session_date
+         FROM tournaments t
+         LEFT JOIN tournament_reviews tr ON tr.tournament_id = t.tournament_id
+         WHERE t.hero_account = ? AND tr.tournament_id IS NULL
+         ORDER BY t.start_time DESC`
+      )
+      .all(HERO_ACCOUNT) as Array<{ tournament_id: string; session_date: string }>;
+
+    return { sessions: sessions.map((s) => s.session_date), tournaments };
   });
 }
 

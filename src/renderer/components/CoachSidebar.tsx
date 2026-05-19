@@ -82,7 +82,7 @@ export function CoachSidebar({ collapsed, onToggle, width, onResize }: Props): J
     return term;
   }
 
-  function start(cmd: string): void {
+  function start(cmd: string, claudeMode: boolean): void {
     if (status === 'running') return;
     if (!containerRef.current) return;
     const term = ensureTerminal();
@@ -91,29 +91,38 @@ export function CoachSidebar({ collapsed, onToggle, width, onResize }: Props): J
       termIdRef.current = id;
       startedAtRef.current = Date.now();
       setStatus('running');
+      coachBus.setClaudeRunning(claudeMode);
 
       window.pokerApi.onTerminalData(id, (data) => term.write(data));
       window.pokerApi.onTerminalExit(id, () => {
         setStatus('exited');
         termIdRef.current = null;
-        coachBus.unregister();
+        coachBus.setClaudeRunning(false);
       });
 
       term.onData((data) => {
         if (termIdRef.current) void window.pokerApi.writeTerminal(termIdRef.current, data);
       });
 
-      coachBus.registerWrite((text) => {
-        if (termIdRef.current) void window.pokerApi.writeTerminal(termIdRef.current, text);
-      });
-      coachBus.registerOpen(() => {
-        // If collapsed, open it.
-        if (collapsed) onToggle();
-      });
-
       const { cols, rows } = term;
       void window.pokerApi.resizeTerminal(id, cols, rows);
     });
+  }
+
+  function escapeForShell(s: string): string {
+    return s.replace(/'/g, `'\\''`);
+  }
+
+  function startClaudeWithPrompt(initialPrompt: string): void {
+    if (status === 'running') {
+      // Should be handled by the write path before reaching here, but as a fallback inject.
+      if (termIdRef.current) {
+        void window.pokerApi.writeTerminal(termIdRef.current, initialPrompt + '\r');
+      }
+      return;
+    }
+    const cmd = `claude '${escapeForShell(initialPrompt)}'`;
+    start(cmd, true);
   }
 
   function reset(): void {
@@ -134,11 +143,26 @@ export function CoachSidebar({ collapsed, onToggle, width, onResize }: Props): J
     localStorage.setItem(STORAGE_AUTOSTART, next ? '1' : '0');
   }
 
+  // Register coach-bus handlers once on mount.
+  useEffect(() => {
+    coachBus.registerWrite((text) => {
+      if (termIdRef.current) void window.pokerApi.writeTerminal(termIdRef.current, text);
+    });
+    coachBus.registerOpen(() => {
+      if (collapsed) onToggle();
+    });
+    coachBus.registerStartClaude((prompt) => {
+      if (collapsed) onToggle();
+      startClaudeWithPrompt(prompt);
+    });
+    return () => coachBus.unregister();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collapsed]);
+
   // Autostart on mount if flag set.
   useEffect(() => {
     if (autostart && status === 'idle') {
-      // Give the container a tick to render its size.
-      const t = setTimeout(() => start('bun run coach-brief && claude'), 200);
+      const t = setTimeout(() => start('bun run coach-brief && claude', true), 200);
       return () => clearTimeout(t);
     }
     return undefined;
@@ -240,13 +264,13 @@ export function CoachSidebar({ collapsed, onToggle, width, onResize }: Props): J
             <div className="sidebar-actions">
               {status === 'idle' && (
                 <>
-                  <button className="ohmy-btn primary" onClick={() => start('bun run coach-brief && claude')}>
+                  <button className="ohmy-btn primary" onClick={() => start('bun run coach-brief && claude', true)}>
                     <span className="btn-glyph">⚡</span> brief + claude
                   </button>
-                  <button className="ohmy-btn" onClick={() => start('claude')}>
+                  <button className="ohmy-btn" onClick={() => start('claude', true)}>
                     <span className="btn-glyph">◇</span> claude
                   </button>
-                  <button className="ohmy-btn" onClick={() => start('')}>
+                  <button className="ohmy-btn" onClick={() => start('', false)}>
                     <span className="btn-glyph">$</span> shell
                   </button>
                 </>
@@ -259,7 +283,7 @@ export function CoachSidebar({ collapsed, onToggle, width, onResize }: Props): J
               {status === 'exited' && (
                 <>
                   <span className="muted">session terminée</span>
-                  <button className="ohmy-btn primary" onClick={() => start('bun run coach-brief && claude')}>
+                  <button className="ohmy-btn primary" onClick={() => start('bun run coach-brief && claude', true)}>
                     <span className="btn-glyph">↻</span> relancer
                   </button>
                   <button className="ohmy-btn" onClick={reset}>

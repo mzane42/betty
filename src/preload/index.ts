@@ -63,6 +63,8 @@ const api = {
   getEquityStats: () => ipcRenderer.invoke('equity:stats'),
   openCoachTerminal: (clean?: boolean) =>
     ipcRenderer.invoke('coach:open-terminal', { clean }),
+  getAutoReviewPending: () => ipcRenderer.invoke('auto-review:pending'),
+  scanNash: () => ipcRenderer.invoke('nash:scan'),
 
   getLeaks: () => ipcRenderer.invoke('analytics:leaks'),
   getGameRecommendations: () => ipcRenderer.invoke('analytics:game-recommendations'),

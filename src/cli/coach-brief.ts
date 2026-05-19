@@ -1,4 +1,5 @@
 import { defaultDbPath, openDatabase } from '../db/index.js';
+import { readMemoryExcerpt } from '../reviewer/coach-memory.js';
 
 const HERO = 'mzane42';
 const db = openDatabase({ dbPath: defaultDbPath() });
@@ -64,6 +65,10 @@ if (latestReview) {
 }
 lines.push('');
 lines.push('Voir CLAUDE.md à la racine pour le contexte coaching complet (style, vocab, référentiel chiffres).');
+lines.push('');
+lines.push('## Memory récente (sessions déjà analysées)');
+lines.push('');
+lines.push(readMemoryExcerpt(2500));
 lines.push('');
 lines.push('---');
 lines.push('Sur quoi tu veux travailler aujourd\'hui ?');

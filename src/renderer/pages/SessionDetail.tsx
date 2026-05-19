@@ -25,6 +25,7 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
   const [reviewError, setReviewError] = useState<string | null>(null);
   const [reviewElapsed, setReviewElapsed] = useState(0);
   const [expandedHand, setExpandedHand] = useState<string | null>(null);
+  const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
 
   useEffect(() => {
     if (!reviewLoading) return;
@@ -102,6 +103,8 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
     setReview(null);
     setReviewError(null);
     setReviewLoading(true);
+
+    // 1. Headless Claude review → persisted JSON in DB, structured display.
     pokerApi
       .reviewSession(sessionDate)
       .then((r) => {
@@ -112,6 +115,70 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
         setReviewError(err?.message ?? 'Erreur Claude');
         setReviewLoading(false);
       });
+
+    // 2. Also send the same context to the live coach sidebar so the user can
+    //    drill into specific hands by chatting with Claude.
+    if (data) {
+      const interactivePrompt = buildSessionDiscussionPrompt(sessionDate, data);
+      coachBus.send(interactivePrompt);
+    }
+  }
+
+  function buildSessionDiscussionPrompt(date: string, d: SessionDetailResult): string {
+    const topWins = d.highlights.topWins.map((h) => `#${h.hand_number} ${h.hero_cards_parsed?.join('') ?? '?'} ${h.hero_position ?? '?'} +${h.hero_net}`).join(', ');
+    const topLosses = d.highlights.topLosses.map((h) => `#${h.hand_number} ${h.hero_cards_parsed?.join('') ?? '?'} ${h.hero_position ?? '?'} ${h.hero_net}`).join(', ');
+    return (
+      `Session ${date}: ${d.totals.tournamentsPlayed} tournois, ${d.totals.handsPlayed} mains, net ${d.totals.net.toFixed(2)}€. ` +
+      `Top wins (jetons): ${topWins || 'aucune'}. Top losses (jetons): ${topLosses || 'aucune'}. ` +
+      `Donne moi 1 pattern clé que tu vois, 1 erreur récurrente à corriger, et 1 chose que j'ai bien faite. Court et pédagogue.`
+    );
+  }
+
+  async function copyText(text: string, label: string = 'Copié'): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedLabel(label);
+      setTimeout(() => setCopiedLabel(null), 1500);
+    } catch (err) {
+      console.error('Clipboard failed:', err);
+    }
+  }
+
+  function reviewToMarkdown(r: SessionReviewResult): string {
+    const lines: string[] = [];
+    lines.push(`# Analyse session ${sessionDate}`);
+    lines.push('');
+    lines.push(`**Verdict:** ${r.sessionVerdict}`);
+    lines.push('');
+    lines.push(r.summary);
+    if (r.patterns.length > 0) {
+      lines.push('');
+      lines.push('## Patterns');
+      for (const p of r.patterns) {
+        lines.push(`- **${p.pattern}** (${p.impact}) — ${p.advice}`);
+      }
+    }
+    if (r.biggestMistake) {
+      lines.push('');
+      lines.push(`## Plus grosse erreur`);
+      lines.push(r.biggestMistake.description);
+    }
+    if (r.biggestWin) {
+      lines.push('');
+      lines.push(`## Meilleur coup`);
+      lines.push(r.biggestWin.description);
+    }
+    if (r.lessons.length > 0) {
+      lines.push('');
+      lines.push(`## Leçons`);
+      for (const l of r.lessons) lines.push(`- ${l}`);
+    }
+    if (r.nextSessionFocus) {
+      lines.push('');
+      lines.push(`## Focus prochaine session`);
+      lines.push(r.nextSessionFocus);
+    }
+    return lines.join('\n');
   }
 
   const VERDICT_ORDER: Record<string, number> = { blunder: 0, mistake: 1, okay: 2, good: 3 };
@@ -192,8 +259,41 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
 
         {review && (
           <div className="ai-review-result">
-            <div className={`verdict-badge verdict-${review.sessionVerdict}`}>
-              {translateVerdict(review.sessionVerdict)}
+            <div className="review-toolbar">
+              <div className={`verdict-badge verdict-${review.sessionVerdict}`}>
+                {translateVerdict(review.sessionVerdict)}
+              </div>
+              <div className="review-toolbar-actions">
+                <button
+                  className="copy-btn"
+                  onClick={() => copyText(reviewToMarkdown(review), 'Markdown copié')}
+                  title="Copier la review entière (Markdown)"
+                >
+                  📋 Copier tout
+                </button>
+                <button
+                  className="copy-btn"
+                  onClick={() => copyText(review.summary, 'Résumé copié')}
+                  title="Copier juste le résumé"
+                >
+                  📋 Résumé
+                </button>
+                <button
+                  className="copy-btn"
+                  onClick={() => data && copyText(buildSessionDiscussionPrompt(sessionDate, data), 'Prompt copié')}
+                  title="Copier le prompt brut pour re-soumettre à Claude"
+                >
+                  📋 Prompt
+                </button>
+                <button
+                  className="coach-link-btn"
+                  onClick={() => data && coachBus.send(buildSessionDiscussionPrompt(sessionDate, data))}
+                  title="Discuter cette session avec le coach"
+                >
+                  ✨ Discuter avec coach
+                </button>
+                {copiedLabel && <span className="copied-flash">{copiedLabel}</span>}
+              </div>
             </div>
             <p className="ai-summary">{review.summary}</p>
 

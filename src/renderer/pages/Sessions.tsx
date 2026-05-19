@@ -6,6 +6,8 @@ import { SortHeader, SearchBox } from '../components/SortHeader.js';
 import { useTable } from '../lib/use-table.js';
 import { TIPS } from '../glossary.js';
 
+const AUTO_REVIEW_KEY = 'pokerCoach.autoReviewOnImport';
+
 interface SessionsProps {
   onSelect: (sessionDate: string) => void;
 }
@@ -15,6 +17,10 @@ type Row = SessionRow & { running: number };
 export function Sessions({ onSelect }: SessionsProps): JSX.Element {
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
+  const [importMsg, setImportMsg] = useState<string | null>(null);
+  const [autoReview, setAutoReview] = useState(() => localStorage.getItem(AUTO_REVIEW_KEY) === '1');
+  const [autoQueue, setAutoQueue] = useState<{ current: number; total: number } | null>(null);
 
   const [verdicts, setVerdicts] = useState<Record<string, string>>({});
 
@@ -51,11 +57,71 @@ export function Sessions({ onSelect }: SessionsProps): JSX.Element {
     searchFn: (r, q) => r.session_date.toLowerCase().includes(q)
   });
 
+  function toggleAutoReview(): void {
+    const next = !autoReview;
+    setAutoReview(next);
+    localStorage.setItem(AUTO_REVIEW_KEY, next ? '1' : '0');
+  }
+
+  async function runImport(): Promise<void> {
+    setImporting(true);
+    setImportMsg(null);
+    try {
+      const res = await pokerApi.importNewSession();
+      setImportMsg(`Import: ${res.handsImported} mains, ${res.tournamentsImported} tournois`);
+
+      // Reload session list
+      const fresh = await pokerApi.getSessions(100, 0);
+      setSessions(fresh);
+
+      if (autoReview && res.handsImported > 0) {
+        const pending = await pokerApi.getAutoReviewPending();
+        const todo = pending.sessions; // session-level reviews
+        if (todo.length > 0) {
+          for (let i = 0; i < todo.length; i++) {
+            setAutoQueue({ current: i + 1, total: todo.length });
+            try {
+              await pokerApi.reviewSession(todo[i]!);
+            } catch (err) {
+              console.error('Auto review failed for', todo[i], err);
+            }
+          }
+          setAutoQueue(null);
+          setImportMsg(`Import + ${todo.length} reviews IA terminées.`);
+          // Refresh verdicts
+          const fresh2 = await pokerApi.getSessions(100, 0);
+          setSessions(fresh2);
+        }
+      }
+    } catch (err) {
+      setImportMsg(`Erreur: ${(err as Error).message}`);
+    } finally {
+      setImporting(false);
+    }
+  }
+
   if (loading) return <div className="loading">Chargement des sessions…</div>;
 
   return (
     <div className="sessions-page">
-      <h2>Sessions</h2>
+      <div className="sessions-header-row">
+        <h2>Sessions</h2>
+        <div className="sessions-import-controls">
+          <button className="import-btn" onClick={runImport} disabled={importing}>
+            {importing ? '⟳ Import en cours…' : '⬇ Importer nouvelles mains'}
+          </button>
+          <label className="auto-review-toggle" title="Lance l'analyse IA automatiquement après import">
+            <input type="checkbox" checked={autoReview} onChange={toggleAutoReview} />
+            Auto-analyse IA
+          </label>
+        </div>
+      </div>
+      {importMsg && <div className="import-msg">{importMsg}</div>}
+      {autoQueue && (
+        <div className="import-msg">
+          Analyse IA en cours: session {autoQueue.current}/{autoQueue.total}…
+        </div>
+      )}
       <div className="table-toolbar">
         <p className="muted">Clique une ligne pour voir le détail + analyse IA.</p>
         <SearchBox value={table.search} onChange={table.setSearch} placeholder="Filtrer par date…" />

@@ -136,6 +136,20 @@ interface PokerApi {
   backfillEquity(limit?: number): Promise<{ processed: number; updated: number }>;
   getEquityStats(): Promise<{ total: number; computed: number }>;
   openCoachTerminal(clean?: boolean): Promise<{ spawned: boolean }>;
+  getAutoReviewPending(): Promise<{ sessions: string[]; tournaments: { tournament_id: string; session_date: string }[] }>;
+  scanNash(): Promise<{
+    tags: Array<{
+      hand_id: string;
+      hand_code: string;
+      position: string;
+      stack_bb: number;
+      action: 'shove' | 'call' | 'fold';
+      nash_verdict: 'in' | 'marginal' | 'out';
+      off_nash: boolean;
+      cost_bb: number;
+    }>;
+    stats: { total: number; inRange: number; marginal: number; outOfRange: number; totalCostBb: number };
+  }>;
   getLeaks(): Promise<Leak[]>;
   getGameRecommendations(): Promise<GameRecommendation[]>;
   getProgress(granularity?: 'quarter' | 'month'): Promise<ProgressPoint[]>;
