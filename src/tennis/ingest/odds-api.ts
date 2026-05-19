@@ -28,6 +28,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import type { OddsSnapshot, TennisBook, TennisMatch } from '../../types/tennis.js';
 import type { Scrapers } from '../signal-daemon.js';
+import { inferSurface } from '../surface.js';
 
 const API_BASE = 'https://api.the-odds-api.com/v4';
 const CACHE_DIR = join(homedir(), '.poker-coach', 'cache', 'odds-api');
@@ -446,11 +447,7 @@ function inferTournament(sportKey: string): string {
   return sportKey;
 }
 
-function inferSurface(sportKey: string): TennisMatch['surface'] {
-  if (sportKey.includes('french_open')) return 'clay';
-  if (sportKey.includes('wimbledon')) return 'grass';
-  return 'hard';
-}
+// surface lookup centralized in src/tennis/surface.ts
 
 function slugId(name: string): string {
   const parts = name.trim().toLowerCase().split(/\s+/);

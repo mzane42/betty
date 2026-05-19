@@ -31,6 +31,7 @@ import {
 import { lineMovementPct } from './ingest/line-movement.js';
 import { generatePick, type GeneratePickResult } from './pick-generator.js';
 import { ingestTipsterCount } from './ingest/reddit.js';
+import { inferSurface } from './surface.js';
 import {
   appendSignal,
   getPlayer,
@@ -149,7 +150,7 @@ export async function runAutoScore(
         const picked: GeneratePickResult = await generatePick(db, {
           match: {
             tournament: tournamentFromSportKey(event.sport_key),
-            surface: surfaceFromSportKey(event.sport_key),
+            surface: inferSurface(event.sport_key),
             round: 'UNK',
             scheduledAt: event.commence_time,
             player1: {
@@ -240,8 +241,4 @@ function tournamentFromSportKey(sportKey: string): string {
   return sportKey.replace(/^tennis_(atp|wta)_/, '').replace(/^tennis_/, '');
 }
 
-function surfaceFromSportKey(sportKey: string): 'clay' | 'hard' | 'grass' {
-  if (sportKey.includes('french_open') || sportKey.includes('roland') || sportKey.includes('madrid') || sportKey.includes('rome')) return 'clay';
-  if (sportKey.includes('wimbledon') || sportKey.includes('queens') || sportKey.includes('halle')) return 'grass';
-  return 'hard';
-}
+// surface lookup centralized in src/tennis/surface.ts
