@@ -97,22 +97,21 @@ export async function generatePick(
   db: Database,
   input: GeneratePickInput
 ): Promise<GeneratePickResult> {
-  // 1. Persist match + players (idempotent upserts).
+  // 0. Validate before any DB write — fail fast if we can't actually generate a
+  //    placeable pick (no Winamax/Betclic/Unibet odds supplied).
+  const placeableEntries = (Object.entries(input.oddsByBook) as Array<[TennisBook, number]>)
+    .filter(
+      ([book, odds]) =>
+        PLACEABLE_BOOKS.includes(book) && Number.isFinite(odds) && odds > 1
+    );
+  if (placeableEntries.length === 0) {
+    throw new Error('No placeable-book odds provided (winamax/betclic/unibet required).');
+  }
+
+  // 1. Persist players first (FK target), then the match (FK source). All
+  //    inserts are idempotent upserts.
   const matchId = composeMatchId(input.match);
   const nowIso = new Date().toISOString();
-  const matchRow: TennisMatch = {
-    matchId,
-    tournament: input.match.tournament,
-    surface: input.match.surface,
-    round: input.match.round,
-    player1Id: input.match.player1.id,
-    player2Id: input.match.player2.id,
-    scheduledAt: input.match.scheduledAt,
-    status: 'scheduled',
-    winnerId: null,
-    score: null
-  };
-  upsertMatch(db, matchRow);
   upsertPlayer(db, {
     playerId: input.match.player1.id,
     name: input.match.player1.name,
@@ -131,6 +130,19 @@ export async function generatePick(
     birthDate: null,
     updatedAt: nowIso
   });
+  const matchRow: TennisMatch = {
+    matchId,
+    tournament: input.match.tournament,
+    surface: input.match.surface,
+    round: input.match.round,
+    player1Id: input.match.player1.id,
+    player2Id: input.match.player2.id,
+    scheduledAt: input.match.scheduledAt,
+    status: 'scheduled',
+    winnerId: null,
+    score: null
+  };
+  upsertMatch(db, matchRow);
 
   // 2. Snapshot the odds we were given.
   const snapshots: OddsSnapshot[] = (
@@ -147,13 +159,8 @@ export async function generatePick(
     }));
   if (snapshots.length > 0) insertOddsSnapshots(db, snapshots);
 
-  // 3. Find best placeable book + its odds.
-  const placeable: Array<[TennisBook, number]> = snapshots
-    .filter((s) => PLACEABLE_BOOKS.includes(s.book))
-    .map((s) => [s.book, s.decimalOdds]);
-  if (placeable.length === 0) {
-    throw new Error('No placeable-book odds provided (winamax/betclic/unibet required).');
-  }
+  // 3. Find best placeable book + its odds (we already validated non-empty in step 0).
+  const placeable = [...placeableEntries];
   placeable.sort(([, a], [, b]) => b - a); // descending: best (highest) odds first
   const [bestBook, bookDecimalOdds] = placeable[0];
 

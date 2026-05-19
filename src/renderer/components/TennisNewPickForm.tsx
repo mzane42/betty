@@ -30,14 +30,17 @@ export function TennisNewPickForm({ onSubmit }: Props): JSX.Element {
 
   const [selection, setSelection] = useState<'p1' | 'p2'>('p1');
 
-  // Odds
+  // Odds (selection)
   const [oddsWinamax, setOddsWinamax] = useState<string>('');
   const [oddsBetclic, setOddsBetclic] = useState<string>('');
   const [oddsUnibet, setOddsUnibet] = useState<string>('');
   const [oddsPinnacle, setOddsPinnacle] = useState<string>('');
   const [oddsBetfair, setOddsBetfair] = useState<string>('');
+  // Opponent Pinnacle odds (needed to compute no-vig fair prob automatically)
+  const [oddsPinnacleOpp, setOddsPinnacleOpp] = useState<string>('');
 
-  // Optional signals
+  // Optional signals — pinnacleProb is auto-computed if Pinnacle odds for both
+  // sides are provided, but a manual override still wins.
   const [pinnacleProb, setPinnacleProb] = useState<string>('');
   const [betfairVolume, setBetfairVolume] = useState<string>('');
   const [tipsterCount, setTipsterCount] = useState<string>('0');
@@ -88,8 +91,13 @@ export function TennisNewPickForm({ onSubmit }: Props): JSX.Element {
       modelProb = selection === 'p1' ? p1Win : 1 - p1Win;
     }
 
+    const autoPinnacleProb = computePinnacleNoVigProb(
+      parseOrUndef(oddsPinnacle),
+      parseOrUndef(oddsPinnacleOpp)
+    );
+    const manualPinnacleProb = parseOrUndef(pinnacleProb);
     const signalsObj = {
-      pinnacleProb: parseOrUndef(pinnacleProb) ?? null,
+      pinnacleProb: manualPinnacleProb ?? autoPinnacleProb ?? null,
       betfairVolume: parseOrUndef(betfairVolume) ?? null,
       tipsterAlignedCount: parseInt(tipsterCount, 10) || 0,
       lineMovementPct: parseOrUndef(lineMovementPct) ?? null
@@ -116,6 +124,8 @@ export function TennisNewPickForm({ onSubmit }: Props): JSX.Element {
     p2Rank,
     selection,
     pinnacleProb,
+    oddsPinnacle,
+    oddsPinnacleOpp,
     betfairVolume,
     tipsterCount,
     lineMovementPct,
@@ -127,6 +137,11 @@ export function TennisNewPickForm({ onSubmit }: Props): JSX.Element {
     if (!p1Id || !p2Id || !bestPlaceableOdds) return;
     setSubmitting(true);
     try {
+      const autoPinnacleProb = computePinnacleNoVigProb(
+        parseOrUndef(oddsPinnacle),
+        parseOrUndef(oddsPinnacleOpp)
+      );
+      const manualPinnacleProb = parseOrUndef(pinnacleProb);
       const input: TennisGeneratePickInput = {
         match: {
           tournament: 'roland_garros_2026',
@@ -155,7 +170,7 @@ export function TennisNewPickForm({ onSubmit }: Props): JSX.Element {
           betfair: parseOrUndef(oddsBetfair)
         },
         signals: {
-          pinnacleProb: parseOrUndef(pinnacleProb) ?? null,
+          pinnacleProb: manualPinnacleProb ?? autoPinnacleProb ?? null,
           betfairVolume: parseOrUndef(betfairVolume) ?? null,
           tipsterAlignedCount: parseInt(tipsterCount, 10) || 0,
           lineMovementPct: parseOrUndef(lineMovementPct) ?? null
@@ -288,12 +303,23 @@ export function TennisNewPickForm({ onSubmit }: Props): JSX.Element {
             />
           </label>
           <label>
-            Pinnacle (réf)
+            Pinnacle sélection (réf)
             <input
               type="number"
               step={0.01}
               value={oddsPinnacle}
               onChange={(e) => setOddsPinnacle(e.target.value)}
+              placeholder="1.28"
+            />
+          </label>
+          <label>
+            Pinnacle adversaire (auto no-vig)
+            <input
+              type="number"
+              step={0.01}
+              value={oddsPinnacleOpp}
+              onChange={(e) => setOddsPinnacleOpp(e.target.value)}
+              placeholder="4.10"
             />
           </label>
           <label>
@@ -407,4 +433,23 @@ function parseOrUndef(s: string): number | undefined {
   if (s.trim() === '') return undefined;
   const v = parseFloat(s);
   return Number.isFinite(v) ? v : undefined;
+}
+
+/**
+ * Pinnacle no-vig fair probability for the selection. Needs odds for BOTH sides
+ * to remove the bookmaker's margin proportionally.
+ *   implied_a = 1/odds_a, implied_b = 1/odds_b
+ *   fair_a = implied_a / (implied_a + implied_b)
+ */
+function computePinnacleNoVigProb(
+  selectionOdds: number | undefined,
+  opponentOdds: number | undefined
+): number | null {
+  if (selectionOdds == null || opponentOdds == null) return null;
+  if (selectionOdds <= 1 || opponentOdds <= 1) return null;
+  const a = 1 / selectionOdds;
+  const b = 1 / opponentOdds;
+  const total = a + b;
+  if (total <= 0) return null;
+  return a / total;
 }
