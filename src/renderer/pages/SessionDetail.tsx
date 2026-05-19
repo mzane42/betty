@@ -8,6 +8,7 @@ import { BoardTextureTags } from '../components/BoardTextureTags.js';
 import { HandReplay } from '../components/HandReplay.js';
 import { SortHeader, SearchBox } from '../components/SortHeader.js';
 import { useTable } from '../lib/use-table.js';
+import { coachBus } from '../lib/coach-bus.js';
 
 interface Props {
   sessionDate: string;
@@ -157,6 +158,16 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
         <div className="session-net-hero">
           <span className="muted">Net session</span>
           <ProfitBadge value={data.totals.net} size="lg" />
+          <button
+            className="coach-link-btn"
+            onClick={() =>
+              coachBus.send(
+                `Analyse rapide session ${sessionDate}: ${data.totals.tournamentsPlayed} tournois, ${data.totals.handsPlayed} mains, net ${data.totals.net.toFixed(2)}€. Top win/loss et 1 pattern principal ?`
+              )
+            }
+          >
+            ✨ Demander coach
+          </button>
         </div>
       </div>
 

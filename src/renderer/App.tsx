@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Dashboard } from './pages/Dashboard.js';
 import { Sessions } from './pages/Sessions.js';
 import { SessionDetail } from './pages/SessionDetail.js';
@@ -6,27 +6,33 @@ import { Players } from './pages/Players.js';
 import { LeakFinder } from './pages/LeakFinder.js';
 import { GameSelection } from './pages/GameSelection.js';
 import { Progress } from './pages/Progress.js';
-import { Coach } from './pages/Coach.js';
+import { CoachSidebar } from './components/CoachSidebar.js';
 
-type Page = 'dashboard' | 'sessions' | 'players' | 'leaks' | 'games' | 'progress' | 'coach';
+type Page = 'dashboard' | 'sessions' | 'players' | 'leaks' | 'games' | 'progress';
 
-const AUTO_COACH_KEY = 'pokerCoach.autoOpenTerminal';
+const SIDEBAR_COLLAPSED_KEY = 'pokerCoach.sidebarCollapsed';
+const SIDEBAR_WIDTH_KEY = 'pokerCoach.sidebarWidth';
 
 export function App(): JSX.Element {
   const [page, setPage] = useState<Page>('dashboard');
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
-  const [autoCoach, setAutoCoach] = useState(() => localStorage.getItem(AUTO_COACH_KEY) === '1');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1'
+  );
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const stored = localStorage.getItem(SIDEBAR_WIDTH_KEY);
+    return stored ? Math.max(320, Math.min(900, Number(stored))) : 460;
+  });
 
-  useEffect(() => {
-    if (autoCoach) setPage('coach');
-    // run once at mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  function toggleSidebar(): void {
+    const next = !sidebarCollapsed;
+    setSidebarCollapsed(next);
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? '1' : '0');
+  }
 
-  function toggleAutoCoach(): void {
-    const next = !autoCoach;
-    setAutoCoach(next);
-    localStorage.setItem(AUTO_COACH_KEY, next ? '1' : '0');
+  function updateWidth(w: number): void {
+    setSidebarWidth(w);
+    localStorage.setItem(SIDEBAR_WIDTH_KEY, String(w));
   }
 
   function navigate(p: Page): void {
@@ -60,32 +66,27 @@ export function App(): JSX.Element {
           <button className={page === 'progress' ? 'active' : ''} onClick={() => navigate('progress')}>
             Progrès
           </button>
-          <span className="nav-sep" />
-          <button
-            className={`coach-btn ${page === 'coach' ? 'active' : ''}`}
-            onClick={() => navigate('coach')}
-            title="Terminal Claude intégré dans l'app"
-          >
-            ✨ Coach
-          </button>
-          <label className="auto-coach-toggle" title="Auto-ouvrir au démarrage">
-            <input type="checkbox" checked={autoCoach} onChange={toggleAutoCoach} />
-            Auto
-          </label>
         </nav>
       </header>
-      <main className="app-main">
-        {page === 'dashboard' && <Dashboard />}
-        {page === 'sessions' && !selectedSession && <Sessions onSelect={(d) => setSelectedSession(d)} />}
-        {page === 'sessions' && selectedSession && (
-          <SessionDetail sessionDate={selectedSession} onBack={() => setSelectedSession(null)} />
-        )}
-        {page === 'players' && <Players />}
-        {page === 'leaks' && <LeakFinder />}
-        {page === 'games' && <GameSelection />}
-        {page === 'progress' && <Progress />}
-        {page === 'coach' && <Coach />}
-      </main>
+      <div className="app-body">
+        <main className="app-main">
+          {page === 'dashboard' && <Dashboard />}
+          {page === 'sessions' && !selectedSession && <Sessions onSelect={(d) => setSelectedSession(d)} />}
+          {page === 'sessions' && selectedSession && (
+            <SessionDetail sessionDate={selectedSession} onBack={() => setSelectedSession(null)} />
+          )}
+          {page === 'players' && <Players />}
+          {page === 'leaks' && <LeakFinder />}
+          {page === 'games' && <GameSelection />}
+          {page === 'progress' && <Progress />}
+        </main>
+        <CoachSidebar
+          collapsed={sidebarCollapsed}
+          onToggle={toggleSidebar}
+          width={sidebarWidth}
+          onResize={updateWidth}
+        />
+      </div>
     </div>
   );
 }
