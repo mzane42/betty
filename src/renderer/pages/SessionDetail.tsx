@@ -235,6 +235,24 @@ export function SessionDetail({ sessionDate, onBack }: Props): JSX.Element {
           >
             ✨ Demander coach
           </button>
+          <button
+            className="copy-btn"
+            onClick={async () => {
+              const res = await pokerApi.exportSessionMd(sessionDate);
+              if (res.saved) {
+                setCopiedLabel(`Exporté: ${res.path}`);
+                setTimeout(() => setCopiedLabel(null), 2500);
+              } else {
+                // Fall back to clipboard
+                await navigator.clipboard.writeText(res.markdown);
+                setCopiedLabel('Markdown copié');
+                setTimeout(() => setCopiedLabel(null), 1500);
+              }
+            }}
+            title="Sauvegarder la session en fichier Markdown"
+          >
+            📄 Export MD
+          </button>
         </div>
       </div>
 

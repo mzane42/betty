@@ -1,5 +1,6 @@
-import { ipcMain } from 'electron';
+import { ipcMain, dialog } from 'electron';
 import { spawn } from 'node:child_process';
+import { copyFileSync, writeFileSync } from 'node:fs';
 import { defaultDbPath, openDatabase, type Database } from '../db/index.js';
 import {
   getBankrollSummary,
@@ -170,6 +171,257 @@ export function registerIpcHandlers(): void {
       .get(HERO_ACCOUNT, playerName) as Record<string, unknown> | undefined;
     if (!row) return null;
     return derivePlayerStats(rowToRaw(row));
+  });
+
+  // Export session as Markdown
+  ipcMain.handle('export:session-md', async (_, sessionDate: string) => {
+    const tournaments = db()
+      .prepare(
+        `SELECT * FROM tournaments WHERE hero_account = ? AND DATE(start_time) = ?
+         ORDER BY start_time ASC`
+      )
+      .all(HERO_ACCOUNT, sessionDate) as Array<{
+      tournament_id: string;
+      name: string;
+      buy_in: number;
+      rake: number;
+      hero_finish_position: number;
+      hero_winnings: number | null;
+      start_time: string;
+    }>;
+
+    const hands = db()
+      .prepare(
+        `SELECT h.hand_id, h.hero_position, h.hero_cards, h.board,
+          h.hero_invested, h.hero_won, h.total_pot, h.big_blind,
+          (h.hero_won - h.hero_invested) as hero_net,
+          h.hero_equity_river
+         FROM hands h
+         JOIN tournaments t ON h.tournament_id = t.tournament_id
+         WHERE t.hero_account = ? AND DATE(t.start_time) = ?
+         ORDER BY h.played_at ASC, h.hand_id ASC`
+      )
+      .all(HERO_ACCOUNT, sessionDate) as Array<{
+      hand_id: string;
+      hero_position: string | null;
+      hero_cards: string | null;
+      board: string | null;
+      hero_invested: number;
+      hero_won: number;
+      total_pot: number;
+      big_blind: number;
+      hero_net: number;
+      hero_equity_river: number | null;
+    }>;
+
+    const sessionReview = db()
+      .prepare(`SELECT * FROM session_reviews WHERE session_date = ? AND hero_account = ?`)
+      .get(sessionDate, HERO_ACCOUNT) as
+      | {
+          session_verdict: string;
+          summary: string;
+          patterns_json: string;
+          biggest_mistake_json: string;
+          biggest_win_json: string;
+          lessons_json: string;
+          next_session_focus: string;
+        }
+      | undefined;
+
+    const lines: string[] = [];
+    lines.push(`# Session du ${sessionDate}`);
+    lines.push('');
+    const totalCost = tournaments.reduce((s, t) => s + t.buy_in + t.rake, 0);
+    const totalWon = tournaments.reduce((s, t) => s + (t.hero_winnings ?? 0), 0);
+    const net = totalWon - totalCost;
+    lines.push(`- **Joueur:** ${HERO_ACCOUNT}`);
+    lines.push(`- **Tournois:** ${tournaments.length}`);
+    lines.push(`- **Mains:** ${hands.length}`);
+    lines.push(`- **Buy-ins:** ${totalCost.toFixed(2)}€`);
+    lines.push(`- **Gains:** ${totalWon.toFixed(2)}€`);
+    lines.push(`- **Net:** ${net >= 0 ? '+' : ''}${net.toFixed(2)}€`);
+    lines.push('');
+
+    if (sessionReview) {
+      lines.push('## Analyse IA');
+      lines.push('');
+      lines.push(`**Verdict:** ${sessionReview.session_verdict}`);
+      lines.push('');
+      lines.push(sessionReview.summary);
+      const patterns = JSON.parse(sessionReview.patterns_json || '[]');
+      if (patterns.length > 0) {
+        lines.push('');
+        lines.push('### Patterns');
+        for (const p of patterns) {
+          lines.push(`- **${p.pattern}** _(${p.impact})_ — ${p.advice}`);
+        }
+      }
+      const mistake = JSON.parse(sessionReview.biggest_mistake_json || 'null');
+      if (mistake) {
+        lines.push('');
+        lines.push('### Plus grosse erreur');
+        lines.push(mistake.description);
+      }
+      const win = JSON.parse(sessionReview.biggest_win_json || 'null');
+      if (win) {
+        lines.push('');
+        lines.push('### Meilleur coup');
+        lines.push(win.description);
+      }
+      const lessons = JSON.parse(sessionReview.lessons_json || '[]');
+      if (lessons.length > 0) {
+        lines.push('');
+        lines.push('### Leçons');
+        for (const l of lessons) lines.push(`- ${l}`);
+      }
+      if (sessionReview.next_session_focus) {
+        lines.push('');
+        lines.push(`### Focus prochaine session`);
+        lines.push(sessionReview.next_session_focus);
+      }
+      lines.push('');
+    }
+
+    lines.push('## Tournois');
+    lines.push('');
+    lines.push('| Tournoi | Buy-in | Position | Gain | Net |');
+    lines.push('|---------|--------|----------|------|-----|');
+    for (const t of tournaments) {
+      const cost = t.buy_in + t.rake;
+      const won = t.hero_winnings ?? 0;
+      lines.push(`| ${t.name} | ${cost.toFixed(2)}€ | ${t.hero_finish_position} | ${won.toFixed(2)}€ | ${(won - cost).toFixed(2)}€ |`);
+    }
+    lines.push('');
+
+    lines.push('## Mains');
+    lines.push('');
+    lines.push('| # | Pos | Cartes | Board | Pot (jetons) | Investi | Net | Équity |');
+    lines.push('|---|-----|--------|-------|-------------|---------|-----|--------|');
+    hands.forEach((h, i) => {
+      const cards = h.hero_cards ? (JSON.parse(h.hero_cards) as string[]).join('') : '—';
+      const board = h.board ? (JSON.parse(h.board) as string[]).join(' ') : '—';
+      const eq = h.hero_equity_river != null ? `${h.hero_equity_river.toFixed(0)}%` : '—';
+      lines.push(
+        `| ${i + 1} | ${h.hero_position ?? '?'} | ${cards} | ${board} | ${h.total_pot} | ${h.hero_invested} | ${h.hero_net} | ${eq} |`
+      );
+    });
+
+    const md = lines.join('\n');
+
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Exporter session en Markdown',
+      defaultPath: `session-${sessionDate}.md`,
+      filters: [{ name: 'Markdown', extensions: ['md'] }]
+    });
+    if (canceled || !filePath) return { saved: false, markdown: md };
+    writeFileSync(filePath, md, 'utf-8');
+    return { saved: true, path: filePath, markdown: md };
+  });
+
+  // DB backup
+  ipcMain.handle('db:backup', async () => {
+    const { defaultDbPath } = await import('../db/index.js');
+    const src = defaultDbPath();
+    const ts = new Date().toISOString().replace(/[:.]/g, '-');
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Sauvegarder la base de données',
+      defaultPath: `poker-backup-${ts}.db`,
+      filters: [{ name: 'SQLite DB', extensions: ['db'] }]
+    });
+    if (canceled || !filePath) return { saved: false };
+    try {
+      copyFileSync(src, filePath);
+      return { saved: true, path: filePath };
+    } catch (err) {
+      console.error('[db:backup] failed', err);
+      return { saved: false, error: (err as Error).message };
+    }
+  });
+
+  // Hand search across DB
+  ipcMain.handle('hands:search', (_, filters: {
+    position?: string;
+    minPot?: number;
+    minInvested?: number;
+    netSign?: 'positive' | 'negative' | 'any';
+    minEquity?: number;
+    maxEquity?: number;
+    cardPattern?: string;
+    boardPattern?: string;
+    handStrength?: 'premium' | 'strong' | 'playable' | 'marginal' | 'weak';
+    aiVerdict?: 'good' | 'okay' | 'mistake' | 'blunder';
+    minBb?: number;
+    maxBb?: number;
+    limit?: number;
+  } = {}) => {
+    const where: string[] = ['h.hero_account = ?'];
+    const params: (string | number)[] = [HERO_ACCOUNT];
+
+    if (filters.position) {
+      where.push('h.hero_position = ?');
+      params.push(filters.position);
+    }
+    if (filters.minPot != null) {
+      where.push('h.total_pot >= ?');
+      params.push(filters.minPot);
+    }
+    if (filters.minInvested != null) {
+      where.push('h.hero_invested >= ?');
+      params.push(filters.minInvested);
+    }
+    if (filters.netSign === 'positive') where.push('h.hero_won - h.hero_invested > 0');
+    else if (filters.netSign === 'negative') where.push('h.hero_won - h.hero_invested < 0');
+    if (filters.minEquity != null) {
+      where.push('COALESCE(h.hero_equity_river, h.hero_equity_turn, h.hero_equity_flop, h.hero_equity_preflop) >= ?');
+      params.push(filters.minEquity);
+    }
+    if (filters.maxEquity != null) {
+      where.push('COALESCE(h.hero_equity_river, h.hero_equity_turn, h.hero_equity_flop, h.hero_equity_preflop) <= ?');
+      params.push(filters.maxEquity);
+    }
+    if (filters.minBb != null) {
+      where.push('h.hero_invested / NULLIF(h.big_blind, 0) >= ?');
+      params.push(filters.minBb);
+    }
+    if (filters.maxBb != null) {
+      where.push('h.hero_invested / NULLIF(h.big_blind, 0) <= ?');
+      params.push(filters.maxBb);
+    }
+    if (filters.cardPattern) {
+      where.push('h.hero_cards LIKE ?');
+      params.push(`%${filters.cardPattern}%`);
+    }
+    if (filters.boardPattern) {
+      where.push('h.board LIKE ?');
+      params.push(`%${filters.boardPattern}%`);
+    }
+    if (filters.aiVerdict) {
+      where.push('hr.verdict = ?');
+      params.push(filters.aiVerdict);
+    }
+
+    const limit = filters.limit ?? 200;
+    params.push(limit);
+
+    const rows = db()
+      .prepare(
+        `SELECT
+          h.hand_id, h.hero_position, h.hero_cards, h.big_blind, h.board,
+          h.hero_invested, h.hero_won, h.total_pot,
+          (h.hero_won - h.hero_invested) as hero_net,
+          h.played_at,
+          h.hero_equity_preflop, h.hero_equity_flop, h.hero_equity_turn, h.hero_equity_river,
+          DATE(h.played_at) as session_date,
+          h.tournament_id,
+          hr.verdict as ai_verdict
+         FROM hands h
+         LEFT JOIN hand_reviews hr ON hr.hand_id = h.hand_id
+         WHERE ${where.join(' AND ')}
+         ORDER BY h.played_at DESC
+         LIMIT ?`
+      )
+      .all(...params) as Array<Record<string, unknown>>;
+    return rows;
   });
 
   // Equity backfill

@@ -71,6 +71,9 @@ const api = {
   savePlayerNote: (name: string, note: string, tags: string[]) =>
     ipcRenderer.invoke('player-notes:save', name, note, tags),
   listPlayerNotes: () => ipcRenderer.invoke('player-notes:list'),
+  searchHands: (filters: Record<string, unknown>) => ipcRenderer.invoke('hands:search', filters),
+  exportSessionMd: (sessionDate: string) => ipcRenderer.invoke('export:session-md', sessionDate),
+  backupDb: () => ipcRenderer.invoke('db:backup'),
 
   getLeaks: () => ipcRenderer.invoke('analytics:leaks'),
   getGameRecommendations: () => ipcRenderer.invoke('analytics:game-recommendations'),

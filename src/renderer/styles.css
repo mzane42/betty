@@ -2497,3 +2497,73 @@ body,
     repeating-linear-gradient(45deg, transparent 0, transparent 3px, rgba(255, 255, 255, 0.06) 3px, rgba(255, 255, 255, 0.06) 5px);
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
+
+/* Backup button */
+.backup-btn {
+  padding: 8px 14px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--border) !important;
+  font-size: 14px !important;
+}
+
+.backup-btn:hover {
+  background: rgba(124, 58, 237, 0.15) !important;
+  color: #d8b4fe !important;
+}
+
+/* Hand search page */
+.hand-search-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.search-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.filter-field .muted {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 10px;
+}
+
+.filter-field input,
+.filter-field select {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 8px;
+  color: var(--fg);
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+  outline: none;
+  border-color: rgba(124, 58, 237, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}

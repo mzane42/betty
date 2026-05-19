@@ -6,9 +6,11 @@ import { Players } from './pages/Players.js';
 import { LeakFinder } from './pages/LeakFinder.js';
 import { GameSelection } from './pages/GameSelection.js';
 import { Progress } from './pages/Progress.js';
+import { HandSearch } from './pages/HandSearch.js';
 import { CoachSidebar } from './components/CoachSidebar.js';
+import { pokerApi } from './api.js';
 
-type Page = 'dashboard' | 'sessions' | 'players' | 'leaks' | 'games' | 'progress';
+type Page = 'dashboard' | 'sessions' | 'players' | 'leaks' | 'games' | 'progress' | 'search';
 
 const SIDEBAR_COLLAPSED_KEY = 'pokerCoach.sidebarCollapsed';
 const SIDEBAR_WIDTH_KEY = 'pokerCoach.sidebarWidth';
@@ -66,6 +68,20 @@ export function App(): JSX.Element {
           <button className={page === 'progress' ? 'active' : ''} onClick={() => navigate('progress')}>
             Progrès
           </button>
+          <button className={page === 'search' ? 'active' : ''} onClick={() => navigate('search')}>
+            🔍 Recherche
+          </button>
+          <button
+            className="backup-btn"
+            onClick={async () => {
+              const res = await pokerApi.backupDb();
+              if (res.saved) alert(`Backup sauvegardé: ${res.path}`);
+              else if (res.error) alert(`Erreur backup: ${res.error}`);
+            }}
+            title="Sauvegarder la DB SQLite"
+          >
+            💾
+          </button>
         </nav>
       </header>
       <div className="app-body">
@@ -79,6 +95,7 @@ export function App(): JSX.Element {
           {page === 'leaks' && <LeakFinder />}
           {page === 'games' && <GameSelection />}
           {page === 'progress' && <Progress />}
+          {page === 'search' && <HandSearch />}
         </main>
         <CoachSidebar
           collapsed={sidebarCollapsed}

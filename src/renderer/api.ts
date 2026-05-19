@@ -147,6 +147,37 @@ interface PokerApi {
   getPlayerNote(name: string): Promise<{ note: string; tags: string[] }>;
   savePlayerNote(name: string, note: string, tags: string[]): Promise<{ ok: boolean }>;
   listPlayerNotes(): Promise<Record<string, { note: string; tags: string[] }>>;
+  searchHands(filters: {
+    position?: string;
+    minPot?: number;
+    minInvested?: number;
+    netSign?: 'positive' | 'negative' | 'any';
+    minEquity?: number;
+    maxEquity?: number;
+    cardPattern?: string;
+    boardPattern?: string;
+    aiVerdict?: 'good' | 'okay' | 'mistake' | 'blunder';
+    minBb?: number;
+    maxBb?: number;
+    limit?: number;
+  }): Promise<Array<{
+    hand_id: string;
+    hero_position: string | null;
+    hero_cards: string | null;
+    big_blind: number;
+    board: string | null;
+    hero_invested: number;
+    hero_won: number;
+    total_pot: number;
+    hero_net: number;
+    played_at: string;
+    hero_equity_river: number | null;
+    session_date: string;
+    tournament_id: string;
+    ai_verdict: string | null;
+  }>>;
+  exportSessionMd(sessionDate: string): Promise<{ saved: boolean; path?: string; markdown: string }>;
+  backupDb(): Promise<{ saved: boolean; path?: string; error?: string }>;
   getTimeOfDay(): Promise<{
     buckets: { bucket: 'morning' | 'afternoon' | 'evening' | 'night'; tournaments: number; net: number; roi: number }[];
     tilt: { firstAvgRoi: number; lastAvgRoi: number; delta: number; multiSessionCount: number };
