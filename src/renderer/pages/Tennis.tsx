@@ -22,14 +22,15 @@ import { TennisNewPickForm } from '../components/TennisNewPickForm.js';
 import { TennisBankrollHero } from '../components/TennisBankrollHero.js';
 import { TennisRiskBanner } from '../components/TennisRiskBanner.js';
 import { SettleControls } from '../components/TennisSettleControls.js';
+import { TennisCuratorFeed } from '../components/TennisCuratorFeed.js';
 import { toast } from '../lib/toast.js';
 
 const ROLAND_GARROS = 'roland_garros_2026';
 
-type Tab = 'today' | 'new' | 'history' | 'bankroll';
+type Tab = 'feed' | 'today' | 'new' | 'history' | 'bankroll';
 
 export function Tennis(): JSX.Element {
-  const [tab, setTab] = useState<Tab>('today');
+  const [tab, setTab] = useState<Tab>('feed');
   const [picks, setPicks] = useState<TennisPickRow[]>([]);
   const [bets, setBets] = useState<TennisBetRow[]>([]);
   const [summary, setSummary] = useState<TennisBankrollSummaryRow | null>(null);
@@ -122,19 +123,30 @@ export function Tennis(): JSX.Element {
       {riskStatus && <TennisRiskBanner status={riskStatus} onChange={refreshAll} />}
 
       <nav className="tennis-nav">
+        <button className={tab === 'feed' ? 'active' : ''} onClick={() => setTab('feed')}>
+          🤖 Aujourd'hui
+        </button>
         <button className={tab === 'today' ? 'active' : ''} onClick={() => setTab('today')}>
-          Picks du jour
+          Tous les picks
         </button>
         <button className={tab === 'new' ? 'active' : ''} onClick={() => setTab('new')}>
-          Nouveau pick
+          Pick manuel
         </button>
         <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>
           Historique
         </button>
         <button className={tab === 'bankroll' ? 'active' : ''} onClick={() => setTab('bankroll')}>
-          Bankroll tennis
+          Bankroll
         </button>
       </nav>
+
+      {tab === 'feed' && (
+        <TennisCuratorFeed
+          onChange={refreshAll}
+          riskStakeMultiplier={riskStatus?.stakeMultiplier ?? 1}
+          bankrollEur={riskStatus?.config.bankrollEur ?? 200}
+        />
+      )}
 
       {tab === 'today' && (
         <section className="tennis-picks">

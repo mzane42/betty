@@ -21,7 +21,6 @@ import { lineMovementPct } from './ingest/line-movement.js';
 import { pushTelegramMessage } from './telegram-bot.js';
 import {
   listUpcomingMatches,
-  listMatchesByDate,
   insertOddsSnapshots,
   appendSignal,
   logIngestError,
@@ -143,7 +142,7 @@ async function runOnce(
         break;
       case 'T-6h':
         await runScrapeSlate(db, scrapers, tournament, 0);
-        await runScoreUpcoming(db, tournament);
+        await runScoreUpcoming(db, scrapers, tournament);
         break;
       case 'T-1h':
         await runRefreshOdds(db, scrapers, tournament, 2);
@@ -220,24 +219,34 @@ async function runRefreshOdds(
   }
 }
 
-async function runScoreUpcoming(_db: Database, _tournament: string): Promise<void> {
-  const todayIso = new Date().toISOString().slice(0, 10);
-  const matches = listMatchesByDate(_db, _tournament, todayIso);
-  // We don't have full pick-input context (rank, h2h, etc) from DB alone for
-  // a green-field run. Real implementation: the scraper fills oddsByBook on
-  // tennis_matches creation, and pick-generator reads from DB. For MVP we
-  // skip auto-scoring here — Reddit tipster signals are still ingested
-  // separately, and the user generates picks manually in the UI.
-  //
-  // Once the real scraper is connected this will:
-  //   1. Fetch latest odds per match (placeable + reference)
-  //   2. Pull recent Reddit posts per player surname
-  //   3. Build CrossInfoInput
-  //   4. Call generatePick(db, ...) with skipClaudeReview=false
-  // eslint-disable-next-line no-console
+async function runScoreUpcoming(
+  db: Database,
+  scrapers: Scrapers,
+  _tournament: string
+): Promise<void> {
+  // If the scrapers exposes the OddsApiClient surface (fetchAllEvents),
+  // we run the autonomous auto-scorer. Otherwise this is a no-op.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const maybeClient = scrapers as any;
+  if (typeof maybeClient.fetchAllEvents !== 'function') {
+    console.log('[signal-daemon] score-upcoming: scrapers lacks fetchAllEvents, skipping');
+    return;
+  }
+  const { runAutoScore } = await import('./auto-scorer.js');
+  const result = await runAutoScore(db, maybeClient, {
+    enableReddit: true,
+    windowHours: 36
+  });
   console.log(
-    `[signal-daemon] score-upcoming for ${todayIso}: ${matches.length} matches (auto-scoring disabled until scraper ready)`
+    `[signal-daemon] auto-score: ${result.eventsConsidered} events → ` +
+      `${result.strongPicks} STRONG, ${result.playPicks} PLAY, ${result.skippedPicks} SKIP, ` +
+      `${result.errors.length} errors`
   );
+
+  // After scoring, run the curator pass on today's PLAY+STRONG list.
+  const { runCurator } = await import('./curator.js');
+  const curated = await runCurator(db, { pushTelegram: true });
+  console.log(`[signal-daemon] curator: ${curated.selected_picks.length} selected`);
 }
 
 async function runWithdrawalCheck(db: Database, tournament: string): Promise<void> {

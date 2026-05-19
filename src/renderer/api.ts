@@ -286,6 +286,41 @@ interface PokerApi {
   tennisRiskSaveConfig(partial: Partial<TennisRiskConfigRow>): Promise<TennisRiskConfigRow>;
   tennisRiskPause(hours: number): Promise<TennisRiskConfigRow>;
   tennisRiskResume(): Promise<TennisRiskConfigRow>;
+  tennisCuratorToday(dateIso?: string): Promise<TennisCuratorOutput | null>;
+  tennisCuratorRunNow(): Promise<TennisCuratorOutput>;
+  tennisDaemonAutoScoreNow(): Promise<{
+    score: TennisAutoScoreResult;
+    curated: TennisCuratorOutput;
+  }>;
+}
+
+export interface TennisCuratorSelectedPick {
+  pick_id: string;
+  rank: number;
+  confidence: 'high' | 'medium';
+  tldr: string;
+  why: string;
+}
+
+export interface TennisCuratorSkippedPick {
+  pick_id: string;
+  reason: string;
+}
+
+export interface TennisCuratorOutput {
+  selected_picks: TennisCuratorSelectedPick[];
+  skipped_picks: TennisCuratorSkippedPick[];
+  daily_message: string;
+  generated_at: string;
+}
+
+export interface TennisAutoScoreResult {
+  eventsConsidered: number;
+  picksGenerated: number;
+  strongPicks: number;
+  playPicks: number;
+  skippedPicks: number;
+  errors: Array<{ matchId: string; message: string }>;
 }
 
 export interface TennisRiskConfigRow {

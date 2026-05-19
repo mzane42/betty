@@ -168,4 +168,35 @@ export function registerTennisIpc(getDb: () => Database): void {
   ipcMain.handle('tennis:risk:pause', (_, hours: number) => manualPause(hours));
 
   ipcMain.handle('tennis:risk:resume', () => manualResume());
+
+  // ----- Curator (autonomous feed) -----
+  ipcMain.handle('tennis:curator:today', async (_, dateIso?: string) => {
+    const { readCuratorCache } = await import('./curator.js');
+    const date = dateIso ?? new Date().toISOString().slice(0, 10);
+    return readCuratorCache(date);
+  });
+
+  ipcMain.handle('tennis:curator:run-now', async () => {
+    const { runCurator } = await import('./curator.js');
+    return runCurator(getDb(), { pushTelegram: false });
+  });
+
+  ipcMain.handle('tennis:daemon:auto-score-now', async () => {
+    const apiKey = process.env.ODDS_API_KEY;
+    if (!apiKey) {
+      throw new Error(
+        "ODDS_API_KEY non configure. Pas d'auto-score possible — utilise le formulaire manuel."
+      );
+    }
+    const { createOddsApiClient } = await import('./ingest/odds-api.js');
+    const { runAutoScore } = await import('./auto-scorer.js');
+    const { runCurator } = await import('./curator.js');
+    const client = createOddsApiClient({ apiKey });
+    const score = await runAutoScore(getDb(), client, {
+      enableReddit: true,
+      windowHours: 36
+    });
+    const curated = await runCurator(getDb(), { pushTelegram: false });
+    return { score, curated };
+  });
 }

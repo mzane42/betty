@@ -73,21 +73,77 @@ interface OddsApiBookmaker {
 export interface OddsApiOptions {
   apiKey: string;
   region?: string; // default 'eu'
-  sportKeys?: string[]; // default: ATP + WTA French Open
+  sportKeys?: string[]; // default: all currently-active tennis sport keys (discovered)
   /** Override cache TTL for testing. */
   cacheTtlMs?: number;
 }
 
+export interface DiscoveredSport {
+  key: string;
+  group: string;
+  title: string;
+  description: string;
+  active: boolean;
+  has_outrights: boolean;
+}
+
+/**
+ * List all sport keys the API currently exposes. We filter for `group === 'Tennis'`
+ * and `active === true` to find tournaments to monitor. Cached for 6h since the
+ * sport list changes only when tournaments start/end.
+ */
+export async function discoverTennisSports(apiKey: string): Promise<DiscoveredSport[]> {
+  ensureCacheDir();
+  const cachePath = join(CACHE_DIR, '_sports-list.json');
+  const cacheTtl = 6 * 60 * 60 * 1000;
+  if (existsSync(cachePath)) {
+    const stat = readCacheStat(cachePath);
+    if (stat && Date.now() - stat.mtimeMs < cacheTtl) {
+      return JSON.parse(readFileSync(cachePath, 'utf-8')) as DiscoveredSport[];
+    }
+  }
+  const url = `${API_BASE}/sports?apiKey=${apiKey}&all=false`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Odds API /sports ${res.status}: ${text.slice(0, 200)}`);
+  }
+  const all = (await res.json()) as DiscoveredSport[];
+  const tennis = all.filter((s) => s.group === 'Tennis' && s.active);
+  writeFileSync(cachePath, JSON.stringify(tennis), 'utf-8');
+  // eslint-disable-next-line no-console
+  console.log(
+    `[odds-api] discovered ${tennis.length} active tennis tournaments (quota left: ${res.headers.get('x-requests-remaining') ?? '?'})`
+  );
+  return tennis;
+}
+
+/**
+ * Build a Scrapers instance that auto-discovers all currently-active tennis
+ * tournaments via /sports, then queries each for events. Caches both the
+ * sport list (6h) and per-sport event payloads (5min).
+ */
 export function createOddsApiScrapers(opts: OddsApiOptions): Scrapers {
   const region = opts.region ?? 'eu';
-  const sportKeys = opts.sportKeys ?? [
-    'tennis_atp_french_open',
-    'tennis_wta_french_open'
-  ];
   const cacheTtl = opts.cacheTtlMs ?? CACHE_TTL_MS;
+  // sportKeys is null = auto-discover; pinned list = use the explicit set
+  const pinnedSportKeys = opts.sportKeys;
+
+  async function activeSportKeys(): Promise<string[]> {
+    if (pinnedSportKeys) return pinnedSportKeys;
+    try {
+      const discovered = await discoverTennisSports(opts.apiKey);
+      return discovered.map((s) => s.key);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn(`[odds-api] discovery failed, falling back to RG only:`, (err as Error).message);
+      return ['tennis_atp_french_open', 'tennis_wta_french_open'];
+    }
+  }
 
   async function fetchAllEvents(): Promise<OddsApiEvent[]> {
     ensureCacheDir();
+    const sportKeys = await activeSportKeys();
     const all: OddsApiEvent[] = [];
     for (const sport of sportKeys) {
       try {
@@ -115,6 +171,127 @@ export function createOddsApiScrapers(opts: OddsApiOptions): Scrapers {
       return mapEventToOddsSnapshots(event);
     }
   };
+}
+
+/**
+ * Same as createOddsApiScrapers but also exposes the raw event list to callers
+ * that need to drive the auto-score loop. Internal use; the public Scrapers
+ * interface stays narrow.
+ */
+export interface OddsApiClient extends Scrapers {
+  fetchAllEvents(): Promise<OddsApiEvent[]>;
+}
+
+export function createOddsApiClient(opts: OddsApiOptions): OddsApiClient {
+  const region = opts.region ?? 'eu';
+  const cacheTtl = opts.cacheTtlMs ?? CACHE_TTL_MS;
+  const pinnedSportKeys = opts.sportKeys;
+
+  async function activeSportKeys(): Promise<string[]> {
+    if (pinnedSportKeys) return pinnedSportKeys;
+    try {
+      const discovered = await discoverTennisSports(opts.apiKey);
+      return discovered.map((s) => s.key);
+    } catch {
+      return ['tennis_atp_french_open', 'tennis_wta_french_open'];
+    }
+  }
+
+  async function fetchAllEvents(): Promise<OddsApiEvent[]> {
+    ensureCacheDir();
+    const sportKeys = await activeSportKeys();
+    const all: OddsApiEvent[] = [];
+    for (const sport of sportKeys) {
+      try {
+        const events = await fetchSport(opts.apiKey, sport, region, cacheTtl);
+        all.push(...events);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn(`[odds-api] ${sport} fetch failed:`, (err as Error).message);
+      }
+    }
+    return all;
+  }
+
+  return {
+    fetchAllEvents,
+    async fetchSlate(forDateIso: string) {
+      const events = await fetchAllEvents();
+      const filtered = events.filter((e) => e.commence_time.startsWith(forDateIso));
+      return filtered.map((e) => mapEventToScraperOutput(e));
+    },
+    async refreshOdds(matchId: string) {
+      const events = await fetchAllEvents();
+      const event = events.find((e) => composeMatchId(e) === matchId);
+      if (!event) return [];
+      return mapEventToOddsSnapshots(event);
+    }
+  };
+}
+
+/** Exported so the auto-score loop can introspect events directly. */
+export type { OddsApiEvent };
+
+/** Helpers used by the auto-score loop. */
+export function pinnacleNoVigProbForEvent(
+  event: OddsApiEvent,
+  selectionPlayerId: string
+): number | null {
+  const pinnacle = event.bookmakers.find((b) => b.key === 'pinnacle');
+  if (!pinnacle) return null;
+  const market = pinnacle.markets.find((m) => m.key === 'h2h');
+  if (!market || market.outcomes.length !== 2) return null;
+  const [a, b] = market.outcomes;
+  if (a.price <= 1 || b.price <= 1) return null;
+  const impliedA = 1 / a.price;
+  const impliedB = 1 / b.price;
+  const total = impliedA + impliedB;
+  const slugA = slugId(a.name);
+  return slugA === selectionPlayerId ? impliedA / total : impliedB / total;
+}
+
+export function bestPlaceableOddsForEvent(
+  event: OddsApiEvent,
+  selectionPlayerId: string
+): { book: TennisBook; odds: number } | null {
+  let best: { book: TennisBook; odds: number } | null = null;
+  for (const b of event.bookmakers) {
+    const bookKey = BOOK_KEY_MAP[b.key];
+    if (!bookKey) continue;
+    if (bookKey !== 'winamax' && bookKey !== 'betclic' && bookKey !== 'unibet') continue;
+    const market = b.markets.find((m) => m.key === 'h2h');
+    if (!market) continue;
+    for (const o of market.outcomes) {
+      if (slugId(o.name) !== selectionPlayerId) continue;
+      if (!best || o.price > best.odds) {
+        best = { book: bookKey, odds: o.price };
+      }
+    }
+  }
+  return best;
+}
+
+export function eventToOddsByBook(
+  event: OddsApiEvent,
+  selectionPlayerId: string
+): Partial<Record<TennisBook, number>> {
+  const out: Partial<Record<TennisBook, number>> = {};
+  for (const b of event.bookmakers) {
+    const bookKey = BOOK_KEY_MAP[b.key];
+    if (!bookKey) continue;
+    const market = b.markets.find((m) => m.key === 'h2h');
+    if (!market) continue;
+    for (const o of market.outcomes) {
+      if (slugId(o.name) === selectionPlayerId) {
+        out[bookKey] = o.price;
+      }
+    }
+  }
+  return out;
+}
+
+export function eventComposeMatchId(event: OddsApiEvent): string {
+  return composeMatchId(event);
 }
 
 async function fetchSport(

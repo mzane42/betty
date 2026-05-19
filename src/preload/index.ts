@@ -132,7 +132,10 @@ const api = {
   tennisRiskSaveConfig: (partial: Record<string, unknown>) =>
     ipcRenderer.invoke('tennis:risk:save-config', partial),
   tennisRiskPause: (hours: number) => ipcRenderer.invoke('tennis:risk:pause', hours),
-  tennisRiskResume: () => ipcRenderer.invoke('tennis:risk:resume')
+  tennisRiskResume: () => ipcRenderer.invoke('tennis:risk:resume'),
+  tennisCuratorToday: (dateIso?: string) => ipcRenderer.invoke('tennis:curator:today', dateIso),
+  tennisCuratorRunNow: () => ipcRenderer.invoke('tennis:curator:run-now'),
+  tennisDaemonAutoScoreNow: () => ipcRenderer.invoke('tennis:daemon:auto-score-now')
 };
 
 contextBridge.exposeInMainWorld('pokerApi', api);

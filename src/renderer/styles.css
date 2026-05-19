@@ -3262,3 +3262,147 @@ button svg:last-child {
   color: white;
 }
 
+
+/* =========================================================================
+   Tennis — Curator Feed (autonomous)
+   ========================================================================= */
+
+.tennis-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tennis-feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.tennis-feed-header h3 {
+  margin: 0 0 4px 0;
+}
+
+.curator-daily-message {
+  background: rgba(59, 130, 246, 0.08);
+  border-left: 3px solid #3b82f6;
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.curator-pick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.curator-pick-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 220px;
+  gap: 16px;
+  align-items: center;
+  background: var(--card-bg, #1a1e26);
+  border: 1px solid var(--border, #2a2e36);
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+
+.curator-pick-row.confidence-high {
+  border-left: 4px solid #10b981;
+}
+
+.curator-pick-row.confidence-medium {
+  border-left: 4px solid #3b82f6;
+}
+
+.curator-pick-rank {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-muted, #9ba3ae);
+  text-align: center;
+}
+
+.curator-pick-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.curator-pick-tldr {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.curator-pick-why {
+  font-size: 13px;
+  color: var(--text-muted, #cbd0d8);
+  line-height: 1.5;
+}
+
+.curator-pick-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted, #9ba3ae);
+  margin-top: 2px;
+}
+
+.curator-pick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.curator-pick-actions label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted, #9ba3ae);
+}
+
+.curator-pick-actions input[type='number'] {
+  width: 100%;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border, #2a2e36);
+  border-radius: 4px;
+  color: var(--text, #e6e9ee);
+  font-size: 14px;
+}
+
+.curator-pick-actions button {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.curator-skipped {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.curator-skipped summary {
+  cursor: pointer;
+  color: var(--text-muted, #9ba3ae);
+  padding: 6px 0;
+}
+
+.curator-skipped ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  color: var(--text-muted, #9ba3ae);
+}
+
+.curator-skipped code {
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
