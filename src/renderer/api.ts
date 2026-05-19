@@ -288,7 +288,7 @@ interface PokerApi {
   tennisRiskResume(): Promise<TennisRiskConfigRow>;
   tennisCuratorToday(dateIso?: string): Promise<TennisCuratorOutput | null>;
   tennisCuratorRunNow(): Promise<TennisCuratorOutput>;
-  tennisDaemonAutoScoreNow(): Promise<{
+  tennisDaemonAutoScoreNow(opts?: { enableReddit?: boolean }): Promise<{
     score: TennisAutoScoreResult;
     curated: TennisCuratorOutput;
   }>;

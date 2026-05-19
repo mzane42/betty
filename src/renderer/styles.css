@@ -3441,3 +3441,55 @@ button svg:last-child {
 .scan-log .log-play { color: #3b82f6; }
 .scan-log .log-skip { color: #6b7280; }
 
+
+.tennis-feed-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.reddit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted, #9ba3ae);
+  cursor: pointer;
+  user-select: none;
+}
+
+.reddit-toggle input {
+  accent-color: var(--accent, #10b981);
+  cursor: pointer;
+}
+
+.reddit-toggle:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.empty-state-scanned {
+  text-align: left;
+}
+
+.empty-state-scanned p {
+  margin: 6px 0;
+}
+
+.empty-state-scanned details {
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+.empty-state-scanned details summary {
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.empty-state-scanned details ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  line-height: 1.7;
+  color: var(--text-muted, #9ba3ae);
+}
+

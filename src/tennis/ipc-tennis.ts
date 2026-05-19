@@ -181,7 +181,9 @@ export function registerTennisIpc(getDb: () => Database): void {
     return runCurator(getDb(), { pushTelegram: false });
   });
 
-  ipcMain.handle('tennis:daemon:auto-score-now', async (event) => {
+  ipcMain.handle(
+    'tennis:daemon:auto-score-now',
+    async (event, opts: { enableReddit?: boolean } = {}) => {
     const apiKey = process.env.ODDS_API_KEY;
     if (!apiKey) {
       throw new Error(
@@ -192,16 +194,17 @@ export function registerTennisIpc(getDb: () => Database): void {
     const { runAutoScore } = await import('./auto-scorer.js');
     const { runCurator } = await import('./curator.js');
     const client = createOddsApiClient({ apiKey });
+    const enableReddit = opts.enableReddit ?? false;
 
     // Stream progress to the renderer as soon as each line is emitted.
     const send = (line: string): void => {
       event.sender.send('tennis:scan-progress', line);
     };
     send(`▶ Démarrage du scan…`);
-    send(`Clé API OK, fenêtre 36h, Reddit activé`);
+    send(`Clé API OK, fenêtre 36h, Reddit ${enableReddit ? 'activé (scan plus lent)' : 'désactivé (rapide)'}`);
 
     const score = await runAutoScore(getDb(), client, {
-      enableReddit: true,
+      enableReddit,
       windowHours: 36
     });
     for (const line of score.logs) send(line);
@@ -214,5 +217,6 @@ export function registerTennisIpc(getDb: () => Database): void {
     if (curated.daily_message) send(`💬 ${curated.daily_message}`);
     send(`✓ Scan terminé`);
     return { score, curated };
-  });
+    }
+  );
 }

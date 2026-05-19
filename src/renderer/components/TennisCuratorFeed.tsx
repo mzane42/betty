@@ -32,6 +32,13 @@ export function TennisCuratorFeed({
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanLog, setScanLog] = useState<string[]>([]);
+  const [enableReddit, setEnableReddit] = useState(false);
+  const [lastScanStats, setLastScanStats] = useState<{
+    events: number;
+    strong: number;
+    play: number;
+    skip: number;
+  } | null>(null);
 
   useEffect(() => {
     const off = pokerApi.onTennisScanProgress((line) => {
@@ -76,8 +83,15 @@ export function TennisCuratorFeed({
   async function handleRunNow(): Promise<void> {
     setRunning(true);
     setScanLog([]); // clear previous run
+    setLastScanStats(null);
     try {
-      const res = await pokerApi.tennisDaemonAutoScoreNow();
+      const res = await pokerApi.tennisDaemonAutoScoreNow({ enableReddit });
+      setLastScanStats({
+        events: res.score.eventsConsidered,
+        strong: res.score.strongPicks,
+        play: res.score.playPicks,
+        skip: res.score.skippedPicks
+      });
       toast.success(
         `Auto-score: ${res.score.eventsConsidered} events → ` +
           `${res.score.strongPicks} STRONG + ${res.score.playPicks} PLAY. ` +
@@ -126,27 +140,64 @@ export function TennisCuratorFeed({
             </p>
           )}
         </div>
-        <button
-          className="primary"
-          disabled={running}
-          onClick={() => void handleRunNow()}
-          title="Scan Odds API + auto-score + Claude curator"
-        >
-          {running ? 'Scan en cours…' : '↻ Scanner maintenant'}
-        </button>
+        <div className="tennis-feed-controls">
+          <label className="reddit-toggle" title="Ajoute le signal Reddit tipsters. Ralentit le scan (~7 min vs ~30s).">
+            <input
+              type="checkbox"
+              checked={enableReddit}
+              onChange={(e) => setEnableReddit(e.target.checked)}
+              disabled={running}
+            />
+            <span>Inclure Reddit {enableReddit && '(lent)'}</span>
+          </label>
+          <button
+            className="primary"
+            disabled={running}
+            onClick={() => void handleRunNow()}
+            title="Scan Odds API + auto-score + Claude curator"
+          >
+            {running ? 'Scan en cours…' : '↻ Scanner maintenant'}
+          </button>
+        </div>
       </div>
 
       {curated && (
         <p className="curator-daily-message">{curated.daily_message}</p>
       )}
 
-      {!hasCurated && !running && scanLog.length === 0 && (
+      {!hasCurated && !running && scanLog.length === 0 && !lastScanStats && (
         <div className="empty-state">
           <p>Pas encore de picks pour aujourd'hui.</p>
           <p className="muted">
             Configure <code>ODDS_API_KEY</code> dans l'env, puis clique <strong>Scanner
             maintenant</strong>. Le daemon scanne automatiquement à 08h00.
           </p>
+        </div>
+      )}
+
+      {!hasCurated && !running && lastScanStats && (
+        <div className="empty-state empty-state-scanned">
+          <p>
+            <strong>Scan terminé — aucun pick +EV trouvé aujourd'hui.</strong>
+          </p>
+          <p className="muted">
+            {lastScanStats.events} events analysés · {lastScanStats.strong} STRONG ·{' '}
+            {lastScanStats.play} PLAY · {lastScanStats.skip} SKIP.
+          </p>
+          <p className="muted">
+            Cela arrive : Unibet alignée sur Pinnacle (cotes serrées sur les têtes de
+            série, marges élevées sur les outsiders). Réessaie demain ou plus tard
+            dans la journée — les cotes bougent.
+          </p>
+          <details>
+            <summary className="muted">Pourquoi tout SKIP ?</summary>
+            <ul>
+              <li><strong>Edge négatif</strong> = Unibet propose moins que la cote juste Pinnacle no-vig.</li>
+              <li>Sur les têtes de série R1 RG, les books ont la même info → pas de mispricing.</li>
+              <li>Les opportunités +EV apparaissent souvent en cours de tournoi (R3+) ou sur ATP 250 / Challengers (non couverts par l'API gratuit).</li>
+              <li>Active <em>Inclure Reddit</em> pour ajouter le signal tipsters (~7 min de scan).</li>
+            </ul>
+          </details>
         </div>
       )}
 

@@ -135,7 +135,8 @@ const api = {
   tennisRiskResume: () => ipcRenderer.invoke('tennis:risk:resume'),
   tennisCuratorToday: (dateIso?: string) => ipcRenderer.invoke('tennis:curator:today', dateIso),
   tennisCuratorRunNow: () => ipcRenderer.invoke('tennis:curator:run-now'),
-  tennisDaemonAutoScoreNow: () => ipcRenderer.invoke('tennis:daemon:auto-score-now'),
+  tennisDaemonAutoScoreNow: (opts?: { enableReddit?: boolean }) =>
+    ipcRenderer.invoke('tennis:daemon:auto-score-now', opts ?? {}),
   onTennisScanProgress: (listener: (line: string) => void) => {
     const wrapped = (_: unknown, line: string): void => listener(line);
     ipcRenderer.on('tennis:scan-progress', wrapped);
