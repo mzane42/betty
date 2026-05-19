@@ -118,13 +118,16 @@ function isAce(code: string, minKicker: string, suitedOnly = false): boolean {
   return RANK_ORDER.indexOf(code.charAt(1)) <= RANK_ORDER.indexOf(minKicker);
 }
 
-function isBroadwayPlus(code: string, minHigh: string): boolean {
+// Reserved helper functions for upcoming Nash range tiers (>25BB, broadway-only
+// scenarios). Currently unused but kept here so the range tables stay readable
+// when the wider stacks are wired up.
+export function isBroadwayPlus(code: string, minHigh: string): boolean {
   if (code.charAt(0) === code.charAt(1)) return false;
   const s = cardStrength(code);
   return s.high <= RANK_ORDER.indexOf(minHigh);
 }
 
-function shoveRange25Plus(code: string): NashVerdict {
+export function shoveRange25Plus(code: string): NashVerdict {
   if (isPair(code, 'TT')) return 'in';
   if (['AKs', 'AKo'].includes(code)) return 'in';
   return 'out';

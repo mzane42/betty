@@ -94,7 +94,39 @@ const api = {
   getLeaks: () => ipcRenderer.invoke('analytics:leaks'),
   getGameRecommendations: () => ipcRenderer.invoke('analytics:game-recommendations'),
   getProgress: (granularity?: 'quarter' | 'month') =>
-    ipcRenderer.invoke('analytics:progress', granularity)
+    ipcRenderer.invoke('analytics:progress', granularity),
+
+  // ----- Tennis (Roland Garros 2026 sub-project) -----
+  tennisListPicksToday: (tournament: string, dateIso?: string) =>
+    ipcRenderer.invoke('tennis:picks:today', tournament, dateIso),
+  tennisListPicksForDay: (tournament: string, dateIso: string, minVerdict?: string) =>
+    ipcRenderer.invoke('tennis:picks:list-day', tournament, dateIso, minVerdict),
+  tennisGetPick: (pickId: string) => ipcRenderer.invoke('tennis:picks:get', pickId),
+  tennisListUpcomingMatches: (tournament: string) =>
+    ipcRenderer.invoke('tennis:matches:upcoming', tournament),
+  tennisListMatchesByDate: (tournament: string, dateIso: string) =>
+    ipcRenderer.invoke('tennis:matches:by-date', tournament, dateIso),
+  tennisSetMatchStatus: (
+    matchId: string,
+    status: string,
+    winnerId: string | null,
+    score: string | null
+  ) => ipcRenderer.invoke('tennis:matches:set-status', matchId, status, winnerId, score),
+  tennisGeneratePick: (input: unknown) => ipcRenderer.invoke('tennis:generate-pick', input),
+  tennisPreviewVerdict: (params: unknown) =>
+    ipcRenderer.invoke('tennis:preview-verdict', params),
+  tennisPlaceBet: (input: unknown) => ipcRenderer.invoke('tennis:bets:place', input),
+  tennisSettleBet: (
+    betId: string,
+    result: 'won' | 'lost' | 'void',
+    pnlEur: number,
+    closingOdds: number | null
+  ) => ipcRenderer.invoke('tennis:bets:settle', betId, result, pnlEur, closingOdds),
+  tennisListBets: () => ipcRenderer.invoke('tennis:bets:list'),
+  tennisBankrollSummary: (tournament?: string) =>
+    ipcRenderer.invoke('tennis:bankroll:summary', tournament),
+  tennisBankrollChart: () => ipcRenderer.invoke('tennis:bankroll:chart'),
+  tennisPostMatchReview: (ctx: unknown) => ipcRenderer.invoke('tennis:reviews:post-match', ctx)
 };
 
 contextBridge.exposeInMainWorld('pokerApi', api);

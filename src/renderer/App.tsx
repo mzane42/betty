@@ -8,6 +8,7 @@ import { GameSelection } from './pages/GameSelection.js';
 import { Progress } from './pages/Progress.js';
 import { HandSearch } from './pages/HandSearch.js';
 import { PlayerDetail } from './pages/PlayerDetail.js';
+import { Tennis } from './pages/Tennis.js';
 import { CoachSidebar } from './components/CoachSidebar.js';
 import { ToastHost } from './components/ToastHost.js';
 import { AccountSwitcher } from './components/AccountSwitcher.js';
@@ -15,7 +16,7 @@ import { Icon } from './components/Icon.js';
 import { pokerApi } from './api.js';
 import { toast } from './lib/toast.js';
 
-type Page = 'dashboard' | 'sessions' | 'players' | 'leaks' | 'games' | 'progress' | 'search';
+type Page = 'dashboard' | 'sessions' | 'players' | 'leaks' | 'games' | 'progress' | 'search' | 'tennis';
 
 const SIDEBAR_COLLAPSED_KEY = 'pokerCoach.sidebarCollapsed';
 const SIDEBAR_WIDTH_KEY = 'pokerCoach.sidebarWidth';
@@ -79,6 +80,13 @@ export function App(): JSX.Element {
             <Icon.Search size={14} /> Recherche
           </button>
           <button
+            className={page === 'tennis' ? 'active tennis-tab' : 'tennis-tab'}
+            onClick={() => navigate('tennis')}
+            title="Tennis — Roland Garros 2026"
+          >
+            🎾 Tennis
+          </button>
+          <button
             className="backup-btn"
             onClick={async () => {
               const res = await pokerApi.backupDb();
@@ -107,6 +115,7 @@ export function App(): JSX.Element {
           {page === 'games' && <GameSelection />}
           {page === 'progress' && <Progress />}
           {page === 'search' && <HandSearch />}
+          {page === 'tennis' && <Tennis />}
         </main>
         <CoachSidebar
           collapsed={sidebarCollapsed}

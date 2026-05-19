@@ -3,6 +3,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { registerIpcHandlers } from './ipc-handlers.js';
 import { registerTerminalIpc, killAllTerminals } from './terminal-manager.js';
+import { startTelegramBot } from '../tennis/telegram-bot.js';
+import { defaultDbPath, openDatabase, type Database } from '../db/index.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
@@ -46,10 +48,25 @@ function createMainWindow(): void {
   }
 }
 
-app.whenReady().then(() => {
+// Telegram bot needs its own DB handle since the IPC handlers' db() is a private
+// closure. The shared `defaultDbPath()` + WAL mode keep this safe across handles.
+let telegramDb: Database | null = null;
+function telegramDbHandle(): Database {
+  if (!telegramDb) telegramDb = openDatabase({ dbPath: defaultDbPath() });
+  return telegramDb;
+}
+
+app.whenReady().then(async () => {
   registerIpcHandlers();
   registerTerminalIpc();
   createMainWindow();
+
+  const tg = await startTelegramBot(telegramDbHandle);
+  if (tg.enabled) {
+    console.log('[main] Telegram bot started');
+  } else {
+    console.log(`[main] Telegram bot disabled: ${tg.reason}`);
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

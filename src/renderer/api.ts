@@ -229,6 +229,165 @@ interface PokerApi {
   getLeaks(): Promise<Leak[]>;
   getGameRecommendations(): Promise<GameRecommendation[]>;
   getProgress(granularity?: 'quarter' | 'month'): Promise<ProgressPoint[]>;
+
+  // ----- Tennis (Roland Garros 2026 sub-project) -----
+  tennisListPicksToday(tournament: string, dateIso?: string): Promise<TennisPickRow[]>;
+  tennisListPicksForDay(
+    tournament: string,
+    dateIso: string,
+    minVerdict?: 'STRONG' | 'PLAY'
+  ): Promise<TennisPickRow[]>;
+  tennisGetPick(pickId: string): Promise<TennisPickRow | null>;
+  tennisListUpcomingMatches(tournament: string): Promise<TennisMatchRow[]>;
+  tennisListMatchesByDate(tournament: string, dateIso: string): Promise<TennisMatchRow[]>;
+  tennisSetMatchStatus(
+    matchId: string,
+    status: 'scheduled' | 'live' | 'finished' | 'withdrawn' | 'delayed',
+    winnerId: string | null,
+    score: string | null
+  ): Promise<{ ok: true }>;
+  tennisGeneratePick(input: TennisGeneratePickInput): Promise<TennisGeneratePickResult>;
+  tennisPreviewVerdict(params: {
+    modelProb: number;
+    bookDecimalOdds: number;
+    signals?: {
+      pinnacleProb?: number | null;
+      betfairVolume?: number | null;
+      tipsterAlignedCount?: number;
+      lineMovementPct?: number | null;
+    };
+  }): Promise<{
+    score: number;
+    verdict: 'STRONG' | 'PLAY' | 'SKIP';
+    edge: number;
+    kellyStakePct: number;
+    fairDecimalOdds: number;
+  }>;
+  tennisPlaceBet(input: {
+    pickId: string | null;
+    matchId: string;
+    selection: string;
+    book: 'winamax' | 'betclic' | 'unibet';
+    decimalOdds: number;
+    stakeEur: number;
+  }): Promise<TennisBetRow>;
+  tennisSettleBet(
+    betId: string,
+    result: 'won' | 'lost' | 'void',
+    pnlEur: number,
+    closingOdds: number | null
+  ): Promise<{ ok: true }>;
+  tennisListBets(): Promise<TennisBetRow[]>;
+  tennisBankrollSummary(tournament?: string): Promise<TennisBankrollSummaryRow>;
+  tennisBankrollChart(): Promise<TennisBankrollPointRow[]>;
+  tennisPostMatchReview(ctx: unknown): Promise<TennisPostMatchReviewRow>;
+}
+
+export interface TennisPickRow {
+  pickId: string;
+  matchId: string;
+  selection: string;
+  modelProb: number;
+  fairDecimalOdds: number;
+  bookDecimalOdds: number;
+  bestBook: 'winamax' | 'betclic' | 'unibet';
+  edgePct: number;
+  kellyStakePct: number;
+  signalScore: number;
+  verdict: 'STRONG' | 'PLAY' | 'SKIP';
+  claudeReviewJson: string | null;
+  generatedAt: string;
+}
+
+export interface TennisMatchRow {
+  matchId: string;
+  tournament: string;
+  surface: 'clay' | 'hard' | 'grass' | 'carpet';
+  round: string;
+  player1Id: string;
+  player2Id: string;
+  scheduledAt: string;
+  status: 'scheduled' | 'live' | 'finished' | 'withdrawn' | 'delayed';
+  winnerId: string | null;
+  score: string | null;
+}
+
+export interface TennisBetRow {
+  betId: string;
+  pickId: string | null;
+  matchId: string;
+  selection: string;
+  book: 'winamax' | 'betclic' | 'unibet';
+  decimalOdds: number;
+  stakeEur: number;
+  placedAt: string;
+  result: 'won' | 'lost' | 'void' | null;
+  pnlEur: number | null;
+  closingOdds: number | null;
+}
+
+export interface TennisGeneratePickInput {
+  match: {
+    tournament: string;
+    surface: 'clay' | 'hard' | 'grass' | 'carpet';
+    round: string;
+    scheduledAt: string;
+    player1: { id: string; name: string; country?: string; rank?: number };
+    player2: { id: string; name: string; country?: string; rank?: number };
+  };
+  selection: string;
+  oddsByBook: Partial<Record<'winamax' | 'betclic' | 'unibet' | 'pinnacle' | 'betfair', number>>;
+  signals?: {
+    pinnacleProb?: number | null;
+    betfairVolume?: number | null;
+    tipsterAlignedCount?: number;
+    lineMovementPct?: number | null;
+  };
+  context?: {
+    h2h?: string | null;
+    last5ClayP1?: string[];
+    last5ClayP2?: string[];
+    daysSinceLastMatchP1?: number | null;
+    daysSinceLastMatchP2?: number | null;
+  };
+  skipClaudeReview?: boolean;
+}
+
+export interface TennisGeneratePickResult {
+  pick: TennisPickRow;
+  worthPlacing: boolean;
+  modelSource: 'clay-elo' | 'rank-fallback' | 'priors-only';
+}
+
+export interface TennisBankrollSummaryRow {
+  allTimeNet: number;
+  currentTournamentNet: number;
+  totalStaked: number;
+  totalWon: number;
+  betsPlaced: number;
+  betsWon: number;
+  betsLost: number;
+  betsVoid: number;
+  betsPending: number;
+  winRate: number;
+  roi: number;
+  avgClvPct: number;
+}
+
+export interface TennisBankrollPointRow {
+  date: string;
+  cumulativeNet: number;
+  dayNet: number;
+}
+
+export interface TennisPostMatchReviewRow {
+  decisionQuality: 'good' | 'okay' | 'mistake';
+  resultSummary: string;
+  evAssessment: string;
+  whatWorked: string[];
+  whatFailed: string[];
+  lessons: string[];
+  rawResponse: string;
 }
 
 export type { Leak, GameRecommendation, ProgressPoint };

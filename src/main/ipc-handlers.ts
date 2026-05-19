@@ -29,6 +29,7 @@ import {
   getHandReviewsForSession
 } from '../db/repositories/review-repository.js';
 import { getActiveAccount, setActiveAccount, getSettings, updateSettings } from './account-store.js';
+import { registerTennisIpc } from '../tennis/ipc-tennis.js';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
@@ -47,6 +48,9 @@ function db(): Database {
 }
 
 export function registerIpcHandlers(): void {
+  // Tennis IPC (Roland Garros 2026 sub-project)
+  registerTennisIpc(db);
+
   // Account / settings
   ipcMain.handle('account:list', () => {
     const rows = db()

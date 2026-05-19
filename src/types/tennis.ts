@@ -81,7 +81,12 @@ export interface TennisBet {
 }
 
 /** Signals fed into the cross-info scorer. */
-export type SignalSource = 'model' | 'pinnacle_novig' | 'betfair_volume' | 'tipster' | 'line_movement';
+export type SignalSource =
+  | 'model'
+  | 'pinnacle_novig'
+  | 'betfair_volume'
+  | 'tipster_consensus'
+  | 'line_movement';
 
 export interface SignalRecord {
   matchId: string;

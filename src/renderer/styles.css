@@ -2791,3 +2791,375 @@ button svg:last-child {
   align-items: center;
   gap: 6px;
 }
+
+/* =========================================================================
+   Tennis — Roland Garros 2026
+   ========================================================================= */
+
+.tennis-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.tennis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.tennis-header h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.6rem;
+}
+
+.tennis-nav {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border, #2a2e36);
+  padding-bottom: 0;
+}
+
+.tennis-nav button {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted, #9ba3ae);
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tennis-nav button:hover {
+  color: var(--text, #e6e9ee);
+}
+
+.tennis-nav button.active {
+  color: var(--accent, #10b981);
+  border-bottom-color: var(--accent, #10b981);
+}
+
+.tennis-tab {
+  color: #a8e6cf !important;
+}
+
+.tennis-pick-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 16px;
+}
+
+.tennis-pick-card {
+  background: var(--card-bg, #1a1e26);
+  border: 1px solid var(--border, #2a2e36);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tennis-pick-card.verdict-strong {
+  border-color: #10b981;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.3);
+}
+
+.tennis-pick-card.verdict-play {
+  border-color: #3b82f6;
+}
+
+.tennis-pick-card.verdict-skip {
+  opacity: 0.7;
+}
+
+.tennis-pick-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pick-verdict {
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.pick-verdict.verdict-strong {
+  background: #10b981;
+  color: #042f1e;
+}
+
+.pick-verdict.verdict-play {
+  background: #3b82f6;
+  color: #061a3e;
+}
+
+.pick-verdict.verdict-skip {
+  background: #6b7280;
+  color: #f5f5f5;
+}
+
+.pick-score,
+.pick-edge {
+  color: var(--text-muted, #9ba3ae);
+}
+
+.pick-summary {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.pick-numbers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.pick-numbers div {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.pick-numbers .muted {
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.pick-claude-summary {
+  font-size: 14px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--text, #e6e9ee);
+  margin: 0;
+}
+
+.pick-rationale,
+.pick-cautions ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.pick-cautions {
+  background: rgba(251, 191, 36, 0.1);
+  border-left: 3px solid #fbbf24;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.pick-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.pick-actions label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.pick-actions input[type='number'] {
+  width: 80px;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border, #2a2e36);
+  border-radius: 4px;
+  color: var(--text, #e6e9ee);
+}
+
+.tennis-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--card-bg, #1a1e26);
+  border: 1px solid var(--border, #2a2e36);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.tennis-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tennis-form .form-group h4 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted, #9ba3ae);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tennis-form .form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tennis-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  flex: 1 1 140px;
+}
+
+.tennis-form input,
+.tennis-form select {
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border, #2a2e36);
+  border-radius: 4px;
+  color: var(--text, #e6e9ee);
+  font-size: 14px;
+}
+
+.tennis-form details summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted, #9ba3ae);
+  margin-bottom: 8px;
+}
+
+.pick-preview {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border, #2a2e36);
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.pick-preview h4 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pick-preview.verdict-strong {
+  border-left: 4px solid #10b981;
+}
+
+.pick-preview.verdict-play {
+  border-left: 4px solid #3b82f6;
+}
+
+.pick-preview.verdict-skip {
+  border-left: 4px solid #6b7280;
+}
+
+.pick-preview ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tennis-bet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tennis-bet-table th,
+.tennis-bet-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border, #2a2e36);
+}
+
+.tennis-bet-table .bet-won td {
+  color: #10b981;
+}
+
+.tennis-bet-table .bet-lost td {
+  color: #ef4444;
+}
+
+.tennis-bet-table .bet-void td {
+  color: var(--text-muted, #9ba3ae);
+}
+
+.tennis-bankroll-hero {
+  display: grid;
+  grid-template-columns: 2fr repeat(5, 1fr);
+  gap: 16px;
+  background: var(--card-bg, #1a1e26);
+  border: 1px solid var(--border, #2a2e36);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.tennis-bankroll-hero .net {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tennis-bankroll-hero .net .value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.tennis-bankroll-hero .net.net-positive .value {
+  color: #10b981;
+}
+
+.tennis-bankroll-hero .net.net-negative .value {
+  color: #ef4444;
+}
+
+.tennis-bankroll-hero .metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tennis-bankroll-hero .label {
+  font-size: 11px;
+  color: var(--text-muted, #9ba3ae);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tennis-bankroll-hero .metric .value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: var(--card-bg, #1a1e26);
+  border: 1px dashed var(--border, #2a2e36);
+  border-radius: 8px;
+}
+
+.empty-state p {
+  margin: 4px 0;
+}
+
+.empty-state .primary {
+  margin-top: 16px;
+}
+

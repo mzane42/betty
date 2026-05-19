@@ -38,6 +38,9 @@
     "src/cli/**/*",
     "src/shared/**/*",
     "src/types/**/*",
+    "src/tennis/**/*",
+    "src/equity/**/*",
+    "src/nash/**/*",
     "tests/**/*"
   ]
 }
