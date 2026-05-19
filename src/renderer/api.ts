@@ -292,6 +292,7 @@ interface PokerApi {
     score: TennisAutoScoreResult;
     curated: TennisCuratorOutput;
   }>;
+  onTennisScanProgress(listener: (line: string) => void): () => void;
 }
 
 export interface TennisCuratorSelectedPick {
@@ -321,6 +322,7 @@ export interface TennisAutoScoreResult {
   playPicks: number;
   skippedPicks: number;
   errors: Array<{ matchId: string; message: string }>;
+  logs: string[];
 }
 
 export interface TennisRiskConfigRow {

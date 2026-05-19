@@ -31,6 +31,14 @@ export function TennisCuratorFeed({
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scanLog, setScanLog] = useState<string[]>([]);
+
+  useEffect(() => {
+    const off = pokerApi.onTennisScanProgress((line) => {
+      setScanLog((prev) => [...prev, line]);
+    });
+    return off;
+  }, []);
 
   async function loadCached(): Promise<void> {
     setLoading(true);
@@ -67,6 +75,7 @@ export function TennisCuratorFeed({
 
   async function handleRunNow(): Promise<void> {
     setRunning(true);
+    setScanLog([]); // clear previous run
     try {
       const res = await pokerApi.tennisDaemonAutoScoreNow();
       toast.success(
@@ -78,6 +87,7 @@ export function TennisCuratorFeed({
       await onChange?.();
     } catch (err) {
       toast.error(`Erreur: ${(err as Error).message}`);
+      setScanLog((prev) => [...prev, `✗ ERREUR: ${(err as Error).message}`]);
     } finally {
       setRunning(false);
     }
@@ -130,7 +140,7 @@ export function TennisCuratorFeed({
         <p className="curator-daily-message">{curated.daily_message}</p>
       )}
 
-      {!hasCurated && !running && (
+      {!hasCurated && !running && scanLog.length === 0 && (
         <div className="empty-state">
           <p>Pas encore de picks pour aujourd'hui.</p>
           <p className="muted">
@@ -138,6 +148,23 @@ export function TennisCuratorFeed({
             maintenant</strong>. Le daemon scanne automatiquement à 08h00.
           </p>
         </div>
+      )}
+
+      {scanLog.length > 0 && (
+        <details className="scan-log" open={running}>
+          <summary>
+            Journal du scan ({scanLog.length} ligne{scanLog.length > 1 ? 's' : ''})
+            {running && ' — en cours'}
+          </summary>
+          <pre>
+            {scanLog.map((line, i) => (
+              <span key={i} className={logLineClass(line)}>
+                {line}
+                {'\n'}
+              </span>
+            ))}
+          </pre>
+        </details>
       )}
 
       {hasCurated && (
@@ -177,6 +204,16 @@ interface RowProps {
   riskStakeMultiplier: number;
   bankrollEur: number;
   onPlace: (pick: TennisPickRow, stakeEur: number) => Promise<void>;
+}
+
+function logLineClass(line: string): string {
+  if (line.startsWith('✗') || line.includes('ERROR') || line.includes('ERREUR')) return 'log-error';
+  if (line.startsWith('✔') || line.startsWith('✓')) return 'log-success';
+  if (line.startsWith('▶') || line.startsWith('💬')) return 'log-info';
+  if (line.includes('STRONG')) return 'log-strong';
+  if (line.includes('PLAY')) return 'log-play';
+  if (line.includes('SKIP')) return 'log-skip';
+  return '';
 }
 
 function CuratorPickRow({

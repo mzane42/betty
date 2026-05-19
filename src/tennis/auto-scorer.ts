@@ -49,6 +49,8 @@ export interface AutoScoreResult {
   playPicks: number;
   skippedPicks: number;
   errors: Array<{ matchId: string; message: string }>;
+  /** Human-readable per-event progress lines, displayed live in the UI. */
+  logs: string[];
 }
 
 export async function runAutoScore(
@@ -71,27 +73,43 @@ export async function runAutoScore(
     strongPicks: 0,
     playPicks: 0,
     skippedPicks: 0,
-    errors: []
+    errors: [],
+    logs: []
   };
+  const log = (line: string): void => {
+    result.logs.push(line);
+    // eslint-disable-next-line no-console
+    console.log(`[auto-score] ${line}`);
+  };
+  log(`scan window=${options.windowHours ?? 36}h, ${events.length} total events, ${upcoming.length} upcoming`);
+  if (upcoming.length === 0) {
+    log('no upcoming events in window — nothing to score');
+    return result;
+  }
 
   for (const event of upcoming) {
+    const matchLabel = `${event.home_team} vs ${event.away_team} (${event.sport_key.replace(/^tennis_(atp|wta)_/, '')})`;
     try {
-      // Score BOTH sides of the match. One often has +EV, rarely both — the
-      // scorer filters via verdict gating.
       const sides = [
         { name: event.home_team, isHome: true },
         { name: event.away_team, isHome: false }
       ];
+      let sidesScored = 0;
       for (const side of sides) {
         const selectionId = slugId(side.name);
         const oppId = slugId(side.isHome ? event.away_team : event.home_team);
         const placeable = bestPlaceableOddsForEvent(event, selectionId);
-        if (!placeable) continue; // No FR-placeable odds for this side, skip
+        if (!placeable) {
+          log(`  ${side.name}: skip — no Unibet odds available`);
+          continue;
+        }
         const oddsByBook = eventToOddsByBook(event, selectionId);
-        if (!oddsByBook[placeable.book]) continue;
+        if (!oddsByBook[placeable.book]) {
+          log(`  ${side.name}: skip — odds map missing best book`);
+          continue;
+        }
 
         const pinnacleProb = pinnacleNoVigProbForEvent(event, selectionId);
-
         const matchId = eventComposeMatchId(event);
         const lineMove = lineMovementPct(db, matchId, selectionId, placeable.book);
 
@@ -113,6 +131,7 @@ export async function runAutoScore(
             });
           } catch (err) {
             logIngestError(db, 'reddit', matchId, (err as Error).message, null);
+            log(`  ${side.name}: reddit ingest failed (${(err as Error).message})`);
           }
         }
 
@@ -136,17 +155,35 @@ export async function runAutoScore(
           skipClaudeReview: options.skipClaudeReview
         });
 
+        sidesScored++;
         result.picksGenerated++;
-        if (picked.pick.verdict === 'STRONG') result.strongPicks++;
-        else if (picked.pick.verdict === 'PLAY') result.playPicks++;
+        const v = picked.pick.verdict;
+        const edge = (picked.pick.edgePct * 100).toFixed(1);
+        const score = picked.pick.signalScore;
+        const odds = picked.pick.bookDecimalOdds.toFixed(2);
+        const modelPct = (picked.pick.modelProb * 100).toFixed(1);
+        const pinPct = pinnacleProb !== null ? (pinnacleProb * 100).toFixed(1) : 'n/a';
+        log(
+          `  ${side.name} @${odds} → ${v} | edge ${edge}% | score ${score}/100 | model ${modelPct}% vs Pin ${pinPct}%${lineMove != null ? ` | line ${(lineMove * 100).toFixed(1)}%` : ''}${tipsterAlignedCount > 0 ? ` | tipsters ${tipsterAlignedCount}` : ''}`
+        );
+        if (v === 'STRONG') result.strongPicks++;
+        else if (v === 'PLAY') result.playPicks++;
         else result.skippedPicks++;
       }
+      if (sidesScored === 0) {
+        log(`${matchLabel}: no sides scoreable`);
+      }
     } catch (err) {
-      result.errors.push({ matchId: event.id, message: (err as Error).message });
-      logIngestError(db, 'auto-score', null, (err as Error).message, event.id);
+      const msg = (err as Error).message;
+      result.errors.push({ matchId: event.id, message: msg });
+      logIngestError(db, 'auto-score', null, msg, event.id);
+      log(`${matchLabel}: ERROR ${msg}`);
     }
   }
 
+  log(
+    `done: ${result.picksGenerated} picks (${result.strongPicks} STRONG, ${result.playPicks} PLAY, ${result.skippedPicks} SKIP), ${result.errors.length} errors`
+  );
   return result;
 }
 

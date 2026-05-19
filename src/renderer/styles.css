@@ -3406,3 +3406,38 @@ button svg:last-child {
   border-radius: 3px;
 }
 
+
+.scan-log {
+  background: #0a0d12;
+  border: 1px solid var(--border, #2a2e36);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+}
+
+.scan-log summary {
+  cursor: pointer;
+  color: var(--text-muted, #9ba3ae);
+  padding: 4px 0;
+  font-weight: 600;
+  user-select: none;
+}
+
+.scan-log pre {
+  margin: 8px 0 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #cbd0d8;
+  max-height: 400px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+.scan-log .log-error { color: #ef4444; }
+.scan-log .log-success { color: #10b981; }
+.scan-log .log-info { color: #60a5fa; }
+.scan-log .log-strong { color: #10b981; font-weight: 600; }
+.scan-log .log-play { color: #3b82f6; }
+.scan-log .log-skip { color: #6b7280; }
+
