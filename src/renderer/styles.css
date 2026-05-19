@@ -4140,3 +4140,47 @@ button svg:last-child {
   color: var(--danger);
   border-color: rgba(248, 113, 113, 0.4);
 }
+
+/* ----- Unibet deep link button ----- */
+.unibet-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.unibet-link:hover {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+.unibet-link.compact {
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+.unibet-link:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.audit-match-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bet-selection-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

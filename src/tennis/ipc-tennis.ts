@@ -205,6 +205,39 @@ export function registerTennisIpc(getDb: () => Database): void {
 
   ipcMain.handle('tennis:bets:delete', (_, betId: string) => deleteBet(getDb(), betId));
 
+  ipcMain.handle('tennis:unibet-url', async (_, matchId: string) => {
+    const { unibetMatchUrlGuess, unibetTournamentUrl } = await import('./unibet-url.js');
+    const row = getDb()
+      .prepare(
+        `SELECT m.tournament, m.player1_id, m.player2_id,
+                p1.name AS p1_name, p1.rank_tour AS p1_tour,
+                p2.name AS p2_name, p2.rank_tour AS p2_tour
+         FROM tennis_matches m
+         LEFT JOIN tennis_players p1 ON p1.player_id = m.player1_id
+         LEFT JOIN tennis_players p2 ON p2.player_id = m.player2_id
+         WHERE m.match_id = ?`
+      )
+      .get(matchId) as
+      | {
+          tournament: string;
+          p1_name: string | null;
+          p2_name: string | null;
+          p1_tour: string | null;
+          p2_tour: string | null;
+        }
+      | undefined;
+    if (!row) return 'https://www.unibet.fr/paris-tennis';
+    const tour = (row.p1_tour ?? row.p2_tour ?? 'atp').toLowerCase() as 'atp' | 'wta';
+    const guess = unibetMatchUrlGuess(
+      row.tournament,
+      tour,
+      row.p1_name ?? '',
+      row.p2_name ?? ''
+    );
+    const fallback = unibetTournamentUrl(row.tournament, tour);
+    return { guess, fallback };
+  });
+
   ipcMain.handle('tennis:player-form', async (_, playerKey: string) => {
     const { getPlayerForm } = await import('./player-form.js');
     // playerKey may be a slug ("zhang_s") or a display name ("Shuai Zhang").

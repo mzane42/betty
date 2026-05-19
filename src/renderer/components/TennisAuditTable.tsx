@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { pokerApi, type TennisPickAuditRowDto } from '../api.js';
 import { InfoTooltip } from './InfoTooltip.js';
 import { Icon } from './Icon.js';
+import { UnibetLink } from './UnibetLink.js';
 
 export function TennisAuditTable(): JSX.Element {
   const [rows, setRows] = useState<TennisPickAuditRowDto[]>([]);
@@ -149,8 +150,11 @@ export function TennisAuditTable(): JSX.Element {
                     </td>
                     <td>{prettyTournament(r.tournament)}</td>
                     <td>
-                      <div>
-                        {r.player1Name} <span className="muted">vs</span> {r.player2Name}
+                      <div className="audit-match-line">
+                        <span>
+                          {r.player1Name} <span className="muted">vs</span> {r.player2Name}
+                        </span>
+                        <UnibetLink matchId={r.matchId} compact />
                       </div>
                       <div className="muted small">
                         {r.surface} · {r.round}

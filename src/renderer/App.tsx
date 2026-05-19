@@ -22,6 +22,7 @@ import { TennisBankrollHero } from './components/TennisBankrollHero.js';
 import { TennisRiskBanner } from './components/TennisRiskBanner.js';
 import { SettleControls } from './components/TennisSettleControls.js';
 import { BetReviewCell } from './components/BetReviewCell.js';
+import { UnibetLink } from './components/UnibetLink.js';
 import {
   CartesianGrid,
   Line,
@@ -385,7 +386,12 @@ function ParisShell({ onBackHome }: { onBackHome: () => void }): JSX.Element {
                   {bets.map((b) => (
                     <tr key={b.betId} className={`bet-row bet-${b.result ?? 'pending'}`}>
                       <td>{b.placedAt.slice(0, 10)}</td>
-                      <td>{b.selection}</td>
+                      <td>
+                        <div className="bet-selection-cell">
+                          <span>{b.selection}</span>
+                          <UnibetLink matchId={b.matchId} compact />
+                        </div>
+                      </td>
                       <td>{b.book}</td>
                       <td>{b.decimalOdds.toFixed(2)}</td>
                       <td>{b.stakeEur.toFixed(2)}</td>

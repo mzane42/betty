@@ -37,7 +37,8 @@ import {
   Bot,
   Pencil,
   Clock,
-  Minus
+  Minus,
+  ExternalLink
 } from 'lucide-react';
 
 export const Icon = {
@@ -79,7 +80,8 @@ export const Icon = {
   Bot,
   Pencil,
   Clock,
-  Minus
+  Minus,
+  ExternalLink
 };
 
 export type IconName = keyof typeof Icon;

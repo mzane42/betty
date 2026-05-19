@@ -7,6 +7,7 @@ import {
 import { toast } from '../lib/toast.js';
 import { PlayerFormHud } from './PlayerFormHud.js';
 import { Icon } from './Icon.js';
+import { UnibetLink } from './UnibetLink.js';
 
 interface Props {
   /** Called after any successful action so the parent can refresh siblings. */
@@ -344,6 +345,7 @@ function CuratorPickRow({
             onChange={(e) => setStake(e.target.value)}
           />
         </label>
+        <UnibetLink matchId={pick.matchId} label="Unibet" compact />
         <button className="primary" disabled={busy} onClick={() => void place()}>
           Placé sur {pick.bestBook}
         </button>
