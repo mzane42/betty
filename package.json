@@ -36,7 +36,9 @@
     "@xterm/addon-fit": "^0.11.0",
     "@xterm/addon-web-links": "^0.12.0",
     "better-sqlite3": "^12.10.0",
+    "dotenv": "^17.4.2",
     "lucide-react": "^1.16.0",
+    "node-cron": "^4.2.1",
     "node-pty": "^1.1.0",
     "node-telegram-bot-api": "^0.67.0",
     "poker-odds": "^1.0.1",
@@ -49,6 +51,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^22.10.2",
+    "@types/node-cron": "^3.0.11",
     "@types/node-telegram-bot-api": "^0.64.14",
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",

@@ -1,6 +1,22 @@
 import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { config as loadDotenv } from 'dotenv';
+
+// Load env BEFORE any module that reads process.env. `app.getAppPath()` is the
+// reliable project-root accessor — works in both dev (`electron-vite dev`) and
+// packaged builds, unaffected by cwd. We load both .env.local (secrets) and
+// .env (committed defaults); .env.local wins because dotenv with override:false
+// keeps the first-set value.
+const PROJECT_ROOT = app.getAppPath();
+for (const file of ['.env.local', '.env']) {
+  const path = join(PROJECT_ROOT, file);
+  const result = loadDotenv({ path, override: false });
+  if (result.parsed && Object.keys(result.parsed).length > 0) {
+    console.log(`[main] env loaded from ${path}: ${Object.keys(result.parsed).length} vars`);
+  }
+}
+
 import { registerIpcHandlers } from './ipc-handlers.js';
 import { registerTerminalIpc, killAllTerminals } from './terminal-manager.js';
 import { startTelegramBot } from '../tennis/telegram-bot.js';
