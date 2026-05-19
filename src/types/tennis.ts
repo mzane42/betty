@@ -78,6 +78,7 @@ export interface TennisPick {
   verdict: PickVerdict;
   claudeReviewJson: string | null;
   generatedAt: string;
+  pinnacleProb: number | null;
 }
 
 export interface TennisBet {

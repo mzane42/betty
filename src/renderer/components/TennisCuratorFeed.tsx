@@ -316,7 +316,17 @@ function CuratorPickRow({
     <article className={`curator-pick-row ${confClass}`}>
       <div className="curator-pick-rank">#{selection.rank}</div>
       <div className="curator-pick-body">
-        <div className="curator-pick-tldr">{selection.tldr}</div>
+        <div className="curator-pick-tldr">
+          {selection.tldr}
+          {pick.pinnacleProb == null && (
+            <span
+              className="pick-warn"
+              title="Pas de cote Pinnacle — fixture possiblement non confirmée. Vérifie sur flashscore/WTA officiel avant de placer."
+            >
+              <Icon.AlertTriangle size={12} /> fixture à vérifier
+            </span>
+          )}
+        </div>
         <div className="curator-pick-why">{selection.why}</div>
         <div className="curator-pick-form">
           <PlayerFormHud playerName={pick.selection} compact />

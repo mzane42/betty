@@ -147,6 +147,14 @@ export function TennisAuditTable(): JSX.Element {
                       <span className={`pick-verdict verdict-${r.verdict.toLowerCase()}`}>
                         {r.verdict}
                       </span>
+                      {r.pinnacleProb == null && r.verdict !== 'SKIP' && (
+                        <span
+                          className="pick-warn"
+                          title="Pas de cote Pinnacle pour ce match — fixture possiblement non confirmée ou retirée. Vérifie sur flashscore/WTA officiel avant de placer."
+                        >
+                          <Icon.AlertTriangle size={11} />
+                        </span>
+                      )}
                     </td>
                     <td>{prettyTournament(r.tournament)}</td>
                     <td>

@@ -271,8 +271,9 @@ export function insertPick(db: Database, p: TennisPick): void {
   db.prepare(
     `INSERT INTO tennis_picks
        (pick_id, match_id, selection, model_prob, fair_decimal_odds, book_decimal_odds,
-        best_book, edge_pct, kelly_stake_pct, signal_score, verdict, claude_review_json, generated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        best_book, edge_pct, kelly_stake_pct, signal_score, verdict, claude_review_json,
+        generated_at, pinnacle_prob)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     p.pickId,
     p.matchId,
@@ -286,7 +287,8 @@ export function insertPick(db: Database, p: TennisPick): void {
     p.signalScore,
     p.verdict,
     p.claudeReviewJson,
-    p.generatedAt
+    p.generatedAt,
+    p.pinnacleProb
   );
 }
 
@@ -408,7 +410,8 @@ function rowToPick(row: Record<string, unknown>): TennisPick {
     signalScore: row.signal_score as number,
     verdict: row.verdict as PickVerdict,
     claudeReviewJson: (row.claude_review_json as string) ?? null,
-    generatedAt: row.generated_at as string
+    generatedAt: row.generated_at as string,
+    pinnacleProb: (row.pinnacle_prob as number) ?? null
   };
 }
 

@@ -373,6 +373,7 @@ export interface TennisPickRow {
   verdict: 'STRONG' | 'PLAY' | 'SKIP';
   claudeReviewJson: string | null;
   generatedAt: string;
+  pinnacleProb: number | null;
 }
 
 export interface TennisPickAuditRowDto extends TennisPickRow {

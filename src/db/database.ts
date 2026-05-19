@@ -60,6 +60,16 @@ function applyAdHocMigrations(db: Database): void {
     }
   }
 
+  // Tennis picks gained pinnacle_prob column so the UI can flag
+  // unconfirmed-fixture risk (no Pinnacle ref = phantom-match warning).
+  try {
+    runSql(db, `ALTER TABLE tennis_picks ADD COLUMN pinnacle_prob REAL`);
+  } catch (err) {
+    if (!String(err).includes('duplicate column') && !String(err).includes('no such table')) {
+      throw err;
+    }
+  }
+
   const handsExtra: Array<[string, string]> = [
     ['hero_equity_preflop', 'REAL'],
     ['hero_equity_flop', 'REAL'],

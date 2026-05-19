@@ -238,7 +238,8 @@ export async function generatePick(
     signalScore: scoreResult.score,
     verdict: scoreResult.verdict,
     claudeReviewJson: null,
-    generatedAt: nowIso
+    generatedAt: nowIso,
+    pinnacleProb
   };
   insertPick(db, pick);
 
