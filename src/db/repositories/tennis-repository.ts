@@ -440,6 +440,11 @@ export function setPostMatchReview(db: Database, betId: string, reviewJson: stri
   db.prepare(`UPDATE tennis_bets SET post_match_review_json=? WHERE bet_id=?`).run(reviewJson, betId);
 }
 
+export function deleteBet(db: Database, betId: string): { deleted: boolean } {
+  const res = db.prepare(`DELETE FROM tennis_bets WHERE bet_id=?`).run(betId);
+  return { deleted: res.changes > 0 };
+}
+
 export function getBet(db: Database, betId: string): TennisBet | null {
   const row = db.prepare(`SELECT * FROM tennis_bets WHERE bet_id=?`).get(betId) as
     | Record<string, unknown>

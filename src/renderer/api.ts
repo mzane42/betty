@@ -288,6 +288,7 @@ interface PokerApi {
     closingOdds: number | null
   ): Promise<{ ok: true }>;
   tennisListBets(): Promise<TennisBetRow[]>;
+  tennisDeleteBet(betId: string): Promise<{ deleted: boolean }>;
   tennisPlayerForm(playerName: string): Promise<TennisPlayerFormRow>;
   tennisGetBetReview(betId: string): Promise<string | null>;
   onTennisReviewReady(listener: (betId: string) => void): () => void;

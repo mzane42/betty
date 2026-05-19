@@ -378,6 +378,7 @@ function ParisShell({ onBackHome }: { onBackHome: () => void }): JSX.Element {
                     <th>CLV</th>
                     <th>Review</th>
                     <th>Action</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -404,6 +405,25 @@ function ParisShell({ onBackHome }: { onBackHome: () => void }): JSX.Element {
                         ) : (
                           <span className="muted">réglé</span>
                         )}
+                      </td>
+                      <td>
+                        <button
+                          className="bet-delete-btn"
+                          title="Supprimer ce bet (erreur de saisie)"
+                          onClick={async () => {
+                            if (!confirm(`Supprimer le bet ${b.selection} @${b.decimalOdds} (${b.stakeEur}€) ?`))
+                              return;
+                            const res = await pokerApi.tennisDeleteBet(b.betId);
+                            if (res.deleted) {
+                              toast.success('Bet supprimé');
+                              await refresh();
+                            } else {
+                              toast.error('Suppression échouée');
+                            }
+                          }}
+                        >
+                          🗑
+                        </button>
                       </td>
                     </tr>
                   ))}

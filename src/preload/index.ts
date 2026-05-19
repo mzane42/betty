@@ -125,6 +125,7 @@ const api = {
     closingOdds: number | null
   ) => ipcRenderer.invoke('tennis:bets:settle', betId, result, pnlEur, closingOdds),
   tennisListBets: () => ipcRenderer.invoke('tennis:bets:list'),
+  tennisDeleteBet: (betId: string) => ipcRenderer.invoke('tennis:bets:delete', betId),
   tennisPlayerForm: (playerName: string) =>
     ipcRenderer.invoke('tennis:player-form', playerName),
   tennisGetBetReview: (betId: string) => ipcRenderer.invoke('tennis:bets:get-review', betId),

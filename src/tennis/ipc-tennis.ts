@@ -9,6 +9,7 @@ import { ipcMain } from 'electron';
 import type { Database } from '../db/database.js';
 import { generatePick, previewVerdict, type GeneratePickInput } from './pick-generator.js';
 import {
+  deleteBet,
   getBet,
   getPick,
   getTennisBankrollChart,
@@ -201,6 +202,8 @@ export function registerTennisIpc(getDb: () => Database): void {
     const bet = getBet(getDb(), betId);
     return bet?.postMatchReviewJson ?? null;
   });
+
+  ipcMain.handle('tennis:bets:delete', (_, betId: string) => deleteBet(getDb(), betId));
 
   ipcMain.handle('tennis:player-form', async (_, playerKey: string) => {
     const { getPlayerForm } = await import('./player-form.js');
