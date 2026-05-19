@@ -126,7 +126,13 @@ const api = {
   tennisBankrollSummary: (tournament?: string) =>
     ipcRenderer.invoke('tennis:bankroll:summary', tournament),
   tennisBankrollChart: () => ipcRenderer.invoke('tennis:bankroll:chart'),
-  tennisPostMatchReview: (ctx: unknown) => ipcRenderer.invoke('tennis:reviews:post-match', ctx)
+  tennisPostMatchReview: (ctx: unknown) => ipcRenderer.invoke('tennis:reviews:post-match', ctx),
+  tennisRiskStatus: () => ipcRenderer.invoke('tennis:risk:status'),
+  tennisRiskConfig: () => ipcRenderer.invoke('tennis:risk:config'),
+  tennisRiskSaveConfig: (partial: Record<string, unknown>) =>
+    ipcRenderer.invoke('tennis:risk:save-config', partial),
+  tennisRiskPause: (hours: number) => ipcRenderer.invoke('tennis:risk:pause', hours),
+  tennisRiskResume: () => ipcRenderer.invoke('tennis:risk:resume')
 };
 
 contextBridge.exposeInMainWorld('pokerApi', api);

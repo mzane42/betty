@@ -24,6 +24,14 @@ import {
   reviewTennisPostMatch,
   type TennisPostMatchContext
 } from './claude-tennis-reviewer.js';
+import {
+  evaluateRiskGate,
+  loadRiskConfig,
+  manualPause,
+  manualResume,
+  saveRiskConfig,
+  type RiskConfig
+} from './risk-gate.js';
 import type {
   BetResult,
   PickVerdict,
@@ -142,4 +150,22 @@ export function registerTennisIpc(getDb: () => Database): void {
     (_, tournament: string, dateIso: string, minVerdict: PickVerdict = 'PLAY') =>
       listPicksForDay(getDb(), tournament, dateIso, minVerdict)
   );
+
+  // ----- Risk gate -----
+  ipcMain.handle('tennis:risk:status', () => evaluateRiskGate(getDb()));
+
+  ipcMain.handle('tennis:risk:config', () => loadRiskConfig());
+
+  ipcMain.handle(
+    'tennis:risk:save-config',
+    (_, partial: Partial<RiskConfig>) => {
+      const cfg = { ...loadRiskConfig(), ...partial };
+      saveRiskConfig(cfg);
+      return cfg;
+    }
+  );
+
+  ipcMain.handle('tennis:risk:pause', (_, hours: number) => manualPause(hours));
+
+  ipcMain.handle('tennis:risk:resume', () => manualResume());
 }

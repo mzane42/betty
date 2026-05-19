@@ -16,6 +16,8 @@
 import { randomBytes } from 'node:crypto';
 import type { Database } from '../db/database.js';
 import { DEFAULT_KELLY, edgePct, kellyStakeFraction } from './kelly.js';
+import { evaluateRiskGate, type RiskGateStatus } from './risk-gate.js';
+import { pushTelegramMessage } from './telegram-bot.js';
 import {
   DEFAULT_THRESHOLDS,
   DEFAULT_WEIGHTS,
@@ -85,6 +87,10 @@ export interface GeneratePickResult {
   /** False if the verdict is SKIP — pick row is still saved for audit trail. */
   worthPlacing: boolean;
   modelSource: string;
+  /** Risk gate state at the moment the pick was generated. */
+  riskGate: RiskGateStatus;
+  /** Whether the pick was suppressed by the risk gate (still persisted for audit). */
+  blockedByRiskGate: boolean;
 }
 
 export async function generatePick(
@@ -177,8 +183,14 @@ export async function generatePick(
     thresholds: input.thresholds ?? DEFAULT_THRESHOLDS
   });
 
-  // 6. Fractional Kelly stake.
-  const kellyStakePct = kellyStakeFraction(modelProb, bookDecimalOdds, DEFAULT_KELLY);
+  // 6. Fractional Kelly stake. Risk gate may scale this down (take-profit mode)
+  //    or zero it out (manual pause / stop-loss / drawdown circuit breaker).
+  const riskGate = evaluateRiskGate(db);
+  const rawKellyStakePct = kellyStakeFraction(modelProb, bookDecimalOdds, DEFAULT_KELLY);
+  const kellyStakePct = riskGate.blocked
+    ? 0
+    : rawKellyStakePct * riskGate.stakeMultiplier;
+  const blockedByRiskGate = riskGate.blocked;
 
   // 7. Persist pick (without review first — review writes later or skipped).
   const pick: TennisPick = {
@@ -251,11 +263,42 @@ export async function generatePick(
     }
   }
 
+  // 9. Push Telegram notification on STRONG picks (no-op if bot not configured).
+  if (scoreResult.verdict === 'STRONG' && !blockedByRiskGate) {
+    const reviewSummary = pick.claudeReviewJson
+      ? extractClaudeSummary(pick.claudeReviewJson)
+      : null;
+    const message = [
+      `STRONG pick disponible`,
+      `${input.match.player1.name} vs ${input.match.player2.name} (${input.match.round})`,
+      `Sélection: ${input.selection} @${bookDecimalOdds.toFixed(2)} (${bestBook})`,
+      `Edge ${(edge * 100).toFixed(1)}% | Score ${scoreResult.score}/100 | Kelly ${(kellyStakePct * 100).toFixed(2)}%`,
+      reviewSummary ? `\n${reviewSummary}` : '',
+      `\n/placed ${pick.pickId} <stake_eur>`
+    ]
+      .filter(Boolean)
+      .join('\n');
+    pushTelegramMessage(message).catch((err) => {
+      console.error('[pick-generator] telegram push failed:', (err as Error).message);
+    });
+  }
+
   return {
     pick,
-    worthPlacing: scoreResult.verdict !== 'SKIP',
-    modelSource: probResult.source
+    worthPlacing: scoreResult.verdict !== 'SKIP' && !blockedByRiskGate,
+    modelSource: probResult.source,
+    riskGate,
+    blockedByRiskGate
   };
+}
+
+function extractClaudeSummary(json: string): string | null {
+  try {
+    const parsed = JSON.parse(json) as { summary?: string };
+    return parsed.summary ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /**

@@ -3163,3 +3163,60 @@ button svg:last-child {
   margin-top: 16px;
 }
 
+
+.tennis-risk-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid;
+}
+
+.tennis-risk-banner.risk-banner-ok {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.tennis-risk-banner.risk-banner-warning {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+.tennis-risk-banner.risk-banner-blocked {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.risk-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.risk-banner-text strong {
+  font-size: 14px;
+}
+
+.risk-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.risk-banner-actions button {
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: inherit;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.risk-banner-actions button:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+

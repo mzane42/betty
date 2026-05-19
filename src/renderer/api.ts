@@ -281,6 +281,29 @@ interface PokerApi {
   tennisBankrollSummary(tournament?: string): Promise<TennisBankrollSummaryRow>;
   tennisBankrollChart(): Promise<TennisBankrollPointRow[]>;
   tennisPostMatchReview(ctx: unknown): Promise<TennisPostMatchReviewRow>;
+  tennisRiskStatus(): Promise<TennisRiskGateStatus>;
+  tennisRiskConfig(): Promise<TennisRiskConfigRow>;
+  tennisRiskSaveConfig(partial: Partial<TennisRiskConfigRow>): Promise<TennisRiskConfigRow>;
+  tennisRiskPause(hours: number): Promise<TennisRiskConfigRow>;
+  tennisRiskResume(): Promise<TennisRiskConfigRow>;
+}
+
+export interface TennisRiskConfigRow {
+  bankrollEur: number;
+  dailyStopLossPct: number;
+  tournamentTakeProfitPct: number;
+  drawdownCircuitBreakerPct: number;
+  circuitBreakerPauseHours: number;
+  pausedUntilIso: string | null;
+  activeTournament: string;
+}
+
+export interface TennisRiskGateStatus {
+  reason: 'ok' | 'manual-pause' | 'daily-stop-loss' | 'drawdown-circuit-breaker';
+  blocked: boolean;
+  stakeMultiplier: number;
+  message: string;
+  config: TennisRiskConfigRow;
 }
 
 export interface TennisPickRow {
@@ -357,6 +380,8 @@ export interface TennisGeneratePickResult {
   pick: TennisPickRow;
   worthPlacing: boolean;
   modelSource: 'clay-elo' | 'rank-fallback' | 'priors-only';
+  riskGate: TennisRiskGateStatus;
+  blockedByRiskGate: boolean;
 }
 
 export interface TennisBankrollSummaryRow {

@@ -14,11 +14,13 @@ import {
   type TennisBetRow,
   type TennisGeneratePickInput,
   type TennisPickRow,
-  type TennisBankrollPointRow
+  type TennisBankrollPointRow,
+  type TennisRiskGateStatus
 } from '../api.js';
 import { TennisPickCard } from '../components/TennisPickCard.js';
 import { TennisNewPickForm } from '../components/TennisNewPickForm.js';
 import { TennisBankrollHero } from '../components/TennisBankrollHero.js';
+import { TennisRiskBanner } from '../components/TennisRiskBanner.js';
 import { toast } from '../lib/toast.js';
 
 const ROLAND_GARROS = 'roland_garros_2026';
@@ -31,6 +33,7 @@ export function Tennis(): JSX.Element {
   const [bets, setBets] = useState<TennisBetRow[]>([]);
   const [summary, setSummary] = useState<TennisBankrollSummaryRow | null>(null);
   const [chart, setChart] = useState<TennisBankrollPointRow[]>([]);
+  const [riskStatus, setRiskStatus] = useState<TennisRiskGateStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,16 +42,18 @@ export function Tennis(): JSX.Element {
     setError(null);
     try {
       const today = new Date().toISOString().slice(0, 10);
-      const [p, b, s, c] = await Promise.all([
+      const [p, b, s, c, rg] = await Promise.all([
         pokerApi.tennisListPicksForDay(ROLAND_GARROS, today, 'PLAY'),
         pokerApi.tennisListBets(),
         pokerApi.tennisBankrollSummary(ROLAND_GARROS),
-        pokerApi.tennisBankrollChart()
+        pokerApi.tennisBankrollChart(),
+        pokerApi.tennisRiskStatus()
       ]);
       setPicks(p);
       setBets(b);
       setSummary(s);
       setChart(c);
+      setRiskStatus(rg);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -112,6 +117,8 @@ export function Tennis(): JSX.Element {
           ↻ Rafraîchir
         </button>
       </div>
+
+      {riskStatus && <TennisRiskBanner status={riskStatus} onChange={refreshAll} />}
 
       <nav className="tennis-nav">
         <button className={tab === 'today' ? 'active' : ''} onClick={() => setTab('today')}>
