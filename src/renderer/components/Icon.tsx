@@ -33,7 +33,11 @@ import {
   CircleDollarSign,
   Trash2,
   Filter,
-  Ban
+  Ban,
+  Bot,
+  Pencil,
+  Clock,
+  Minus
 } from 'lucide-react';
 
 export const Icon = {
@@ -71,7 +75,11 @@ export const Icon = {
   Coins: CircleDollarSign,
   Trash: Trash2,
   Filter,
-  Ban
+  Ban,
+  Bot,
+  Pencil,
+  Clock,
+  Minus
 };
 
 export type IconName = keyof typeof Icon;

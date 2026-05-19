@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { pokerApi, type TennisBetRow } from '../api.js';
+import { Icon } from './Icon.js';
 
 interface Props {
   bet: TennisBetRow;
@@ -40,7 +41,18 @@ export function BetReviewCell({ bet }: Props): JSX.Element {
   }, [bet.result, review, bet.postMatchReviewJson]);
 
   if (bet.result == null) return <span className="muted">—</span>;
-  if (!review) return <span className="muted">{waiting ? '⏳ claude…' : '—'}</span>;
+  if (!review)
+    return (
+      <span className="muted">
+        {waiting ? (
+          <>
+            <Icon.Clock size={12} /> claude…
+          </>
+        ) : (
+          '—'
+        )}
+      </span>
+    );
 
   const qualityClass =
     review.decisionQuality === 'good'
@@ -52,7 +64,19 @@ export function BetReviewCell({ bet }: Props): JSX.Element {
   return (
     <div className="review-cell">
       <button className={`review-badge ${qualityClass}`} onClick={() => setOpen(!open)}>
-        {review.decisionQuality === 'good' ? '✓ bon' : review.decisionQuality === 'mistake' ? '✗ erreur' : '~ okay'}
+        {review.decisionQuality === 'good' ? (
+          <>
+            <Icon.Check size={12} /> bon
+          </>
+        ) : review.decisionQuality === 'mistake' ? (
+          <>
+            <Icon.X size={12} /> erreur
+          </>
+        ) : (
+          <>
+            <Icon.Minus size={12} /> okay
+          </>
+        )}
       </button>
       {open && (
         <div className="review-popover" onClick={() => setOpen(false)}>

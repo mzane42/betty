@@ -196,7 +196,7 @@ export function TennisCuratorFeed({
           )}
           {curated?.daily_message && (
             <p className="muted curator-daily-message-inline">
-              💬 {curated.daily_message}
+              <Icon.MessageCircle size={12} /> {curated.daily_message}
             </p>
           )}
           <p className="muted">

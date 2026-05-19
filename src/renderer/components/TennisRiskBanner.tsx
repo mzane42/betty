@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { pokerApi, type TennisRiskGateStatus } from '../api.js';
 import { toast } from '../lib/toast.js';
+import { Icon } from './Icon.js';
 
 interface Props {
   status: TennisRiskGateStatus;
@@ -42,11 +43,19 @@ export function TennisRiskBanner({ status, onChange }: Props): JSX.Element | nul
     <div className={`tennis-risk-banner ${variant}`}>
       <div className="risk-banner-text">
         <strong>
-          {status.blocked
-            ? '🚫 Picks bloqués'
-            : status.stakeMultiplier < 1
-              ? '⚠️ Mode demi-mise'
-              : '✓ OK'}
+          {status.blocked ? (
+            <>
+              <Icon.Ban size={14} /> Picks bloqués
+            </>
+          ) : status.stakeMultiplier < 1 ? (
+            <>
+              <Icon.AlertTriangle size={14} /> Mode demi-mise
+            </>
+          ) : (
+            <>
+              <Icon.Check size={14} /> OK
+            </>
+          )}
         </strong>
         <span className="muted">{status.message}</span>
       </div>

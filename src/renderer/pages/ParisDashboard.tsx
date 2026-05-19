@@ -18,6 +18,7 @@ import {
 } from '../api.js';
 import { TennisBankrollHero } from '../components/TennisBankrollHero.js';
 import { TennisRiskBanner } from '../components/TennisRiskBanner.js';
+import { Icon } from '../components/Icon.js';
 
 const ROLAND_GARROS = 'roland_garros_2026';
 
@@ -142,11 +143,17 @@ export function ParisDashboard({ onNavigate }: Props): JSX.Element {
         <h3>Actions rapides</h3>
         <div className="paris-actions-row">
           <button className="primary" onClick={() => onNavigate('feed')}>
-            🤖 Voir picks du jour
+            <Icon.Bot size={14} /> Voir picks du jour
           </button>
-          <button onClick={() => onNavigate('audit')}>📋 Audit complet</button>
-          <button onClick={() => onNavigate('new')}>✏️ Pick manuel</button>
-          <button onClick={() => onNavigate('history')}>📊 Historique bets</button>
+          <button onClick={() => onNavigate('audit')}>
+            <Icon.FileText size={14} /> Audit complet
+          </button>
+          <button onClick={() => onNavigate('new')}>
+            <Icon.Pencil size={14} /> Pick manuel
+          </button>
+          <button onClick={() => onNavigate('history')}>
+            <Icon.BarChart size={14} /> Historique bets
+          </button>
         </div>
       </section>
     </div>

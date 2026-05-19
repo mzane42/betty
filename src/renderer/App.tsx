@@ -301,7 +301,7 @@ function ParisShell({ onBackHome }: { onBackHome: () => void }): JSX.Element {
             Dashboard
           </button>
           <button className={tab === 'feed' ? 'active' : ''} onClick={() => setTab('feed')}>
-            🤖 Aujourd'hui
+            <Icon.Bot size={14} /> Aujourd'hui
           </button>
           <button className={tab === 'audit' ? 'active' : ''} onClick={() => setTab('audit')}>
             Audit

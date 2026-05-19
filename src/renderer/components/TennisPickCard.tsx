@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { TennisPickRow } from '../api.js';
+import { Icon } from './Icon.js';
 
 interface Props {
   pick: TennisPickRow;
@@ -85,7 +86,7 @@ export function TennisPickCard({ pick, onPlaceBet }: Props): JSX.Element {
 
       {review.cautions && review.cautions.length > 0 && (
         <div className="pick-cautions">
-          <strong>⚠️ Attention</strong>
+          <strong><Icon.AlertTriangle size={14} /> Attention</strong>
           <ul>
             {review.cautions.map((line, i) => (
               <li key={i}>{line}</li>
