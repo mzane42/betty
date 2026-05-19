@@ -5,17 +5,12 @@
  *   https://www.unibet.fr/paris-tennis/atp/roland-garros-h/3349644/g-bueno-vs-v-sachko
  *
  * The numeric segment is Unibet's internal event id — not exposed by The Odds
- * API. Without it we can't link directly to the bet ticket. Two best-effort
- * fallbacks below:
+ * API, and slug-only URLs without it return 404 on every match we tried. So
+ * the deep-link export below is the tournament landing page; the UI pairs it
+ * with a clipboard copy of "P1 vs P2" so the user can Cmd+F to the match.
  *
- *  - `tournamentUrl(tournament, tour)` → tournament landing page (always works
- *     when the tournament slug is known; degrades to /paris-tennis otherwise).
- *  - `matchSlugGuess(...)` → speculative deep link without the numeric id;
- *     Unibet's router may 404 it but worth a try as the visible label is
- *     informative even if the click fails.
- *
- * Tournament slug map below is hand-curated against the live Unibet site.
- * Add entries as we encounter new tournaments in the wild.
+ * Tournament slug map is hand-curated against the live Unibet site. Add
+ * entries as we encounter new tournaments in the wild.
  */
 
 type Tour = 'atp' | 'wta';
@@ -59,36 +54,3 @@ export function unibetTournamentUrl(tournament: string, tour: Tour): string {
   return `${BASE}/${tour}/${slug}`;
 }
 
-/**
- * Speculative match URL — Unibet typically requires its numeric event id, but
- * the slug-only form is still informative for the click target.
- */
-export function unibetMatchUrlGuess(
-  tournament: string,
-  tour: Tour,
-  player1Name: string,
-  player2Name: string
-): string {
-  const map = TOURNAMENT_SLUGS[tournament];
-  const slug = map?.[tour];
-  if (!slug) return BASE;
-  const p1 = playerSlug(player1Name);
-  const p2 = playerSlug(player2Name);
-  return `${BASE}/${tour}/${slug}/${p1}-vs-${p2}`;
-}
-
-function playerSlug(name: string): string {
-  const parts = name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z\s-]/g, '')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-  if (parts.length === 0) return '';
-  if (parts.length === 1) return parts[0];
-  const last = parts[parts.length - 1];
-  const initial = parts[0][0];
-  return `${initial}-${last}`;
-}

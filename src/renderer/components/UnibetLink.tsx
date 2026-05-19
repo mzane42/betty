@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { pokerApi } from '../api.js';
 import { Icon } from './Icon.js';
+import { toast } from '../lib/toast.js';
 
 interface Props {
   matchId: string;
@@ -8,7 +9,7 @@ interface Props {
   compact?: boolean;
 }
 
-const cache = new Map<string, { guess: string; fallback: string }>();
+const cache = new Map<string, { fallback: string; matchLabel: string }>();
 
 export function UnibetLink({ matchId, label, compact = false }: Props): JSX.Element {
   const [busy, setBusy] = useState(false);
@@ -22,10 +23,18 @@ export function UnibetLink({ matchId, label, compact = false }: Props): JSX.Elem
         urls = await pokerApi.tennisUnibetUrl(matchId);
         cache.set(matchId, urls);
       }
-      // Tournament page is the reliable target. Match-slug guess gets opened
-      // in a second tab so the user can see if it lands; if it 404s they
-      // already have the tournament page tab to work from.
-      window.open(urls.guess, '_blank', 'noopener,noreferrer');
+      // Unibet's router requires its internal numeric event id; slug-only
+      // deep links 404. Open the tournament landing page (always works) and
+      // copy the match label to clipboard so the user can Cmd+F to find it
+      // fast on the tournament page.
+      if (urls.matchLabel) {
+        try {
+          await navigator.clipboard.writeText(urls.matchLabel);
+          toast.success(`Match copié : "${urls.matchLabel}" — Cmd+F sur la page`);
+        } catch {
+          /* clipboard API may be unavailable; ignore */
+        }
+      }
       window.open(urls.fallback, '_blank', 'noopener,noreferrer');
     } finally {
       setBusy(false);

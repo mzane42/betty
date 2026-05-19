@@ -206,7 +206,7 @@ export function registerTennisIpc(getDb: () => Database): void {
   ipcMain.handle('tennis:bets:delete', (_, betId: string) => deleteBet(getDb(), betId));
 
   ipcMain.handle('tennis:unibet-url', async (_, matchId: string) => {
-    const { unibetMatchUrlGuess, unibetTournamentUrl } = await import('./unibet-url.js');
+    const { unibetTournamentUrl } = await import('./unibet-url.js');
     const row = getDb()
       .prepare(
         `SELECT m.tournament, m.player1_id, m.player2_id,
@@ -226,16 +226,13 @@ export function registerTennisIpc(getDb: () => Database): void {
           p2_tour: string | null;
         }
       | undefined;
-    if (!row) return 'https://www.unibet.fr/paris-tennis';
+    if (!row) {
+      return { fallback: 'https://www.unibet.fr/paris-tennis', matchLabel: '' };
+    }
     const tour = (row.p1_tour ?? row.p2_tour ?? 'atp').toLowerCase() as 'atp' | 'wta';
-    const guess = unibetMatchUrlGuess(
-      row.tournament,
-      tour,
-      row.p1_name ?? '',
-      row.p2_name ?? ''
-    );
     const fallback = unibetTournamentUrl(row.tournament, tour);
-    return { guess, fallback };
+    const matchLabel = [row.p1_name, row.p2_name].filter(Boolean).join(' vs ');
+    return { fallback, matchLabel };
   });
 
   ipcMain.handle('tennis:player-form', async (_, playerKey: string) => {
