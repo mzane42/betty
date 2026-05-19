@@ -34,6 +34,8 @@
     "tennis-paste-bet": "tsx src/cli/tennis-paste-bet.ts",
     "pretennis-capture-closing": "npm rebuild better-sqlite3 --target_arch=arm64",
     "tennis-capture-closing": "tsx src/cli/tennis-capture-closing.ts",
+    "tennis-load-elo": "tsx src/cli/tennis-load-elo.ts",
+    "tennis-load-ranks": "tsx src/cli/tennis-load-ranks.ts",
     "coach": "./scripts/open-coach-terminal.sh",
     "package": "electron-vite build && electron-builder",
     "package:mac": "electron-vite build && electron-builder --mac",
