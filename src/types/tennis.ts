@@ -9,8 +9,18 @@ export type TennisMatchStatus = 'scheduled' | 'live' | 'finished' | 'withdrawn' 
 
 export type TennisBook = 'winamax' | 'betclic' | 'unibet' | 'pinnacle' | 'betfair';
 
-/** Books where the user actually places bets (not reference-only). */
-export const PLACEABLE_BOOKS: ReadonlyArray<TennisBook> = ['winamax', 'betclic', 'unibet'];
+/**
+ * Books where the user actually places bets (not reference-only).
+ *
+ * Currently Unibet-only: Winamax and Betclic are not redistributed through The
+ * Odds API, so they can't be auto-detected. Unibet is the only FR ANJ-licensed
+ * book in the API and the one mzane42 is registered with for tennis.
+ *
+ * Adding Winamax/Betclic later = uncomment + extend BOOK_KEY_MAP in
+ * src/tennis/ingest/odds-api.ts (and the user would need to manually shop
+ * those prices since the API doesn't carry them).
+ */
+export const PLACEABLE_BOOKS: ReadonlyArray<TennisBook> = ['unibet'];
 
 export type TennisMarket = 'match_winner';
 

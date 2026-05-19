@@ -105,7 +105,9 @@ export async function generatePick(
         PLACEABLE_BOOKS.includes(book) && Number.isFinite(odds) && odds > 1
     );
   if (placeableEntries.length === 0) {
-    throw new Error('No placeable-book odds provided (winamax/betclic/unibet required).');
+    throw new Error(
+      `No placeable-book odds provided (one of: ${PLACEABLE_BOOKS.join('/')} required).`
+    );
   }
 
   // 1. Persist players first (FK target), then the match (FK source). All

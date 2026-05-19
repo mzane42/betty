@@ -53,7 +53,7 @@ describe('pick-generator integration', () => {
         player2: { id: 'dimitrov_g', name: 'Grigor Dimitrov', rank: 16 }
       },
       selection: 'alcaraz_c',
-      oddsByBook: { winamax: 1.5 },
+      oddsByBook: { unibet: 1.5 },
       signals: {
         pinnacleProb: 0.78,
         betfairVolume: 0.7,
@@ -65,7 +65,7 @@ describe('pick-generator integration', () => {
 
     expect(result.pick.verdict).toBe('STRONG');
     expect(result.worthPlacing).toBe(true);
-    expect(result.pick.bestBook).toBe('winamax');
+    expect(result.pick.bestBook).toBe('unibet');
     expect(result.pick.kellyStakePct).toBeGreaterThan(0);
 
     // Verify it landed in DB
@@ -85,7 +85,7 @@ describe('pick-generator integration', () => {
         player2: { id: 'rublev_a', name: 'Andrey Rublev', rank: 12 }
       },
       selection: 'rublev_a', // backing the underdog
-      oddsByBook: { winamax: 3.5 }, // cote chère, but underdog rarely +EV
+      oddsByBook: { unibet: 3.5 }, // cote chère, but underdog rarely +EV
       signals: {
         pinnacleProb: 0.25, // Pinnacle still gives Rublev only 25%
         betfairVolume: -0.4, // Betfair laying Rublev
@@ -128,7 +128,7 @@ describe('pick-generator integration', () => {
         player2: { id: 'b_b', name: 'Player B', rank: 35 }
       },
       selection: 'a_a',
-      oddsByBook: { winamax: 2.5 },
+      oddsByBook: { unibet: 2.5 },
       signals: { pinnacleProb: 0.5 },
       skipClaudeReview: true
     });
@@ -179,7 +179,7 @@ describe('pick-generator integration', () => {
       pickId: null,
       matchId: 'rg2026_r128_m1',
       selection: 'a_a',
-      book: 'winamax',
+      book: 'unibet',
       decimalOdds: 1.5,
       stakeEur: 10,
       placedAt: '2026-05-19T11:00:00Z',

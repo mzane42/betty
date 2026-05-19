@@ -275,31 +275,31 @@ export function TennisNewPickForm({ onSubmit }: Props): JSX.Element {
         <h4>Cotes décimales (sélection)</h4>
         <div className="form-row">
           <label>
-            Winamax
-            <input
-              type="number"
-              step={0.01}
-              value={oddsWinamax}
-              onChange={(e) => setOddsWinamax(e.target.value)}
-              placeholder="1.31"
-            />
-          </label>
-          <label>
-            Betclic
-            <input
-              type="number"
-              step={0.01}
-              value={oddsBetclic}
-              onChange={(e) => setOddsBetclic(e.target.value)}
-            />
-          </label>
-          <label>
-            Unibet
+            Unibet (book de placement)
             <input
               type="number"
               step={0.01}
               value={oddsUnibet}
               onChange={(e) => setOddsUnibet(e.target.value)}
+              placeholder="1.31"
+            />
+          </label>
+          <label className="muted-label">
+            Winamax (optionnel — shopping)
+            <input
+              type="number"
+              step={0.01}
+              value={oddsWinamax}
+              onChange={(e) => setOddsWinamax(e.target.value)}
+            />
+          </label>
+          <label className="muted-label">
+            Betclic (optionnel — shopping)
+            <input
+              type="number"
+              step={0.01}
+              value={oddsBetclic}
+              onChange={(e) => setOddsBetclic(e.target.value)}
             />
           </label>
           <label>

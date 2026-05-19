@@ -33,9 +33,20 @@ const API_BASE = 'https://api.the-odds-api.com/v4';
 const CACHE_DIR = join(homedir(), '.poker-coach', 'cache', 'odds-api');
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+/**
+ * Odds API book key → our internal TennisBook. As of 2026-05 the API's EU+UK
+ * region surfaces these FR-relevant keys: `pinnacle`, `unibet_fr`. Winamax and
+ * Betclic are NOT redistributed through the API (FR licensing restriction).
+ * We keep `winamax_fr`/`betclic_fr` mappings in case they appear later.
+ *
+ * `smarkets` is a UK betting exchange — we treat it as our Betfair substitute
+ * for the directional-volume signal (both are exchange markets with the same
+ * back/lay model).
+ */
 const BOOK_KEY_MAP: Record<string, TennisBook> = {
   pinnacle: 'pinnacle',
   unibet_eu: 'unibet',
+  unibet_fr: 'unibet',
   unibet: 'unibet',
   betclic_fr: 'betclic',
   betclic: 'betclic',
@@ -43,7 +54,8 @@ const BOOK_KEY_MAP: Record<string, TennisBook> = {
   winamax: 'winamax',
   betfair_ex_eu: 'betfair',
   betfair_ex_uk: 'betfair',
-  betfair: 'betfair'
+  betfair: 'betfair',
+  smarkets: 'betfair'
 };
 
 interface OddsApiEvent {
@@ -124,7 +136,10 @@ export async function discoverTennisSports(apiKey: string): Promise<DiscoveredSp
  * sport list (6h) and per-sport event payloads (5min).
  */
 export function createOddsApiScrapers(opts: OddsApiOptions): Scrapers {
-  const region = opts.region ?? 'eu';
+  // Default region = eu,uk. EU alone returns only nordicbet/betsson/pinnacle
+  // for tennis; adding UK surfaces unibet_fr + smarkets which we need for the
+  // FR-placeable + exchange-volume signals.
+  const region = opts.region ?? 'eu,uk';
   const cacheTtl = opts.cacheTtlMs ?? CACHE_TTL_MS;
   // sportKeys is null = auto-discover; pinned list = use the explicit set
   const pinnedSportKeys = opts.sportKeys;
@@ -183,7 +198,10 @@ export interface OddsApiClient extends Scrapers {
 }
 
 export function createOddsApiClient(opts: OddsApiOptions): OddsApiClient {
-  const region = opts.region ?? 'eu';
+  // Default region = eu,uk. EU alone returns only nordicbet/betsson/pinnacle
+  // for tennis; adding UK surfaces unibet_fr + smarkets which we need for the
+  // FR-placeable + exchange-volume signals.
+  const region = opts.region ?? 'eu,uk';
   const cacheTtl = opts.cacheTtlMs ?? CACHE_TTL_MS;
   const pinnedSportKeys = opts.sportKeys;
 
@@ -258,7 +276,7 @@ export function bestPlaceableOddsForEvent(
   for (const b of event.bookmakers) {
     const bookKey = BOOK_KEY_MAP[b.key];
     if (!bookKey) continue;
-    if (bookKey !== 'winamax' && bookKey !== 'betclic' && bookKey !== 'unibet') continue;
+    if (bookKey !== 'unibet') continue;
     const market = b.markets.find((m) => m.key === 'h2h');
     if (!market) continue;
     for (const o of market.outcomes) {
