@@ -3563,3 +3563,18 @@ button svg:last-child {
   color: #ef4444;
 }
 
+
+.audit-prune {
+  padding: 6px 12px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 4px;
+  color: #f87171;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.audit-prune:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+

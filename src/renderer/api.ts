@@ -239,6 +239,7 @@ interface PokerApi {
   ): Promise<TennisPickRow[]>;
   tennisGetPick(pickId: string): Promise<TennisPickRow | null>;
   tennisAuditDay(dateIso?: string): Promise<TennisPickAuditRowDto[]>;
+  tennisPrunePicks(keepDays: number): Promise<number>;
   tennisListUpcomingMatches(tournament: string): Promise<TennisMatchRow[]>;
   tennisListMatchesByDate(tournament: string, dateIso: string): Promise<TennisMatchRow[]>;
   tennisSetMatchStatus(

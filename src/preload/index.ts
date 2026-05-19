@@ -102,6 +102,7 @@ const api = {
   tennisListPicksForDay: (tournament: string, dateIso: string, minVerdict?: string) =>
     ipcRenderer.invoke('tennis:picks:list-day', tournament, dateIso, minVerdict),
   tennisAuditDay: (dateIso?: string) => ipcRenderer.invoke('tennis:picks:audit-day', dateIso),
+  tennisPrunePicks: (keepDays: number) => ipcRenderer.invoke('tennis:picks:prune', keepDays),
   tennisGetPick: (pickId: string) => ipcRenderer.invoke('tennis:picks:get', pickId),
   tennisListUpcomingMatches: (tournament: string) =>
     ipcRenderer.invoke('tennis:matches:upcoming', tournament),

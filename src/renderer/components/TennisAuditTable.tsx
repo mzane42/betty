@@ -55,6 +55,17 @@ export function TennisAuditTable(): JSX.Element {
             <option value="PLAY">PLAY only</option>
             <option value="SKIP">SKIP only</option>
           </select>
+          <button
+            className="audit-prune"
+            title="Supprime les picks de plus de 24h (libère la DB des anciens scans bogués)"
+            onClick={async () => {
+              const n = await pokerApi.tennisPrunePicks(1);
+              await load();
+              alert(`${n} ancien(s) pick(s) supprimé(s).`);
+            }}
+          >
+            🗑 Purger >24h
+          </button>
           <button className="primary" onClick={() => void load()}>
             ↻
           </button>

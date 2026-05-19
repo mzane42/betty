@@ -159,6 +159,13 @@ export function registerTennisIpc(getDb: () => Database): void {
     return listAllPicksForDate(getDb(), date);
   });
 
+  ipcMain.handle('tennis:picks:prune', async (_, keepDays: number) => {
+    const { prunePicksOlderThan } = await import(
+      '../db/repositories/tennis-repository.js'
+    );
+    return prunePicksOlderThan(getDb(), keepDays);
+  });
+
   // ----- Risk gate -----
   ipcMain.handle('tennis:risk:status', () => evaluateRiskGate(getDb()));
 

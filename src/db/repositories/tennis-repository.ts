@@ -324,7 +324,10 @@ export interface TennisPickAuditRow extends TennisPick {
 
 /**
  * All picks generated today across all tournaments — including SKIP.
- * Used by the audit view to surface why every event was rejected.
+ * Deduplicated: when the same (match_id, selection) has been scored multiple
+ * times (re-scans across the day), we keep the most recent generated_at row
+ * so older buggy picks (e.g. early scans before the Pinnacle fallback) don't
+ * pollute the audit view.
  */
 export function listAllPicksForDate(
   db: Database,
@@ -332,13 +335,24 @@ export function listAllPicksForDate(
 ): TennisPickAuditRow[] {
   const rows = db
     .prepare(
-      `SELECT p.*, m.tournament, m.round, m.surface, m.scheduled_at,
+      `WITH latest AS (
+         SELECT pick_id FROM (
+           SELECT pick_id,
+                  ROW_NUMBER() OVER (
+                    PARTITION BY match_id, selection
+                    ORDER BY generated_at DESC
+                  ) as rn
+           FROM tennis_picks
+           WHERE DATE(generated_at) = ?
+         ) WHERE rn = 1
+       )
+       SELECT p.*, m.tournament, m.round, m.surface, m.scheduled_at,
               p1.name as p1_name, p2.name as p2_name
        FROM tennis_picks p
+       JOIN latest l ON l.pick_id = p.pick_id
        JOIN tennis_matches m ON m.match_id = p.match_id
        LEFT JOIN tennis_players p1 ON p1.player_id = m.player1_id
        LEFT JOIN tennis_players p2 ON p2.player_id = m.player2_id
-       WHERE DATE(p.generated_at) = ?
        ORDER BY
          CASE p.verdict
            WHEN 'STRONG' THEN 0
@@ -358,6 +372,18 @@ export function listAllPicksForDate(
     surface: row.surface as string,
     scheduledAt: row.scheduled_at as string
   }));
+}
+
+/**
+ * Delete picks older than `keepDays` to prevent the audit view from showing
+ * stale generations. Called manually from CLI or IPC; not auto-pruned.
+ */
+export function prunePicksOlderThan(db: Database, keepDays: number): number {
+  const cutoff = new Date(Date.now() - keepDays * 86400_000).toISOString();
+  const result = db
+    .prepare(`DELETE FROM tennis_picks WHERE generated_at < ?`)
+    .run(cutoff);
+  return result.changes;
 }
 
 export function getPick(db: Database, pickId: string): TennisPick | null {
