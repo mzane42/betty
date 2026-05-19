@@ -113,7 +113,11 @@ export async function runAutoScore(
         const matchId = eventComposeMatchId(event);
         const lineMove = lineMovementPct(db, matchId, selectionId, placeable.book);
 
+        // Reddit FETCH happens before generatePick (cheap network call), but
+        // appendSignal (FK to tennis_matches) must wait until generatePick has
+        // upserted the row. Hold the payload, persist after.
         let tipsterAlignedCount = 0;
+        let pendingTipsterSignal: { payload: string; date: string } | null = null;
         if (enableReddit) {
           try {
             const surname = lastWord(side.name);
@@ -122,15 +126,11 @@ export async function runAutoScore(
             );
             const tipster = await ingestTipsterCount(surname, oppSurname);
             tipsterAlignedCount = Math.max(0, tipster.alignedCount - tipster.fadeCount);
-            appendSignal(db, {
-              matchId,
-              source: 'tipster_consensus',
-              signalKind: 'reddit_net',
-              payloadJson: JSON.stringify(tipster),
-              capturedAt: new Date().toISOString()
-            });
+            pendingTipsterSignal = {
+              payload: JSON.stringify(tipster),
+              date: new Date().toISOString()
+            };
           } catch (err) {
-            logIngestError(db, 'reddit', matchId, (err as Error).message, null);
             log(`  ${side.name}: reddit ingest failed (${(err as Error).message})`);
           }
         }
@@ -154,6 +154,21 @@ export async function runAutoScore(
           },
           skipClaudeReview: options.skipClaudeReview
         });
+
+        // Now the match exists in DB — safe to persist the Reddit signal.
+        if (pendingTipsterSignal) {
+          try {
+            appendSignal(db, {
+              matchId,
+              source: 'tipster_consensus',
+              signalKind: 'reddit_net',
+              payloadJson: pendingTipsterSignal.payload,
+              capturedAt: pendingTipsterSignal.date
+            });
+          } catch (err) {
+            logIngestError(db, 'reddit', matchId, (err as Error).message, null);
+          }
+        }
 
         sidesScored++;
         result.picksGenerated++;

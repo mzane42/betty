@@ -86,6 +86,10 @@ export interface GeneratePickResult {
   pick: TennisPick;
   /** False if the verdict is SKIP — pick row is still saved for audit trail. */
   worthPlacing: boolean;
+  /**
+   * 'clay-elo' | 'rank-fallback' | 'priors-only' | 'pinnacle-fallback'.
+   * `pinnacle-fallback` = rating model had no data, model_prob = Pinnacle no-vig.
+   */
   modelSource: string;
   /** Risk gate state at the moment the pick was generated. */
   riskGate: RiskGateStatus;
@@ -167,6 +171,11 @@ export async function generatePick(
   const [bestBook, bookDecimalOdds] = placeable[0];
 
   // 4. Model probability.
+  //    Priority: clay-Elo > rank-based > Pinnacle no-vig fallback.
+  //    When the rating model has no signal (`priors-only` = 50/50), we use the
+  //    Pinnacle no-vig prob as the model prior — that turns the system into a
+  //    sharp-book disagreement detector (find books pricing softer than
+  //    Pinnacle, which is the proven +EV strategy when you have no other data).
   const isP1Selected = input.selection === input.match.player1.id;
   const probResult = matchProb({
     player1Id: input.match.player1.id,
@@ -174,7 +183,13 @@ export async function generatePick(
     rank1: input.match.player1.rank ?? null,
     rank2: input.match.player2.rank ?? null
   });
-  const modelProb = isP1Selected ? probResult.p1Win : probResult.p2Win;
+  let modelProb = isP1Selected ? probResult.p1Win : probResult.p2Win;
+  let modelSourceLabel: string = probResult.source;
+  const pinnacleProb = input.signals?.pinnacleProb ?? null;
+  if (probResult.source === 'priors-only' && pinnacleProb !== null) {
+    modelProb = pinnacleProb;
+    modelSourceLabel = 'pinnacle-fallback';
+  }
   const fairDecimalOdds = modelProb > 0 ? 1 / modelProb : Number.POSITIVE_INFINITY;
   const edge = edgePct(modelProb, bookDecimalOdds);
 
@@ -295,7 +310,7 @@ export async function generatePick(
   return {
     pick,
     worthPlacing: scoreResult.verdict !== 'SKIP' && !blockedByRiskGate,
-    modelSource: probResult.source,
+    modelSource: modelSourceLabel,
     riskGate,
     blockedByRiskGate
   };
