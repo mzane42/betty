@@ -137,6 +137,17 @@ interface PokerApi {
   getEquityStats(): Promise<{ total: number; computed: number }>;
   openCoachTerminal(clean?: boolean): Promise<{ spawned: boolean }>;
   getAutoReviewPending(): Promise<{ sessions: string[]; tournaments: { tournament_id: string; session_date: string }[] }>;
+  getEvBankroll(): Promise<{
+    date: string;
+    actual_net: number;
+    ev_net: number;
+    cumulative_actual: number;
+    cumulative_ev: number;
+  }[]>;
+  getTimeOfDay(): Promise<{
+    buckets: { bucket: 'morning' | 'afternoon' | 'evening' | 'night'; tournaments: number; net: number; roi: number }[];
+    tilt: { firstAvgRoi: number; lastAvgRoi: number; delta: number; multiSessionCount: number };
+  }>;
   scanNash(): Promise<{
     tags: Array<{
       hand_id: string;

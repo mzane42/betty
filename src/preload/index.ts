@@ -65,6 +65,8 @@ const api = {
     ipcRenderer.invoke('coach:open-terminal', { clean }),
   getAutoReviewPending: () => ipcRenderer.invoke('auto-review:pending'),
   scanNash: () => ipcRenderer.invoke('nash:scan'),
+  getEvBankroll: () => ipcRenderer.invoke('analytics:ev-bankroll'),
+  getTimeOfDay: () => ipcRenderer.invoke('analytics:time-of-day'),
 
   getLeaks: () => ipcRenderer.invoke('analytics:leaks'),
   getGameRecommendations: () => ipcRenderer.invoke('analytics:game-recommendations'),

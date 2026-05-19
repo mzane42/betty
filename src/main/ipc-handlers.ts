@@ -11,7 +11,9 @@ import {
   rebuildPlayerStats,
   findLeaks,
   recommendGames,
-  getProgress
+  getProgress,
+  getEvBankroll,
+  analyzeTimeOfDay
 } from '../stats/index.js';
 import { derivePlayerStats } from '../stats/derived-stats.js';
 import type { PlayerStatsRaw } from '../types/player.js';
@@ -70,6 +72,24 @@ export function registerIpcHandlers(): void {
       return getProgress(db(), HERO_ACCOUNT, granularity);
     } catch (err) {
       console.error('[analytics:progress] failed:', err);
+      throw err;
+    }
+  });
+
+  ipcMain.handle('analytics:ev-bankroll', () => {
+    try {
+      return getEvBankroll(db(), HERO_ACCOUNT);
+    } catch (err) {
+      console.error('[analytics:ev-bankroll] failed:', err);
+      throw err;
+    }
+  });
+
+  ipcMain.handle('analytics:time-of-day', () => {
+    try {
+      return analyzeTimeOfDay(db(), HERO_ACCOUNT);
+    } catch (err) {
+      console.error('[analytics:time-of-day] failed:', err);
       throw err;
     }
   });

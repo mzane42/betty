@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { pokerApi } from '../api.js';
 import { CardGroup } from './PlayingCard.js';
+import type { PlayerDerivedStats } from '../../types/player.js';
 
 interface Props {
   handId: string;
@@ -40,6 +41,27 @@ interface HandRow {
   hero_equity_river: number | null;
 }
 
+function HudStat({ label, value, flag }: { label: string; value: string; flag?: 'fish' | 'aggro' | null }): JSX.Element {
+  return (
+    <span className={`hud-stat ${flag ? `hud-flag-${flag}` : ''}`}>
+      <span className="hud-stat-label">{label}</span>
+      <span className="hud-stat-value">{value}</span>
+    </span>
+  );
+}
+
+function fmtPct(v: number | null): string {
+  if (v == null) return '—';
+  return `${v.toFixed(0)}%`;
+}
+
+function avatarColor(name: string): string {
+  // Stable hash → hue
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffff;
+  return `hsl(${h % 360}, 55%, 35%)`;
+}
+
 function EquityBadge({ value }: { value: number | null }): JSX.Element | null {
   if (value == null) return null;
   const cls = value >= 65 ? 'eq-strong' : value >= 45 ? 'eq-mid' : value >= 25 ? 'eq-weak' : 'eq-bad';
@@ -53,6 +75,7 @@ function EquityBadge({ value }: { value: number | null }): JSX.Element | null {
 export function HandReplay({ handId }: Props): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<{ hand: HandRow; players: PlayerRow[]; actions: ActionRow[] } | null>(null);
+  const [hudStats, setHudStats] = useState<Record<string, PlayerDerivedStats | null>>({});
   const [revealed, setRevealed] = useState<number>(0);
   const [playing, setPlaying] = useState(false);
 
@@ -64,6 +87,15 @@ export function HandReplay({ handId }: Props): JSX.Element {
       .then((d) => {
         setData(d as unknown as typeof data);
         setLoading(false);
+
+        // Fetch HUD stats for each villain in parallel
+        const players = (d as { players?: PlayerRow[] })?.players ?? [];
+        const villains = players.filter((p) => p.is_hero === 0).map((p) => p.player_name);
+        Promise.all(villains.map((name) => pokerApi.getPlayerDetail(name))).then((rows) => {
+          const map: Record<string, PlayerDerivedStats | null> = {};
+          villains.forEach((n, i) => (map[n] = rows[i]));
+          setHudStats(map);
+        });
       })
       .catch(() => setLoading(false));
   }, [handId]);
@@ -126,6 +158,38 @@ export function HandReplay({ handId }: Props): JSX.Element {
         <span className="muted">Hero:</span>
         <CardGroup cards={heroCards} size="md" withStrength />
       </div>
+
+      {Object.keys(hudStats).length > 0 && (
+        <div className="hud-row">
+          {data.players
+            .filter((p) => p.is_hero === 0)
+            .map((p) => {
+              const stats = hudStats[p.player_name];
+              return (
+                <div key={p.player_name} className="hud-card">
+                  <div className="hud-name">
+                    <span className="hud-avatar" style={{ background: avatarColor(p.player_name) }}>
+                      {p.player_name.charAt(0).toUpperCase()}
+                    </span>
+                    <span>{p.player_name}</span>
+                  </div>
+                  {stats ? (
+                    <div className="hud-stats">
+                      <HudStat label="Mains" value={stats.handsPlayed.toString()} />
+                      <HudStat label="VPIP" value={fmtPct(stats.vpip)} flag={stats.vpip && stats.vpip > 55 ? 'fish' : null} />
+                      <HudStat label="PFR" value={fmtPct(stats.pfr)} />
+                      <HudStat label="3b" value={fmtPct(stats.threeBet)} flag={stats.threeBet && stats.threeBet > 10 ? 'aggro' : null} />
+                      <HudStat label="AF" value={stats.aggressionFactor != null ? stats.aggressionFactor.toFixed(1) : '—'} />
+                      <span className={`hud-tendency tendency-${stats.tendency}`}>{stats.tendency}</span>
+                    </div>
+                  ) : (
+                    <span className="muted">Pas de stats (nouveau)</span>
+                  )}
+                </div>
+              );
+            })}
+        </div>
+      )}
 
       <div className="replay-streets">
         {STREET_ORDER.map((street, i) => {

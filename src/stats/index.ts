@@ -14,3 +14,7 @@ export { recommendGames } from './game-selector.js';
 export type { GameRecommendation } from './game-selector.js';
 export { getProgress } from './progress-tracker.js';
 export type { ProgressPoint } from './progress-tracker.js';
+export { getEvBankroll } from './ev-bankroll.js';
+export type { EvBankrollPoint } from './ev-bankroll.js';
+export { analyzeTimeOfDay } from './time-analysis.js';
+export type { TimeAnalysis, TimeBucket, TiltMetric } from './time-analysis.js';
