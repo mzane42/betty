@@ -35,6 +35,10 @@ export interface TennisPlayer {
   hand: 'L' | 'R' | null;
   heightCm: number | null;
   birthDate: string | null;
+  rank: number | null;
+  rankPoints: number | null;
+  rankTour: string | null;
+  rankUpdatedAt: string | null;
   updatedAt: string;
 }
 

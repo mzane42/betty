@@ -23,11 +23,12 @@ import { TennisBankrollHero } from '../components/TennisBankrollHero.js';
 import { TennisRiskBanner } from '../components/TennisRiskBanner.js';
 import { SettleControls } from '../components/TennisSettleControls.js';
 import { TennisCuratorFeed } from '../components/TennisCuratorFeed.js';
+import { TennisAuditTable } from '../components/TennisAuditTable.js';
 import { toast } from '../lib/toast.js';
 
 const ROLAND_GARROS = 'roland_garros_2026';
 
-type Tab = 'feed' | 'today' | 'new' | 'history' | 'bankroll';
+type Tab = 'feed' | 'today' | 'audit' | 'new' | 'history' | 'bankroll';
 
 export function Tennis(): JSX.Element {
   const [tab, setTab] = useState<Tab>('feed');
@@ -127,7 +128,10 @@ export function Tennis(): JSX.Element {
           🤖 Aujourd'hui
         </button>
         <button className={tab === 'today' ? 'active' : ''} onClick={() => setTab('today')}>
-          Tous les picks
+          Picks retenus
+        </button>
+        <button className={tab === 'audit' ? 'active' : ''} onClick={() => setTab('audit')}>
+          Audit (tous les scans)
         </button>
         <button className={tab === 'new' ? 'active' : ''} onClick={() => setTab('new')}>
           Pick manuel
@@ -147,6 +151,8 @@ export function Tennis(): JSX.Element {
           bankrollEur={riskStatus?.config.bankrollEur ?? 200}
         />
       )}
+
+      {tab === 'audit' && <TennisAuditTable />}
 
       {tab === 'today' && (
         <section className="tennis-picks">

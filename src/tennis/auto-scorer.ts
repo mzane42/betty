@@ -31,7 +31,11 @@ import {
 import { lineMovementPct } from './ingest/line-movement.js';
 import { generatePick, type GeneratePickResult } from './pick-generator.js';
 import { ingestTipsterCount } from './ingest/reddit.js';
-import { appendSignal, logIngestError } from '../db/repositories/tennis-repository.js';
+import {
+  appendSignal,
+  getPlayer,
+  logIngestError
+} from '../db/repositories/tennis-repository.js';
 
 export interface AutoScoreOptions {
   /** Skip the Reddit tipster call for events not yet starting today (saves quota). */
@@ -135,14 +139,29 @@ export async function runAutoScore(
           }
         }
 
+        // Pull ranks from DB if we've loaded Sackmann rankings. Missing rank
+        // = pick-generator falls back to Pinnacle no-vig (still works).
+        const p1Id = side.isHome ? selectionId : oppId;
+        const p2Id = side.isHome ? oppId : selectionId;
+        const p1Row = getPlayer(db, p1Id);
+        const p2Row = getPlayer(db, p2Id);
+
         const picked: GeneratePickResult = await generatePick(db, {
           match: {
             tournament: tournamentFromSportKey(event.sport_key),
             surface: surfaceFromSportKey(event.sport_key),
             round: 'UNK',
             scheduledAt: event.commence_time,
-            player1: { id: side.isHome ? selectionId : oppId, name: event.home_team },
-            player2: { id: side.isHome ? oppId : selectionId, name: event.away_team }
+            player1: {
+              id: p1Id,
+              name: event.home_team,
+              rank: p1Row?.rank ?? undefined
+            },
+            player2: {
+              id: p2Id,
+              name: event.away_team,
+              rank: p2Row?.rank ?? undefined
+            }
           },
           selection: selectionId,
           oddsByBook,

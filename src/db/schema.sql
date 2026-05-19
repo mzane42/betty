@@ -201,6 +201,10 @@ CREATE TABLE IF NOT EXISTS tennis_players (
   hand TEXT,
   height_cm INTEGER,
   birth_date TEXT,
+  rank INTEGER,
+  rank_points INTEGER,
+  rank_tour TEXT,         -- 'atp' or 'wta'
+  rank_updated_at TEXT,
   updated_at TEXT NOT NULL
 );
 

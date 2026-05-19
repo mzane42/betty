@@ -33,7 +33,8 @@ export function upsertPlayer(db: Database, p: TennisPlayer): void {
 export function getPlayer(db: Database, playerId: string): TennisPlayer | null {
   const row = db
     .prepare(
-      `SELECT player_id, name, country, hand, height_cm, birth_date, updated_at
+      `SELECT player_id, name, country, hand, height_cm, birth_date,
+              rank, rank_points, rank_tour, rank_updated_at, updated_at
        FROM tennis_players WHERE player_id = ?`
     )
     .get(playerId) as
@@ -44,6 +45,10 @@ export function getPlayer(db: Database, playerId: string): TennisPlayer | null {
         hand: 'L' | 'R' | null;
         height_cm: number | null;
         birth_date: string | null;
+        rank: number | null;
+        rank_points: number | null;
+        rank_tour: string | null;
+        rank_updated_at: string | null;
         updated_at: string;
       }
     | undefined;
@@ -55,6 +60,10 @@ export function getPlayer(db: Database, playerId: string): TennisPlayer | null {
     hand: row.hand,
     heightCm: row.height_cm,
     birthDate: row.birth_date,
+    rank: row.rank,
+    rankPoints: row.rank_points,
+    rankTour: row.rank_tour,
+    rankUpdatedAt: row.rank_updated_at,
     updatedAt: row.updated_at
   };
 }
@@ -302,6 +311,53 @@ export function listPicksForDay(
     )
     .all(tournament, dateIso) as Array<Record<string, unknown>>;
   return rows.map(rowToPick);
+}
+
+export interface TennisPickAuditRow extends TennisPick {
+  player1Name: string;
+  player2Name: string;
+  tournament: string;
+  round: string;
+  surface: string;
+  scheduledAt: string;
+}
+
+/**
+ * All picks generated today across all tournaments — including SKIP.
+ * Used by the audit view to surface why every event was rejected.
+ */
+export function listAllPicksForDate(
+  db: Database,
+  dateIso: string
+): TennisPickAuditRow[] {
+  const rows = db
+    .prepare(
+      `SELECT p.*, m.tournament, m.round, m.surface, m.scheduled_at,
+              p1.name as p1_name, p2.name as p2_name
+       FROM tennis_picks p
+       JOIN tennis_matches m ON m.match_id = p.match_id
+       LEFT JOIN tennis_players p1 ON p1.player_id = m.player1_id
+       LEFT JOIN tennis_players p2 ON p2.player_id = m.player2_id
+       WHERE DATE(p.generated_at) = ?
+       ORDER BY
+         CASE p.verdict
+           WHEN 'STRONG' THEN 0
+           WHEN 'PLAY' THEN 1
+           ELSE 2
+         END,
+         p.edge_pct DESC,
+         p.signal_score DESC`
+    )
+    .all(dateIso) as Array<Record<string, unknown>>;
+  return rows.map((row) => ({
+    ...rowToPick(row),
+    player1Name: (row.p1_name as string) ?? '?',
+    player2Name: (row.p2_name as string) ?? '?',
+    tournament: row.tournament as string,
+    round: row.round as string,
+    surface: row.surface as string,
+    scheduledAt: row.scheduled_at as string
+  }));
 }
 
 export function getPick(db: Database, pickId: string): TennisPick | null {

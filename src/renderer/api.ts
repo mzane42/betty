@@ -238,6 +238,7 @@ interface PokerApi {
     minVerdict?: 'STRONG' | 'PLAY'
   ): Promise<TennisPickRow[]>;
   tennisGetPick(pickId: string): Promise<TennisPickRow | null>;
+  tennisAuditDay(dateIso?: string): Promise<TennisPickAuditRowDto[]>;
   tennisListUpcomingMatches(tournament: string): Promise<TennisMatchRow[]>;
   tennisListMatchesByDate(tournament: string, dateIso: string): Promise<TennisMatchRow[]>;
   tennisSetMatchStatus(
@@ -357,6 +358,15 @@ export interface TennisPickRow {
   verdict: 'STRONG' | 'PLAY' | 'SKIP';
   claudeReviewJson: string | null;
   generatedAt: string;
+}
+
+export interface TennisPickAuditRowDto extends TennisPickRow {
+  player1Name: string;
+  player2Name: string;
+  tournament: string;
+  round: string;
+  surface: string;
+  scheduledAt: string;
 }
 
 export interface TennisMatchRow {

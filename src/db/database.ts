@@ -34,6 +34,23 @@ function initializeSchema(db: Database): void {
  * SQLite ALTER TABLE ADD COLUMN with try/catch on error 'duplicate column'.
  */
 function applyAdHocMigrations(db: Database): void {
+  // Tennis players gained rank columns mid-development. Idempotent ALTERs.
+  const tennisPlayersExtra: Array<[string, string]> = [
+    ['rank', 'INTEGER'],
+    ['rank_points', 'INTEGER'],
+    ['rank_tour', 'TEXT'],
+    ['rank_updated_at', 'TEXT']
+  ];
+  for (const [col, type] of tennisPlayersExtra) {
+    try {
+      runSql(db, `ALTER TABLE tennis_players ADD COLUMN ${col} ${type}`);
+    } catch (err) {
+      if (!String(err).includes('duplicate column') && !String(err).includes('no such table')) {
+        throw err;
+      }
+    }
+  }
+
   const handsExtra: Array<[string, string]> = [
     ['hero_equity_preflop', 'REAL'],
     ['hero_equity_flop', 'REAL'],

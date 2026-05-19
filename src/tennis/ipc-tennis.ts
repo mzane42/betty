@@ -151,6 +151,14 @@ export function registerTennisIpc(getDb: () => Database): void {
       listPicksForDay(getDb(), tournament, dateIso, minVerdict)
   );
 
+  ipcMain.handle('tennis:picks:audit-day', async (_, dateIso?: string) => {
+    const { listAllPicksForDate } = await import(
+      '../db/repositories/tennis-repository.js'
+    );
+    const date = dateIso ?? new Date().toISOString().slice(0, 10);
+    return listAllPicksForDate(getDb(), date);
+  });
+
   // ----- Risk gate -----
   ipcMain.handle('tennis:risk:status', () => evaluateRiskGate(getDb()));
 

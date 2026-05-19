@@ -151,6 +151,10 @@ describe('pick-generator integration', () => {
       hand: null,
       heightCm: null,
       birthDate: null,
+      rank: null,
+      rankPoints: null,
+      rankTour: null,
+      rankUpdatedAt: null,
       updatedAt: new Date().toISOString()
     });
     upsertPlayer(db, {
@@ -160,6 +164,10 @@ describe('pick-generator integration', () => {
       hand: null,
       heightCm: null,
       birthDate: null,
+      rank: null,
+      rankPoints: null,
+      rankTour: null,
+      rankUpdatedAt: null,
       updatedAt: new Date().toISOString()
     });
     upsertMatch(db, {

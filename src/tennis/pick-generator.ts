@@ -125,6 +125,10 @@ export async function generatePick(
     hand: null,
     heightCm: null,
     birthDate: null,
+    rank: null,
+    rankPoints: null,
+    rankTour: null,
+    rankUpdatedAt: null,
     updatedAt: nowIso
   });
   upsertPlayer(db, {
@@ -134,6 +138,10 @@ export async function generatePick(
     hand: null,
     heightCm: null,
     birthDate: null,
+    rank: null,
+    rankPoints: null,
+    rankTour: null,
+    rankUpdatedAt: null,
     updatedAt: nowIso
   });
   const matchRow: TennisMatch = {
