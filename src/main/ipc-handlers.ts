@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron';
+import { spawn } from 'node:child_process';
 import { defaultDbPath, openDatabase, type Database } from '../db/index.js';
 import {
   getBankrollSummary,
@@ -281,6 +282,15 @@ export function registerIpcHandlers(): void {
       console.error('[review:tournament] failed:', err);
       throw err;
     }
+  });
+
+  // Coach terminal: opens Terminal.app with claude CLI primed by brief
+  ipcMain.handle('coach:open-terminal', (_, opts: { clean?: boolean } = {}) => {
+    const script = '/Users/bubblz/poker/scripts/open-coach-terminal.sh';
+    const args = opts.clean ? ['--clean'] : [];
+    const child = spawn(script, args, { detached: true, stdio: 'ignore' });
+    child.unref();
+    return { spawned: true };
   });
 
   // Cached review fetches (no Claude call, just DB read)

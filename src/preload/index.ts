@@ -1,6 +1,28 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
+type TerminalListener = (data: string) => void;
+type TerminalExitListener = (code: number) => void;
+
 const api = {
+  // Terminal (PTY)
+  createTerminal: (opts: { cwd?: string; cmd?: string } = {}) =>
+    ipcRenderer.invoke('terminal:create', opts) as Promise<{ id: string }>,
+  writeTerminal: (id: string, data: string) => ipcRenderer.invoke('terminal:write', id, data),
+  resizeTerminal: (id: string, cols: number, rows: number) =>
+    ipcRenderer.invoke('terminal:resize', id, cols, rows),
+  closeTerminal: (id: string) => ipcRenderer.invoke('terminal:close', id),
+  onTerminalData: (id: string, listener: TerminalListener) => {
+    const ch = `terminal:data:${id}`;
+    const wrapped = (_: unknown, data: string): void => listener(data);
+    ipcRenderer.on(ch, wrapped);
+    return () => ipcRenderer.removeListener(ch, wrapped);
+  },
+  onTerminalExit: (id: string, listener: TerminalExitListener) => {
+    const ch = `terminal:exit:${id}`;
+    const wrapped = (_: unknown, code: number): void => listener(code);
+    ipcRenderer.on(ch, wrapped);
+    return () => ipcRenderer.removeListener(ch, wrapped);
+  },
   getBankrollSummary: () => ipcRenderer.invoke('bankroll:summary'),
   getYearlyBankroll: () => ipcRenderer.invoke('bankroll:yearly'),
   getMonthlyBankroll: () => ipcRenderer.invoke('bankroll:monthly'),
@@ -39,6 +61,8 @@ const api = {
   backfillEquity: (limit?: number) =>
     ipcRenderer.invoke('equity:backfill', { limit }),
   getEquityStats: () => ipcRenderer.invoke('equity:stats'),
+  openCoachTerminal: (clean?: boolean) =>
+    ipcRenderer.invoke('coach:open-terminal', { clean }),
 
   getLeaks: () => ipcRenderer.invoke('analytics:leaks'),
   getGameRecommendations: () => ipcRenderer.invoke('analytics:game-recommendations'),

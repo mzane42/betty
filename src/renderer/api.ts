@@ -135,6 +135,7 @@ interface PokerApi {
   getHandReviewsForSession(sessionDate: string): Promise<Record<string, { verdict: string; overall: string }>>;
   backfillEquity(limit?: number): Promise<{ processed: number; updated: number }>;
   getEquityStats(): Promise<{ total: number; computed: number }>;
+  openCoachTerminal(clean?: boolean): Promise<{ spawned: boolean }>;
   getLeaks(): Promise<Leak[]>;
   getGameRecommendations(): Promise<GameRecommendation[]>;
   getProgress(granularity?: 'quarter' | 'month'): Promise<ProgressPoint[]>;

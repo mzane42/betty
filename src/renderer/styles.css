@@ -1463,3 +1463,94 @@ body,
 .eq-mid    { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; }
 .eq-weak   { background: rgba(251, 146, 60, 0.18); color: #fdba74; }
 .eq-bad    { background: rgba(248, 113, 113, 0.18); color: #fca5a5; }
+
+/* Coach terminal buttons in nav */
+.nav-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  margin: 0 6px;
+  display: inline-block;
+}
+
+.coach-btn {
+  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%) !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+.coach-btn:hover {
+  filter: brightness(1.15);
+}
+
+.coach-btn.coach-clean {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--fg-muted) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.coach-btn.coach-clean:hover {
+  color: var(--fg) !important;
+}
+
+.auto-coach-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  user-select: none;
+  margin-left: 8px;
+}
+
+.auto-coach-toggle input {
+  cursor: pointer;
+}
+
+/* Coach page (integrated terminal) */
+.coach-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: calc(100vh - 140px);
+}
+
+.coach-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.coach-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.coach-terminal-container {
+  flex: 1;
+  min-height: 400px;
+  background: #0f1115;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.coach-terminal-container .xterm {
+  height: 100%;
+  width: 100%;
+}
+
+.coach-terminal-container .xterm-viewport {
+  background: transparent !important;
+}
+
+.coach-empty {
+  margin: 30px 0;
+  text-align: center;
+  font-size: 14px;
+}

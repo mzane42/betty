@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { registerIpcHandlers } from './ipc-handlers.js';
+import { registerTerminalIpc, killAllTerminals } from './terminal-manager.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
@@ -47,6 +48,7 @@ function createMainWindow(): void {
 
 app.whenReady().then(() => {
   registerIpcHandlers();
+  registerTerminalIpc();
   createMainWindow();
 
   app.on('activate', () => {
@@ -57,7 +59,10 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+  killAllTerminals();
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
+
+app.on('before-quit', killAllTerminals);
