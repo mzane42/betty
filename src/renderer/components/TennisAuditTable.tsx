@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { pokerApi, type TennisPickAuditRowDto } from '../api.js';
+import { InfoTooltip } from './InfoTooltip.js';
 
 export function TennisAuditTable(): JSX.Element {
   const [rows, setRows] = useState<TennisPickAuditRowDto[]>([]);
@@ -79,38 +80,49 @@ export function TennisAuditTable(): JSX.Element {
           <table className="audit-table">
             <thead>
               <tr>
-                <th title="STRONG (≥75 score + ≥3% edge) = pari fort. PLAY (≥60 + ≥3%) = pari modéré. SKIP = à éviter (edge négatif ou score trop bas).">
-                  Verdict <span className="th-help">?</span>
+                <th>
+                  Verdict
+                  <InfoTooltip text="STRONG (score ≥75 + edge ≥3%) = pari fort. PLAY (score ≥60 + edge ≥3%) = pari modéré. SKIP = edge négatif ou score insuffisant." />
                 </th>
-                <th title="Compétition d'où vient le match (Roland-Garros, Hamburg Open, Strasbourg, etc.).">
-                  Tournoi <span className="th-help">?</span>
+                <th>
+                  Tournoi
+                  <InfoTooltip text="Compétition où se joue le match (Roland Garros, Hamburg Open, Strasbourg…)." />
                 </th>
-                <th title="Les deux joueurs + surface (terre/dur/herbe) + round (UNK = round inconnu car The Odds API ne le fournit pas).">
-                  Match <span className="th-help">?</span>
+                <th>
+                  Match
+                  <InfoTooltip text="Joueurs + surface (terre/dur/herbe) + round. UNK = round non fourni par The Odds API." />
                 </th>
-                <th title="Joueur sur qui le système suggère de parier (slug = nom_initialeprenom).">
-                  Sélection <span className="th-help">?</span>
+                <th>
+                  Sélection
+                  <InfoTooltip text="Joueur sur qui le système suggère de parier. Format slug = nom_initialeprenom." />
                 </th>
-                <th title="Cote décimale Unibet pour la sélection. Implicite = 1/cote (probabilité que le book attribue).">
-                  Cote <span className="th-help">?</span>
+                <th>
+                  Cote
+                  <InfoTooltip text="Cote décimale Unibet pour la sélection. Probabilité implicite = 1/cote." />
                 </th>
-                <th title="Bookmaker où placer le pari (toujours Unibet aujourd'hui — seul book FR redistribué par The Odds API).">
-                  Book <span className="th-help">?</span>
+                <th>
+                  Book
+                  <InfoTooltip text="Bookmaker où placer le pari. Unibet seulement aujourd'hui (seul FR redistribué par The Odds API)." />
                 </th>
-                <th title="Probabilité estimée par le modèle que la sélection gagne. Source : clay-Elo > rang ATP/WTA > Pinnacle no-vig (fallback). 50% = pas de data ni Pinnacle = ignore.">
-                  Modèle <span className="th-help">?</span>
+                <th>
+                  Modèle
+                  <InfoTooltip text="Probabilité estimée que la sélection gagne. Source : clay-Elo > rang ATP/WTA > Pinnacle no-vig (fallback)." />
                 </th>
-                <th title="Edge = (prob_modèle − prob_implicite_cote) / prob_implicite_cote. Positif vert = le modèle pense que le pari gagne plus souvent que la cote suggère (+EV). Négatif rouge = book trop confiant, à éviter. Seuil PLAY/STRONG = +3%.">
-                  Edge <span className="th-help">?</span>
+                <th>
+                  Edge
+                  <InfoTooltip text="(prob modèle − prob implicite cote) / prob implicite cote. Positif = +EV. Négatif = book trop confiant. Seuil PLAY/STRONG : +3%." />
                 </th>
-                <th title="Score signaux 0-100 = combinaison pondérée modèle (40%) + Pinnacle no-vig (25%) + Betfair volume (15%) + tipsters Reddit (10%) + line movement (10%). Seuils : PLAY≥60, STRONG≥75.">
-                  Score <span className="th-help">?</span>
+                <th>
+                  Score
+                  <InfoTooltip text="Score signaux 0-100 = modèle (40%) + Pinnacle no-vig (25%) + Betfair (15%) + tipsters Reddit (10%) + line movement (10%). PLAY ≥60, STRONG ≥75." />
                 </th>
-                <th title="Mise optimale en % de la bankroll selon Kelly fractionné 1/4, borné entre 0.5% et 2%. Multiplié par le risk-gate (×0.5 en mode take-profit, ×0 en stop-loss).">
-                  Kelly <span className="th-help">?</span>
+                <th>
+                  Kelly
+                  <InfoTooltip text="Mise optimale en % de la bankroll. Kelly fractionné ×1/4, borné [0.5%, 2%]. Multiplié par risk-gate (×0.5 en take-profit, ×0 en stop-loss)." />
                 </th>
-                <th title="Date + heure de début prévue du match (Europe/Paris).">
-                  Heure <span className="th-help">?</span>
+                <th>
+                  Heure
+                  <InfoTooltip text="Date + heure de début prévue du match (Europe/Paris)." />
                 </th>
               </tr>
             </thead>
