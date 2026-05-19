@@ -135,7 +135,8 @@ function registerHandlers(getDb: () => Database): void {
         placedAt: new Date().toISOString(),
         result: null,
         pnlEur: null,
-        closingOdds: null
+        closingOdds: null,
+        postMatchReviewJson: null
       };
       insertBet(getDb(), bet);
       void bot.sendMessage(

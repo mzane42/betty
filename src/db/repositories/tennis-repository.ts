@@ -418,8 +418,8 @@ export function insertBet(db: Database, b: TennisBet): void {
   db.prepare(
     `INSERT INTO tennis_bets
        (bet_id, pick_id, match_id, selection, book, decimal_odds, stake_eur,
-        placed_at, result, pnl_eur, closing_odds)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        placed_at, result, pnl_eur, closing_odds, post_match_review_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     b.betId,
     b.pickId,
@@ -431,8 +431,20 @@ export function insertBet(db: Database, b: TennisBet): void {
     b.placedAt,
     b.result,
     b.pnlEur,
-    b.closingOdds
+    b.closingOdds,
+    b.postMatchReviewJson
   );
+}
+
+export function setPostMatchReview(db: Database, betId: string, reviewJson: string): void {
+  db.prepare(`UPDATE tennis_bets SET post_match_review_json=? WHERE bet_id=?`).run(reviewJson, betId);
+}
+
+export function getBet(db: Database, betId: string): TennisBet | null {
+  const row = db.prepare(`SELECT * FROM tennis_bets WHERE bet_id=?`).get(betId) as
+    | Record<string, unknown>
+    | undefined;
+  return row ? rowToBet(row) : null;
 }
 
 export function settleBet(
@@ -474,7 +486,8 @@ function rowToBet(row: Record<string, unknown>): TennisBet {
     placedAt: row.placed_at as string,
     result: (row.result as BetResult) ?? null,
     pnlEur: (row.pnl_eur as number) ?? null,
-    closingOdds: (row.closing_odds as number) ?? null
+    closingOdds: (row.closing_odds as number) ?? null,
+    postMatchReviewJson: (row.post_match_review_json as string) ?? null
   };
 }
 

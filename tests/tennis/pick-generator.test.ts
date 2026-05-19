@@ -193,7 +193,8 @@ describe('pick-generator integration', () => {
       placedAt: '2026-05-19T11:00:00Z',
       result: null,
       pnlEur: null,
-      closingOdds: null
+      closingOdds: null,
+      postMatchReviewJson: null
     });
 
     let summary = getTennisBankrollSummary(db, 'roland_garros_2026');

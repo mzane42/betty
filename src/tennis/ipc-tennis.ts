@@ -9,6 +9,7 @@ import { ipcMain } from 'electron';
 import type { Database } from '../db/database.js';
 import { generatePick, previewVerdict, type GeneratePickInput } from './pick-generator.js';
 import {
+  getBet,
   getPick,
   getTennisBankrollChart,
   getTennisBankrollSummary,
@@ -17,6 +18,7 @@ import {
   listMatchesByDate,
   listPicksForDay,
   listUpcomingMatches,
+  setPostMatchReview,
   settleBet,
   setMatchStatus
 } from '../db/repositories/tennis-repository.js';
@@ -115,7 +117,8 @@ export function registerTennisIpc(getDb: () => Database): void {
         placedAt: new Date().toISOString(),
         result: null,
         pnlEur: null,
-        closingOdds: null
+        closingOdds: null,
+        postMatchReviewJson: null
       };
       insertBet(getDb(), bet);
       return bet;
@@ -124,11 +127,80 @@ export function registerTennisIpc(getDb: () => Database): void {
 
   ipcMain.handle(
     'tennis:bets:settle',
-    (_, betId: string, result: BetResult, pnlEur: number, closingOdds: number | null) => {
-      settleBet(getDb(), betId, result, pnlEur, closingOdds);
+    (event, betId: string, result: BetResult, pnlEur: number, closingOdds: number | null) => {
+      const db = getDb();
+      settleBet(db, betId, result, pnlEur, closingOdds);
+
+      // Fire post-match Claude review asynchronously — IPC returns immediately,
+      // review lands in DB when Claude responds. Renderer can poll via
+      // `tennis:bets:get-review` or refresh listAllBets.
+      void (async () => {
+        try {
+          const bet = getBet(db, betId);
+          if (!bet) return;
+          const match = db
+            .prepare(
+              `SELECT m.match_id, m.tournament, m.round, m.surface, m.scheduled_at,
+                      m.player1_id, m.player2_id, m.winner_id, m.score
+               FROM tennis_matches m WHERE m.match_id = ?`
+            )
+            .get(bet.matchId) as
+            | {
+                match_id: string;
+                tournament: string;
+                round: string;
+                surface: string;
+                scheduled_at: string;
+                player1_id: string;
+                player2_id: string;
+                winner_id: string | null;
+                score: string | null;
+              }
+            | undefined;
+          if (!match) return;
+          const pick = bet.pickId ? getPick(db, bet.pickId) : null;
+          const ctx: TennisPostMatchContext = {
+            pick: {
+              selection: pick?.selection ?? bet.selection,
+              decimalOdds: pick?.bookDecimalOdds ?? bet.decimalOdds,
+              bestBook: pick?.bestBook ?? bet.book,
+              edgePct: pick?.edgePct ?? 0,
+              kellyStakePct: pick?.kellyStakePct ?? 0,
+              verdict: pick?.verdict ?? 'PLAY',
+              signalScore: pick?.signalScore ?? 0
+            },
+            bet: {
+              stakeEur: bet.stakeEur,
+              decimalOdds: bet.decimalOdds,
+              result: result as 'won' | 'lost' | 'void',
+              pnlEur,
+              closingOdds
+            },
+            matchResult: {
+              winnerId: match.winner_id,
+              score: match.score
+            }
+          };
+          const review = await reviewTennisPostMatch(ctx);
+          setPostMatchReview(db, betId, JSON.stringify(review));
+          event.sender.send('tennis:bets:review-ready', { betId });
+        } catch (err) {
+          console.error('[tennis] post-match review failed', err);
+          event.sender.send('tennis:bets:review-failed', {
+            betId,
+            message: (err as Error).message
+          });
+        }
+      })();
+
       return { ok: true };
     }
   );
+
+  ipcMain.handle('tennis:bets:get-review', (_, betId: string) => {
+    const bet = getBet(getDb(), betId);
+    return bet?.postMatchReviewJson ?? null;
+  });
 
   ipcMain.handle('tennis:bets:list', () => listAllBets(getDb()));
 

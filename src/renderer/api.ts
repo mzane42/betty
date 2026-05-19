@@ -280,6 +280,9 @@ interface PokerApi {
     closingOdds: number | null
   ): Promise<{ ok: true }>;
   tennisListBets(): Promise<TennisBetRow[]>;
+  tennisGetBetReview(betId: string): Promise<string | null>;
+  onTennisReviewReady(listener: (betId: string) => void): () => void;
+  onTennisReviewFailed(listener: (betId: string, message: string) => void): () => void;
   tennisBankrollSummary(tournament?: string): Promise<TennisBankrollSummaryRow>;
   tennisBankrollChart(): Promise<TennisBankrollPointRow[]>;
   tennisPostMatchReview(ctx: unknown): Promise<TennisPostMatchReviewRow>;
@@ -395,6 +398,7 @@ export interface TennisBetRow {
   result: 'won' | 'lost' | 'void' | null;
   pnlEur: number | null;
   closingOdds: number | null;
+  postMatchReviewJson: string | null;
 }
 
 export interface TennisGeneratePickInput {

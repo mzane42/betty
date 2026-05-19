@@ -92,6 +92,7 @@ export interface TennisBet {
   result: BetResult | null;
   pnlEur: number | null;
   closingOdds: number | null;
+  postMatchReviewJson: string | null;
 }
 
 /** Signals fed into the cross-info scorer. */

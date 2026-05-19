@@ -125,6 +125,18 @@ const api = {
     closingOdds: number | null
   ) => ipcRenderer.invoke('tennis:bets:settle', betId, result, pnlEur, closingOdds),
   tennisListBets: () => ipcRenderer.invoke('tennis:bets:list'),
+  tennisGetBetReview: (betId: string) => ipcRenderer.invoke('tennis:bets:get-review', betId),
+  onTennisReviewReady: (listener: (betId: string) => void) => {
+    const wrapped = (_: unknown, payload: { betId: string }): void => listener(payload.betId);
+    ipcRenderer.on('tennis:bets:review-ready', wrapped);
+    return () => ipcRenderer.removeListener('tennis:bets:review-ready', wrapped);
+  },
+  onTennisReviewFailed: (listener: (betId: string, message: string) => void) => {
+    const wrapped = (_: unknown, payload: { betId: string; message: string }): void =>
+      listener(payload.betId, payload.message);
+    ipcRenderer.on('tennis:bets:review-failed', wrapped);
+    return () => ipcRenderer.removeListener('tennis:bets:review-failed', wrapped);
+  },
   tennisBankrollSummary: (tournament?: string) =>
     ipcRenderer.invoke('tennis:bankroll:summary', tournament),
   tennisBankrollChart: () => ipcRenderer.invoke('tennis:bankroll:chart'),

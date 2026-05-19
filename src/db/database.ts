@@ -51,6 +51,15 @@ function applyAdHocMigrations(db: Database): void {
     }
   }
 
+  // Tennis bets gained post-match Claude review column post-MVP.
+  try {
+    runSql(db, `ALTER TABLE tennis_bets ADD COLUMN post_match_review_json TEXT`);
+  } catch (err) {
+    if (!String(err).includes('duplicate column') && !String(err).includes('no such table')) {
+      throw err;
+    }
+  }
+
   const handsExtra: Array<[string, string]> = [
     ['hero_equity_preflop', 'REAL'],
     ['hero_equity_flop', 'REAL'],
