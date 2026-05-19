@@ -6,9 +6,9 @@
   "type": "module",
   "main": "out/main/index.js",
   "scripts": {
-    "predev": "electron-rebuild -f -w better-sqlite3 -w node-pty || true; chmod +x node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper 2>/dev/null || true",
+    "predev": "electron-rebuild -f -w better-sqlite3 || true; rm -rf node_modules/node-pty/build 2>/dev/null; chmod +x node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper 2>/dev/null || true",
     "dev": "electron-vite dev",
-    "prebuild": "electron-rebuild -f -w better-sqlite3 -w node-pty || true; chmod +x node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper 2>/dev/null || true",
+    "prebuild": "electron-rebuild -f -w better-sqlite3 || true; rm -rf node_modules/node-pty/build 2>/dev/null; chmod +x node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper 2>/dev/null || true",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "start": "electron-vite preview",
@@ -28,9 +28,9 @@
     "coach": "./scripts/open-coach-terminal.sh",
     "package": "electron-vite build && electron-builder",
     "package:mac": "electron-vite build && electron-builder --mac",
-    "rebuild": "electron-rebuild -f -w better-sqlite3 -w node-pty",
+    "rebuild": "electron-rebuild -f -w better-sqlite3 && electron-rebuild -f -w node-pty",
     "fix-pty-perms": "chmod +x node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper 2>/dev/null || true",
-    "postinstall": "electron-rebuild -f -w better-sqlite3 -w node-pty || true; chmod +x node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper 2>/dev/null || true"
+    "postinstall": "electron-rebuild -f -w better-sqlite3 || true; rm -rf node_modules/node-pty/build 2>/dev/null; chmod +x node_modules/node-pty/prebuilds/darwin-arm64/spawn-helper 2>/dev/null || true"
   },
   "dependencies": {
     "@xterm/addon-fit": "^0.11.0",
