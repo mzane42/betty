@@ -87,6 +87,100 @@ rm -rf node_modules
 npm install
 ```
 
+## Tennis (Roland Garros 2026 sub-project)
+
+The Tennis tab adds post-session tennis analytics: +EV pick suggestions, manual
+bet logging, CLV + ROI tracking, and an optional Telegram bot. Same compliance
+posture as poker — picks are suggestions you place manually, no automation
+crosses the wallet boundary, no auto-bet on any French operator.
+
+### Quick start
+
+```bash
+# 1. Open the Tennis tab (🎾 Tennis in the top nav)
+# 2. Go to "Nouveau pick", enter players + ranks + Winamax/Betclic/Unibet odds
+#    Optional: Pinnacle odds for BOTH players → no-vig prob auto-computed
+# 3. Verdict (STRONG/PLAY/SKIP) + Kelly stake previewed live
+# 4. Submit → Claude FR review attached → pick saved
+# 5. Place the bet on the book of choice, click "Placé X€"
+# 6. After the match: settle (won/lost/void) in Historique → bankroll updates
+```
+
+### Optional features
+
+```bash
+# Build clay-Elo cache from JeffSackmann/tennis_atp + tennis_wta (~30s, one-time)
+npx tsx src/cli/tennis-load-elo.ts
+# Re-run with --force after grand slams; --atp-only / --wta-only available
+
+# Enable Telegram bot (skip if you don't want push notifications)
+bun add node-telegram-bot-api    # or: npm install node-telegram-bot-api
+export TELEGRAM_BOT_TOKEN="123:abc"     # token from @BotFather
+export TELEGRAM_ALLOWED_USER_IDS="123456789"   # your Telegram user_id (csv supported)
+npm run dev                       # bot auto-starts; silent no-op otherwise
+
+# Enable the signal daemon (cron jobs T-24h / T-6h / T-1h + 30min line-poll)
+bun add node-cron                 # or: npm install node-cron
+npm run dev                       # daemon starts automatically once installed
+```
+
+Telegram commands once enabled:
+
+| Command | What it does |
+|---|---|
+| `/picks` | Today's STRONG + PLAY picks with rationale |
+| `/placed <pick_id> <stake_eur>` | Log a placement |
+| `/bankroll` | Net all-time, ROI, win rate, CLV moyen |
+| `/stop` | Pause picks for 24h |
+| `/resume` | Cancel pause |
+| `/status` | Current risk-gate state |
+
+### Risk gate (stop-loss / take-profit)
+
+`~/.poker-coach/config/tennis-risk.json` (auto-created on first read):
+
+```json
+{
+  "bankrollEur": 200,
+  "dailyStopLossPct": -0.03,
+  "tournamentTakeProfitPct": 0.15,
+  "drawdownCircuitBreakerPct": -0.1,
+  "circuitBreakerPauseHours": 48,
+  "activeTournament": "roland_garros_2026"
+}
+```
+
+- Daily P&L worse than `dailyStopLossPct` → picks paused until next day
+- Tournament cumulative > `tournamentTakeProfitPct` → half-stake mode (Kelly fraction halved)
+- Peak-to-trough drawdown < `drawdownCircuitBreakerPct` → forced 48h pause
+
+The risk banner at the top of the Tennis tab shows the current state.
+
+### Architecture
+
+```
+Electron main                  Renderer (React)
+─────────────                  ────────────────
+ipc-handlers ──┐               pages/Tennis.tsx
+               │                 ├─ TennisRiskBanner
+               ├─ tennis-       ├─ TennisPickCard
+               │  repository      ├─ TennisNewPickForm (live preview)
+               │                 ├─ TennisSettleControls
+               ├─ pick-          └─ TennisBankrollHero
+               │  generator
+               │   ├─ kelly       Claude CLI (reused)
+               │   ├─ cross-info-scorer
+               │   ├─ model/rating + sackmann-loader
+               │   └─ claude-tennis-reviewer
+               │
+               ├─ risk-gate (~/.poker-coach/config/tennis-risk.json)
+               ├─ telegram-bot (dynamic import, optional)
+               ├─ signal-daemon (cron, dynamic node-cron, optional)
+               └─ ingest/{pinnacle,reddit,betfair,line-movement}
+
+SQLite (poker.db, shared) — tennis_* tables added additively (no ALTER on poker tables)
+```
+
 ## CGU Compliance
 
 This is a **post-session** tool only. Never run during play.
@@ -95,3 +189,7 @@ This is a **post-session** tool only. Never run during play.
 - No screen capture during play
 - No file watcher during live sessions
 - All AI analysis on completed hands only
+- **Tennis**: no auto-bet on any French operator (Winamax/Betclic/Unibet/PMU/Parions).
+  Picks are suggestions the user places manually. No automation crosses the wallet
+  boundary. Public odds pages (oddsportal.com) and public APIs (Reddit JSON,
+  Betfair Exchange public REST) only — never authenticated book accounts.

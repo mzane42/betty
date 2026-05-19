@@ -21,6 +21,7 @@ import { TennisPickCard } from '../components/TennisPickCard.js';
 import { TennisNewPickForm } from '../components/TennisNewPickForm.js';
 import { TennisBankrollHero } from '../components/TennisBankrollHero.js';
 import { TennisRiskBanner } from '../components/TennisRiskBanner.js';
+import { SettleControls } from '../components/TennisSettleControls.js';
 import { toast } from '../lib/toast.js';
 
 const ROLAND_GARROS = 'roland_garros_2026';
@@ -187,6 +188,7 @@ export function Tennis(): JSX.Element {
                   <th>Résultat</th>
                   <th>P&L (€)</th>
                   <th>CLV</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -203,6 +205,13 @@ export function Tennis(): JSX.Element {
                       {b.closingOdds != null && b.closingOdds > 1
                         ? `${(((b.decimalOdds - b.closingOdds) / b.closingOdds) * 100).toFixed(1)}%`
                         : '—'}
+                    </td>
+                    <td>
+                      {b.result == null ? (
+                        <SettleControls bet={b} onSettled={refreshAll} />
+                      ) : (
+                        <span className="muted">réglé</span>
+                      )}
                     </td>
                   </tr>
                 ))}
