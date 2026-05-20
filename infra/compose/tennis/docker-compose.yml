@@ -17,6 +17,7 @@ services:
       - POKER_CLAUDE_BIN=/usr/local/bin/claude
     volumes:
       - /opt/stack/data/tennis:/app/data
+      - /home/anis/.claude:/root/.claude:ro
     networks:
       - traefik_proxy
     healthcheck:
