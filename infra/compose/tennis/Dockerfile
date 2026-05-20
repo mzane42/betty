@@ -28,4 +28,4 @@ ENV NODE_ENV=production \
 
 VOLUME ["/app/data"]
 
-CMD ["bun", "run", "src/cli/daemon.ts"]
+CMD ["npx", "tsx", "src/cli/daemon.ts"]
