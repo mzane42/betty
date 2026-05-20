@@ -14,6 +14,7 @@ services:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - TELEGRAM_ALLOWED_USER_IDS=${TELEGRAM_ALLOWED_USER_IDS}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - POKER_CLAUDE_BIN=/usr/local/bin/claude
     volumes:
       - /opt/stack/data/tennis:/app/data
     networks:
